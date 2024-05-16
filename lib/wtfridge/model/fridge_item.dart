@@ -20,8 +20,10 @@ class FridgeItem {
     String timeInFridge = "";
     if (difference.inDays < 1) {
       timeInFridge = "< 1 day";
+    } else if (difference.inDays == 1) {
+      timeInFridge = "1 day";
     } else {
-      timeInFridge = difference.inDays as String;
+      timeInFridge = "${difference.inDays} days";
     }
     return FridgeItem(
       name: json['item_name'] as String,
