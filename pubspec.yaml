@@ -39,6 +39,7 @@ dependencies:
   http: ^1.2.1
   flutter_speed_dial: ^7.0.0
   flutter_riverpod: ^2.5.1
+  dotted_border: ^2.1.0
 
 dev_dependencies:
   flutter_test:

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../components/fridge_speed_dial.dart';
 import '../components/fridge_item_card.dart';
 import '../provider/fridge_provider.dart';
+import '../provider/grocery_provider.dart';
 import '../model/fridge_item.dart';
 
 class FridgeView extends ConsumerStatefulWidget {
@@ -18,7 +19,6 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
 
   @override void initState() {
     super.initState();
-
   }
 
   @override
@@ -27,12 +27,18 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
     return Scaffold(
       backgroundColor: const Color(0xFF141414),
       body: Stack(
-          children: <Widget>[ListView(), ListView(
+          children: <Widget>[ListView(
             children: List.generate(fridgeItems.length, (i) {
               FridgeItem currentItem = fridgeItems.elementAt(i);
-              return FridgeItemCard(item: currentItem, delete: () {
-                ref.read(fridgeNotifierProvider.notifier).removeByID(currentItem.id!);
-              });
+              return FridgeItemCard(
+                item: currentItem,
+                delete: () {
+                  ref.read(fridgeNotifierProvider.notifier).removeByID(currentItem.id!);
+                },
+                toGroceries: () {
+                  ref.read(groceryNotifierProvider.notifier).addItem(currentItem.name);
+                },
+              );
             }).toList(),
           )],
         ),

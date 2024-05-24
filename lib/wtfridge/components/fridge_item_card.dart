@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../model/fridge_item.dart';
@@ -5,7 +7,8 @@ import '../model/fridge_item.dart';
 class FridgeItemCard extends StatefulWidget {
   final FridgeItem item;
   final Function() delete;
-  const FridgeItemCard({required this.item, required this.delete});
+  final Function() toGroceries;
+  const FridgeItemCard({required this.item, required this.delete, required this.toGroceries});
 
 
   @override
@@ -15,45 +18,81 @@ class FridgeItemCard extends StatefulWidget {
 class _FridgeItemCardState extends State<FridgeItemCard> {
   Color backgroundColor = const Color(0xFF292929);
   Color borderColor = Colors.green;
+  bool isBeingDeleted = false;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(0, 16.0, 0, 0.0),
-      child: Dismissible(
-        key: ValueKey(widget.item.id),
-        direction: DismissDirection.horizontal,
-        background: displayDeleteDismissContainer(),
-        secondaryBackground: displayToGroceriesDismissContainer(),
-        onDismissed: (direction) {
-          borderColor = Colors.green;
+    return Visibility(
+      visible: !isBeingDeleted,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(0, 16.0, 0, 0.0),
+        child: Dismissible(
+          key: ValueKey(widget.item.id),
+          direction: DismissDirection.horizontal,
+          background: displayDeleteDismissContainer(),
+          secondaryBackground: displayToGroceriesDismissContainer(),
+          onDismissed: (direction) {
+            borderColor = Colors.green;
+            if (direction == DismissDirection.startToEnd) {
+              setState(() {
+                isBeingDeleted = true;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "Removed ${widget.item.name}",
+                    style: const TextStyle(
+                        fontSize: 16.0
+                    ),
+                  ),
+                  action: SnackBarAction(
+                    label: "Undo",
+                    textColor: Colors.green,
+                    onPressed: () {
+                      setState(() {
+                        isBeingDeleted = false;
+                      });
+                    },
+                  ),
+                  duration: const Duration(seconds: 2),
+                ));
+                Timer(const Duration(seconds: 2), () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  if (isBeingDeleted) {
+                    setState(() {
+                      widget.delete();  // Remove item
+                    });
+                  }
+              });
+            }
+          },
+          confirmDismiss: (direction) async {
+            if (direction == DismissDirection.endToStart) {
+              widget.toGroceries();
+              return false;
+            } else {
+              return true;
+            }
+          },
 
-          if (direction == DismissDirection.endToStart) {
-            // To grocery list
-          } else if (direction == DismissDirection.startToEnd) {
-            setState(() {
-              widget.delete();  // Remove item
-            });
-          }
-        },
-
-        onUpdate: (details) {
-          if (details.direction == DismissDirection.endToStart && details.progress > 0.01) {
-            setState(() {
-              borderColor = Colors.yellow;
-            });
-          } else if (details.direction == DismissDirection.startToEnd && details.progress > 0.01) {
-            setState(() {
-              borderColor = Colors.redAccent;
-            });
-          } else {
-            setState(() {
-              borderColor = Colors.green;
-            });
-          }
-        },
-        child: displayItemDetails()
-        ),
+          onUpdate: (details) {
+            if (details.direction == DismissDirection.endToStart && details.progress > 0.01) {
+              setState(() {
+                borderColor = Colors.yellow;
+              });
+            } else if (details.direction == DismissDirection.startToEnd && details.progress > 0.01) {
+              setState(() {
+                borderColor = Colors.redAccent;
+              });
+            } else {
+              setState(() {
+                borderColor = Colors.green;
+              });
+            }
+          },
+          child: displayItemDetails()
+          ),
+      ),
     );
   }
 
