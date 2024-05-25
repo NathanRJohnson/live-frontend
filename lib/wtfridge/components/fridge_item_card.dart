@@ -60,7 +60,8 @@ class _FridgeItemCardState extends State<FridgeItemCard> {
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   if (isBeingDeleted) {
                     setState(() {
-                      widget.delete();  // Remove item
+                      widget.delete();
+                      isBeingDeleted = false;
                     });
                   }
               });

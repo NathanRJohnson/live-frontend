@@ -88,6 +88,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
             if (isBeingDeleted) {
               ref.read(groceryNotifierProvider.notifier)
                   .removeByID(widget.item.id!);
+              isBeingDeleted = false;
             }
           });
         }
