@@ -31,8 +31,13 @@ class FridgeHandler {
       if (response.body != "null" && response.body.isNotEmpty) {
         List<dynamic> jsonItems = json.decode(response.body);
         for (Map<String, dynamic> itemMap in jsonItems) {
-          FridgeItem newItem = FridgeItem.fromJSON(itemMap);
-          dbItems.add(newItem);
+          try {
+            FridgeItem newItem = FridgeItem.fromJSON(itemMap);
+            dbItems.add(newItem);
+          } on Exception catch (e) {
+            print(e.toString());
+            continue;
+          }
         }
       }
     }
