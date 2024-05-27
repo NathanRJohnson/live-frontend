@@ -32,8 +32,13 @@ class GroceryHandler {
       if (response.body != "null" && response.body.isNotEmpty) {
         List<dynamic> jsonItems = json.decode(response.body);
         for (Map<String, dynamic> itemMap in jsonItems) {
-          GroceryItem newItem = GroceryItem.fromJSON(itemMap);
-          dbItems.add(newItem);
+          try {
+            GroceryItem newItem = GroceryItem.fromJSON(itemMap);
+            dbItems.add(newItem);
+          } on Exception catch (e) {
+            print(e.toString());
+            continue;
+          }
         }
       }
     }

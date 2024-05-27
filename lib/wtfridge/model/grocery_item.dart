@@ -11,7 +11,11 @@ class GroceryItem {
     id ??= _generateID();
   }
 
-  factory GroceryItem.fromJSON(dynamic json) {
+  factory GroceryItem.fromJSON(Map<String, dynamic> json) {
+    if (!json.containsKey('item_id') || !json.containsKey('item_name') || !json.containsKey('is_active')) {
+      throw const FormatException("Missing required fields for GroceryItem in JSON");
+    }
+
     return GroceryItem(
       id: json['item_id'] as int,
       name: json['item_name'] as String,
