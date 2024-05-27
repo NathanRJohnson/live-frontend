@@ -10,7 +10,6 @@ class FridgeItemCard extends StatefulWidget {
   final Function() toGroceries;
   const FridgeItemCard({required this.item, required this.delete, required this.toGroceries});
 
-
   @override
   _FridgeItemCardState createState() => _FridgeItemCardState();
 }

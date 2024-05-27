@@ -4,7 +4,7 @@ import 'dart:math';
 class GroceryItem {
   String name;
   bool isActive;
-bool isBeingDeleted = false;
+  bool isBeingDeleted = false;
   int? id;
 
   GroceryItem({ required this.name, this.isActive = false, this.id }) {
