@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project_l/wtfridge/provider/grocery_provider.dart';
 
-import '../handler/fridge_handler.dart';
 import '../provider/fridge_provider.dart';
 
 
 class ManualAddForm extends ConsumerStatefulWidget {
-  const ManualAddForm({super.key});
+  final String action_type;
+  const ManualAddForm({super.key, required this.action_type});
 
   @override
   ConsumerState<ManualAddForm> createState() => _ManualAddFormState();
@@ -14,17 +15,28 @@ class ManualAddForm extends ConsumerStatefulWidget {
 
 class _ManualAddFormState extends ConsumerState<ManualAddForm> {
 final nameController = TextEditingController();
-final handler = FridgeHandler();
 final formKey = GlobalKey<FormState>();
 
 Color unfocusedLabelColor = Colors.white60;
 Color focusLabelColor = Colors.green;
 
-@override
-void dispose() {
-  nameController.dispose();
-  super.dispose();
-}
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+/* TODO: i hate this code, but it's the only think I can think of to get
+         around the grocery add button being destroyed every time a new item is added.
+         At worst it could be an enum. At best I make an addable interface.
+ */
+  void action(String s) {
+    if (widget.action_type == "grocery"){
+      ref.read(groceryNotifierProvider.notifier).addItem(nameController.text.trim());
+    } else {
+      ref.read(fridgeNotifierProvider.notifier).addItem(nameController.text.trim());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +63,7 @@ void dispose() {
 
             // Input text
             style: const TextStyle(
-              color: Colors.white60,
+              color: Colors.white,
               decorationColor: Colors.white60
             ),
 
@@ -91,14 +103,14 @@ void dispose() {
                     child: const Text(
                       "Cancel",
                       style: TextStyle(
-                        color: Colors.blueGrey
+                        color: Colors.white60
                       ))
                 ),
                 TextButton(
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
-                        ref.read(fridgeNotifierProvider.notifier)
-                          .addItemByName(nameController.text);
+                        action(nameController.text.trim());
+
                         Navigator.pop(context);
                       }
                     },
@@ -107,6 +119,19 @@ void dispose() {
                       style: TextStyle(
                       color: Colors.green
                     ))
+                ),
+                TextButton(
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        action(nameController.text.trim());
+                        nameController.clear();
+                      }
+                    },
+                    child: const Text(
+                        "Add & Continue",
+                        style: TextStyle(
+                            color: Colors.green
+                        ))
                 ),
               ],
             ),

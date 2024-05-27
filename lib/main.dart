@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:project_l/wtfridge/provider/fridge_provider.dart';
+import 'package:project_l/wtfridge/provider/grocery_provider.dart';
 
 import 'wtfridge/wtfridge.dart';
 
@@ -51,7 +52,7 @@ class FirstRoute extends ConsumerWidget {
           onPressed: () async {
             // Navigate to second route when tapped.
             await ref.read(fridgeNotifierProvider.notifier).syncToDB();
-
+            await ref.read(groceryNotifierProvider.notifier).syncToDB();
             if (context.mounted) {
               context.push('/fridge');
             }

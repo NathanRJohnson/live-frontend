@@ -2,9 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../handler/fridge_handler.dart';
 import '../model/fridge_item.dart';
+import '../model/grocery_item.dart';
+import '../provider/grocery_provider.dart';
 
 class FridgeNotifier extends Notifier<List<FridgeItem>> {
   FridgeHandler fridgeHandler = FridgeHandler();
+
   // initial value
   @override
   List<FridgeItem> build() {
@@ -17,10 +20,21 @@ class FridgeNotifier extends Notifier<List<FridgeItem>> {
 
   // methods to update state
   // river pod state needs to be reassigned, not just updated
-  Future<void> addItemByName(String itemName) async {
-    FridgeItem item = FridgeItem(name: itemName, timeInFridge: "< 1 day", dateAdded: DateTime.now());
+  void addItemLocally(FridgeItem item) {
     state = <FridgeItem>[...state, item];
+  }
+
+  Future<void> addItem(String itemName, [int? id]) async {
+    FridgeItem item = FridgeItem(name: itemName, id: id, timeInFridge: "< 1 day", dateAdded: DateTime.now());
+    addItemLocally(item);
     await fridgeHandler.pushToDB(item);
+  }
+
+  void extendItemsWithGroceriesLocally(List<GroceryItem> items) {
+    for (GroceryItem g in items){
+      FridgeItem f = FridgeItem(name: g.name, id: g.id, timeInFridge: "< 1 day", dateAdded: DateTime.now());
+      addItemLocally(f);
+    }
   }
 
   Future<void> removeByID(int removeId) async {
@@ -42,6 +56,7 @@ class FridgeNotifier extends Notifier<List<FridgeItem>> {
     FridgeItem item = state.elementAt(index);
     return item;
   }
+
 }
 
 final fridgeNotifierProvider = NotifierProvider<FridgeNotifier, List<FridgeItem>>(

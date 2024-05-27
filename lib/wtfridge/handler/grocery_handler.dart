@@ -1,17 +1,18 @@
+
+
 import 'dart:convert';
 
-import '../model/fridge_item.dart';
 import 'package:http/http.dart';
 
-// TODO: read in an API token
-class FridgeHandler {
+import '../model/grocery_item.dart';
 
-  final Uri url = Uri.http("3.96.14.111", "/fridge/");
+class GroceryHandler {
 
-  // constructor
-  FridgeHandler();
+  final Uri url = Uri.http("3.96.14.111", "/grocery/");
 
-  Future<void> pushToDB(FridgeItem i) async {
+  GroceryHandler();
+
+  Future<void> pushToDB(GroceryItem i) async {
     var body = jsonEncode(i);
 
     var response = await post(url, body: body);
@@ -22,8 +23,8 @@ class FridgeHandler {
     }
   }
 
-  Future<List<FridgeItem>> getAllItems() async {
-    List<FridgeItem> dbItems = [];
+  Future<List<GroceryItem>> getAllItems() async {
+    List<GroceryItem> dbItems = [];
 
     var response = await get(url);
     if (response.statusCode == 200) {
@@ -31,7 +32,7 @@ class FridgeHandler {
       if (response.body != "null" && response.body.isNotEmpty) {
         List<dynamic> jsonItems = json.decode(response.body);
         for (Map<String, dynamic> itemMap in jsonItems) {
-          FridgeItem newItem = FridgeItem.fromJSON(itemMap);
+          GroceryItem newItem = GroceryItem.fromJSON(itemMap);
           dbItems.add(newItem);
         }
       }
@@ -40,25 +41,35 @@ class FridgeHandler {
   }
 
   Future<void> deleteItemByID(int itemID) async {
-    // appends item id to request url
     var request = url.resolve(itemID.toString());
 
     var response = await delete(request);
     if (response.statusCode == 200) {
-      print("Item deleted!");
+      print("Grocery item deleted!");
     } else {
-      print("Failed to delete Item!");
+      print("Failed to delete grocery item");
     }
   }
 
-  Future<void> sendToGroceryByID(int itemID) async {
-    var request = url.resolve("to_grocery/$itemID");
+  Future<void> toggleActiveByID(int itemID) async {
+    var request = url.resolve(itemID.toString());
+
+    var response = await patch(request);
+    if (response.statusCode == 200) {
+      print("Grocery item toggled active!");
+    } else {
+      print("Failed to toggle grocery item");
+    }
+  }
+
+  Future<void> sendActiveToFridge() async {
+    var request = url.resolve("to_fridge");
 
     var response = await post(request);
     if (response.statusCode == 200) {
-      print("Fridge item sent to groceries!");
+      print("Active grocery items sent to fridge!");
     } else {
-      print("Failed send fridge item to groceries");
+      print("Failed send active grocery items to fridge");
     }
   }
 

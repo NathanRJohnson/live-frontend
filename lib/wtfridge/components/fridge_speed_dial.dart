@@ -1,34 +1,37 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import 'manual_add_form.dart';
 
-class FridgeSpeedDial extends StatelessWidget {
+import '../provider/fridge_provider.dart';
 
-  Future<void> displayAddForm(BuildContext context) async {
+class FridgeSpeedDial extends ConsumerWidget {
+
+  Future<void> displayAddForm(BuildContext context, Function action) async {
     return await showDialog<void>(
       context: context,
       builder: (context) =>  AlertDialog(
-        backgroundColor: const Color(0xFF292929),
-        elevation: 0,
-        title:  Text("Add Item",
-          style: TextStyle(
-            color: Colors.grey[200]
-        )),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-          side: const BorderSide(
-            color: Colors.white60
-          )
-        ),
-        content: const ManualAddForm()
+          backgroundColor: const Color(0xFF292929),
+          elevation: 0,
+          title:  Text("Add Item",
+              style: TextStyle(
+                  color: Colors.grey[200]
+              )),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+              side: const BorderSide(
+                  color: Colors.white60
+              )
+          ),
+          content: const ManualAddForm(action_type: "fridge",)
       ),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SpeedDial(
       icon: Icons.add,
       activeIcon: Icons.close,
@@ -53,7 +56,10 @@ class FridgeSpeedDial extends StatelessWidget {
           foregroundColor: Colors.green,
           backgroundColor: const Color(0xFF292929),
           onTap: () async {
-            displayAddForm(context);
+            displayAddForm(context, (String s) {
+              ref.read(fridgeNotifierProvider.notifier)
+                  .addItem(s);
+            });
           }
         ),
         SpeedDialChild(
