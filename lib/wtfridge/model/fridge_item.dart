@@ -7,7 +7,7 @@ class FridgeItem {
   DateTime? dateAdded;
   int? id;
 
-  FridgeItem({ required this.name, required this.timeInFridge, this.id, this.dateAdded }) {
+  FridgeItem({ required this.name, this.timeInFridge = "< 1 day", this.id, this.dateAdded }) {
     id ??= _generateID();
   }
 

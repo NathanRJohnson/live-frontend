@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
+import 'package:http/io_client.dart';
 
 import '../handler/fridge_handler.dart';
 import '../model/fridge_item.dart';
@@ -25,25 +27,25 @@ class FridgeNotifier extends Notifier<List<FridgeItem>> {
   }
 
   Future<void> addItem(String itemName, [int? id]) async {
-    FridgeItem item = FridgeItem(name: itemName, id: id, timeInFridge: "< 1 day", dateAdded: DateTime.now());
+    FridgeItem item = FridgeItem(name: itemName, id: id, dateAdded: DateTime.now());
     addItemLocally(item);
-    await fridgeHandler.pushToDB(item);
+    await fridgeHandler.pushToDB(IOClient(), item);
   }
 
   void extendItemsWithGroceriesLocally(List<GroceryItem> items) {
     for (GroceryItem g in items){
-      FridgeItem f = FridgeItem(name: g.name, id: g.id, timeInFridge: "< 1 day", dateAdded: DateTime.now());
+      FridgeItem f = FridgeItem(name: g.name, id: g.id, dateAdded: DateTime.now());
       addItemLocally(f);
     }
   }
 
   Future<void> removeByID(int removeId) async {
     state = state.where((i) => i.id != removeId).toList();
-    await fridgeHandler.deleteItemByID(removeId);
+    await fridgeHandler.deleteItemByID(IOClient(), removeId);
   }
 
   Future<void> syncToDB() async {
-    List<FridgeItem> dbItems = await fridgeHandler.getAllItems();
+    List<FridgeItem> dbItems = await fridgeHandler.getAllItems(IOClient());
     state.clear();
     state = dbItems;
   }
