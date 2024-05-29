@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart';
 import 'package:project_l/wtfridge/provider/fridge_provider.dart';
 import 'package:project_l/wtfridge/provider/grocery_provider.dart';
 
@@ -51,8 +52,8 @@ class FirstRoute extends ConsumerWidget {
           child: const Text('Open route'),
           onPressed: () async {
             // Navigate to second route when tapped.
-            await ref.read(fridgeNotifierProvider.notifier).syncToDB();
-            await ref.read(groceryNotifierProvider.notifier).syncToDB();
+            ref.read(fridgeNotifierProvider.notifier).syncToDB();
+            ref.read(groceryNotifierProvider.notifier).syncToDB();
             if (context.mounted) {
               context.push('/fridge');
             }

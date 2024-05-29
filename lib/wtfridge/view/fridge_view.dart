@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../components/fridge_speed_dial.dart';
 import '../components/fridge_item_card.dart';
+import '../components/no_connection_message.dart';
 import '../provider/fridge_provider.dart';
 import '../provider/grocery_provider.dart';
 import '../model/fridge_item.dart';
@@ -24,7 +25,17 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
   @override
   Widget build(BuildContext context) {
     final fridgeItems = ref.watch(fridgeNotifierProvider);
-    return Scaffold(
+    return !ref.read(fridgeNotifierProvider.notifier).isConnected ?
+      Container(
+        color: const Color(0xFF141414),
+        child: Center(
+            child: NoConnectionMessage(
+              onRetry: () async {
+                await ref.read(fridgeNotifierProvider.notifier).syncToDB();
+              },
+            )),
+      ) :
+      Scaffold(
       backgroundColor: const Color(0xFF141414),
       body: Stack(
           children: <Widget>[ListView(

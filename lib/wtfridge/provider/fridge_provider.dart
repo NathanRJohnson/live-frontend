@@ -9,6 +9,7 @@ import '../provider/grocery_provider.dart';
 
 class FridgeNotifier extends Notifier<List<FridgeItem>> {
   FridgeHandler fridgeHandler = FridgeHandler();
+  bool isConnected = true;
 
   // initial value
   @override
@@ -45,9 +46,15 @@ class FridgeNotifier extends Notifier<List<FridgeItem>> {
   }
 
   Future<void> syncToDB() async {
-    List<FridgeItem> dbItems = await fridgeHandler.getAllItems(IOClient());
-    state.clear();
-    state = dbItems;
+    try {
+      List<FridgeItem> dbItems = await fridgeHandler.getAllItems(IOClient());
+      state.clear();
+      state = dbItems;
+      isConnected = true;
+    } on ClientException catch(e) {
+      print(e.message);
+      isConnected = false;
+    }
   }
 
   int length() {
