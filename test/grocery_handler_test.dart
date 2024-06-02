@@ -166,4 +166,30 @@ void main() {
       expect(handler.toggleActiveByID(client, item.id!), throwsA(const TypeMatcher<ClientException>()));
     });
   });
+
+  group('send active to fridge', () {
+
+    test('successful item transfer', () async {
+      final client = MockClient();
+
+      when(client
+          .post(url.resolve("to_fridge")))
+          .thenAnswer((_) async =>
+          Response('', 200));
+
+      expect(handler.sendActiveToFridge(client), completes);
+    });
+
+    test('successful item transfer', () async {
+      final client = MockClient();
+
+      when(client
+          .post(url.resolve("to_fridge")))
+          .thenAnswer((_) async =>
+          Response('', 500));
+
+      expect(handler.sendActiveToFridge(client), throwsA(const TypeMatcher<ClientException>()));
+    });
+
+  });
 }

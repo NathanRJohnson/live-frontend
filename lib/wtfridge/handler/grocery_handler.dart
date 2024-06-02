@@ -69,7 +69,7 @@ class GroceryHandler {
     var request = url.resolve("to_fridge");
 
     var response = await client.post(request);
-    if (response.statusCode == 200) {
+    if (response.statusCode != 200) {
       throw ClientException("Failed send active grocery items to fridge");
     }
   }
