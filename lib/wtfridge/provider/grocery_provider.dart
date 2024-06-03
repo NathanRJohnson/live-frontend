@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/io_client.dart';
 
 import '../handler/grocery_handler.dart';
 import '../model/grocery_item.dart';
@@ -27,7 +28,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
   }
 
   Future<void> syncToDB() async {
-    List<GroceryItem> dbItems = await groceryHandler.getAllItems();
+    List<GroceryItem> dbItems = await groceryHandler.getAllItems(IOClient());
     state.clear();
     state = dbItems;
   }
