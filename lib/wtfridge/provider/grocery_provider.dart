@@ -24,7 +24,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
   Future<void> addItem(String itemName, [int? id]) async {
     GroceryItem item = GroceryItem(name: itemName, id: id);
     addItemLocally(item);
-    await groceryHandler.pushToDB(item);
+    await groceryHandler.pushToDB(IOClient(), item);
   }
 
   Future<void> syncToDB() async {
@@ -35,7 +35,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
 
   Future<void> removeByID(int removeID) async {
     state = state.where((i) => i.id != removeID).toList();
-    groceryHandler.deleteItemByID(removeID);
+    groceryHandler.deleteItemByID(IOClient(), removeID);
   }
 
   Future<void> sendActiveToFridge(WidgetRef ref) async {
@@ -67,7 +67,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
 
   void toggleActiveAt(int index) async {
     state.elementAt(index).isActive = !state.elementAt(index).isActive;
-    await groceryHandler.toggleActiveByID(state.elementAt(index).id!);
+    await groceryHandler.toggleActiveByID(IOClient(), state.elementAt(index).id!);
   }
 
   int countActive() {
