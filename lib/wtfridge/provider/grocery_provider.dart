@@ -42,7 +42,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     ref.read(fridgeNotifierProvider.notifier)
         .extendItemsWithGroceriesLocally(getActive());
     removeActiveLocally();
-    await groceryHandler.sendActiveToFridge();
+    await groceryHandler.sendActiveToFridge(IOClient());
 }
 
   Future<void> removeActiveLocally() async {
