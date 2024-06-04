@@ -8,6 +8,8 @@ import '../provider/grocery_provider.dart';
 import 'manual_add_form.dart';
 
 class GroceryAddButton extends ConsumerWidget {
+  const GroceryAddButton({super.key});
+
 
   Future<void> displayAddForm(BuildContext context, Function action) async {
     return await showDialog<void>(

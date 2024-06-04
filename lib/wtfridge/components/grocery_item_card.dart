@@ -9,18 +9,22 @@ import '../model/grocery_item.dart';
 
 class GroceryItemCard extends ConsumerStatefulWidget {
   final GroceryItem item;
-  const GroceryItemCard({required this.item});
+  final Function() delete;
+  const GroceryItemCard({required super.key, required this.item, required this.delete});
 
   @override
   ConsumerState<GroceryItemCard> createState() => _GroceryItemCardState();
 }
 
 class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
-  bool isBeingDeleted = false;
+  bool isBeingDismissed = false;
+  bool isDismissed = false;
 
   Color getColor() {
-    if (widget.item.isBeingDeleted) {
+    if (isBeingDismissed) {
       return Colors.red;
+    } else if (widget.item.isMoving) {
+      return Colors.yellow;
     } else if (widget.item.isActive) {
       return Colors.green;
     } else {
@@ -32,64 +36,22 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
   Widget build(BuildContext context) {
     String done_item_text = "--${widget.item.name}--";
     return Visibility(
-      visible: !isBeingDeleted,
-      child: GestureDetector(
-        onLongPress: () {
-          setState(() {
-            widget.item.isBeingDeleted = true;
-          });
-        },
-
-        onLongPressMoveUpdate: (details) {
-          Offset position = details.localPosition;
-
-          // Determine if pointer left bounds
-          if (position.dx < 0 || position.dy < 0 ||
-              position.dx > context.size!.width ||
-              position.dy > context.size!.height) {
-            // Pointer left bounds, handle it here
-            // For example, cancel the long press
-            setState(() {
-              widget.item.isBeingDeleted = false;
-            });
+      visible: !isDismissed,
+      child: Dismissible(
+        key: widget.key!,
+        direction: DismissDirection.startToEnd,
+        onDismissed: (direction) {
+          if (direction == DismissDirection.startToEnd) {
+            _handleDeleteDismiss(context);
           }
         },
-
-      onLongPressUp: () {
-        if (widget.item.isBeingDeleted) {
-          setState(() {
-            isBeingDeleted = true;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                "Removed ${widget.item.name}",
-                style: const TextStyle(
-                  fontSize: 16.0
-                ),
-              ),
-            action: SnackBarAction(
-              label: "Undo",
-              textColor: Colors.green,
-              onPressed: () {
-               setState(() {
-                 widget.item.isBeingDeleted = isBeingDeleted = false;
-               });
-              },
-            ),
-            duration: const Duration(seconds: 2),
-            ));
-          Timer(const Duration(seconds: 2), () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            if (isBeingDeleted) {
-              ref.read(groceryNotifierProvider.notifier)
-                  .removeByID(widget.item.id!);
-              isBeingDeleted = false;
-            }
-          });
-        }
-      },
-
+        onUpdate: (details) {
+          if (details.progress > 0.01){
+            setState(() { isBeingDismissed = true; });
+          } else {
+            setState(() { isBeingDismissed = false; });
+          }
+        },
         child: Container(
           margin: const EdgeInsets.fromLTRB(32.0, 16.0, 32.0, 0),
           decoration: BoxDecoration(
@@ -126,4 +88,36 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
       ),
     );
   }
+
+  void _handleDeleteDismiss(BuildContext context) {
+    setState(() { isDismissed = true; });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Removed ${widget.item.name}",
+          style: const TextStyle(fontSize: 16.0)
+        ),
+        action: SnackBarAction(
+          label: "Undo",
+          textColor: Colors.green,
+          onPressed: () {
+            setState(() {
+              isDismissed = false;
+              isBeingDismissed = false;
+            });
+          },
+        ),
+        duration: const Duration(seconds: 2),
+      ));
+      Timer(const Duration(seconds: 2), () {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        if (isDismissed) {
+          setState(() {
+            widget.delete();
+            isBeingDismissed = false;
+          });
+        }
+    });
+  }
+
 }

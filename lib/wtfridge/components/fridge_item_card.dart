@@ -33,37 +33,7 @@ class _FridgeItemCardState extends State<FridgeItemCard> {
           onDismissed: (direction) {
             borderColor = Colors.green;
             if (direction == DismissDirection.startToEnd) {
-              setState(() {
-                isBeingDeleted = true;
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "Removed ${widget.item.name}",
-                    style: const TextStyle(
-                        fontSize: 16.0
-                    ),
-                  ),
-                  action: SnackBarAction(
-                    label: "Undo",
-                    textColor: Colors.green,
-                    onPressed: () {
-                      setState(() {
-                        isBeingDeleted = false;
-                      });
-                    },
-                  ),
-                  duration: const Duration(seconds: 2),
-                ));
-                Timer(const Duration(seconds: 2), () {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  if (isBeingDeleted) {
-                    setState(() {
-                      widget.delete();
-                      isBeingDeleted = false;
-                    });
-                  }
-              });
+              _handleDeleteDismiss(context);
             }
           },
           confirmDismiss: (direction) async {
@@ -94,6 +64,36 @@ class _FridgeItemCardState extends State<FridgeItemCard> {
           ),
       ),
     );
+  }
+
+  void _handleDeleteDismiss(BuildContext context) {
+    setState(() { isBeingDeleted = true; });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Removed ${widget.item.name}",
+          style: const TextStyle(fontSize: 16.0)
+        ),
+        action: SnackBarAction(
+            label: "Undo",
+            textColor: Colors.green,
+            onPressed: () {
+              setState(() {
+                isBeingDeleted = false;
+              });
+            },
+          ),
+          duration: const Duration(seconds: 2),
+        ));
+      Timer(const Duration(seconds: 2), () {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        if (isBeingDeleted) {
+          setState(() {
+            widget.delete();
+            isBeingDeleted = false;
+          });
+        }
+      });
   }
 
   Widget displayDeleteDismissContainer() {

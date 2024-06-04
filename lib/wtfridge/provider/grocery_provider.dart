@@ -16,14 +16,15 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     ];
   }
 
-  void addItemLocally(GroceryItem item) {
-    state = <GroceryItem>[...state, item];
-  }
 
   Future<void> addItem(String itemName, [int? id]) async {
     GroceryItem item = GroceryItem(name: itemName, id: id);
     addItemLocally(item);
     await groceryHandler.pushToDB(item);
+  }
+
+  void addItemLocally(GroceryItem item) {
+    state = <GroceryItem>[...state, item];
   }
 
   Future<void> syncToDB() async {
@@ -37,6 +38,23 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     groceryHandler.deleteItemByID(removeID);
   }
 
+  void reorder(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+
+    final GroceryItem i = state.removeAt(oldIndex);
+    state.insert(newIndex, i);
+  }
+
+  void setMovingAtAs(int index, bool isMoving) {
+    print("i: $index, isMoving: $isMoving");
+    if (index >= state.length) {
+      index -= 1;
+    }
+    state.elementAt(index).isMoving = isMoving;
+  }
+
   Future<void> sendActiveToFridge(WidgetRef ref) async {
     ref.read(fridgeNotifierProvider.notifier)
         .extendItemsWithGroceriesLocally(getActive());
@@ -46,22 +64,6 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
 
   Future<void> removeActiveLocally() async {
     state = state.where((i) => !i.isActive).toList();
-  }
-
-  void considerDeleting(GroceryItem item) {
-    item.isBeingDeleted = true;
-  }
-
-  void cancelDeleting(GroceryItem item) {
-    item.isBeingDeleted = false;
-  }
-
-  int length() {
-    return state.length;
-  }
-
-  GroceryItem elementAt(int index) {
-    return state.elementAt(index);
   }
 
   void toggleActiveAt(int index) async {
@@ -85,6 +87,22 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
       }
     }
     return items;
+  }
+
+  void considerDeleting(GroceryItem item) {
+    item.isBeingDeleted = true;
+  }
+
+  void cancelDeleting(GroceryItem item) {
+    item.isBeingDeleted = false;
+  }
+
+  int length() {
+    return state.length;
+  }
+
+  GroceryItem elementAt(int index) {
+    return state.elementAt(index);
   }
 
 }

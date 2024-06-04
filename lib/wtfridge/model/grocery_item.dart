@@ -6,8 +6,11 @@ class GroceryItem {
   bool isActive;
   bool isBeingDeleted = false;
   int? id;
+  int index;
 
-  GroceryItem({ required this.name, this.isActive = false, this.id }) {
+  bool isMoving = false;
+
+  GroceryItem({ required this.name, this.isActive = false, this.id, this.index = -1}) {
     id ??= _generateID();
   }
 
@@ -20,6 +23,7 @@ class GroceryItem {
       id: json['item_id'] as int,
       name: json['item_name'] as String,
       isActive: json['is_active'] as bool,
+      index: json['index'] as int
     );
   }
 
@@ -28,6 +32,7 @@ class GroceryItem {
       "item_id": id,
       "item_name": name,
       "is_active": isActive,
+      "index": index
     };
 
   int _generateID() {
