@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/io_client.dart';
 
 import '../handler/grocery_handler.dart';
 import '../model/grocery_item.dart';
@@ -18,7 +19,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
 
 
   Future<void> addItem(String itemName, [int? id]) async {
-    GroceryItem item = GroceryItem(name: itemName, id: id);
+    GroceryItem item = GroceryItem(name: itemName, id: id, index: state.length+1);
     addItemLocally(item);
     await groceryHandler.pushToDB(item);
   }
@@ -30,6 +31,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
   Future<void> syncToDB() async {
     List<GroceryItem> dbItems = await groceryHandler.getAllItems();
     state.clear();
+    dbItems.sort((a,b) => a.index.compareTo(b.index));
     state = dbItems;
   }
 
@@ -38,13 +40,18 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     groceryHandler.deleteItemByID(removeID);
   }
 
-  void reorder(int oldIndex, int newIndex) {
+  Future<void> reorder(int oldIndex, int newIndex) async {
+    if (oldIndex == newIndex) {
+      return;
+    }
+
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
-
+    print("oldIndex: $oldIndex, newIndex: $newIndex");
     final GroceryItem i = state.removeAt(oldIndex);
     state.insert(newIndex, i);
+    await groceryHandler.updateIndicies(IOClient(), oldIndex, newIndex);
   }
 
   void setMovingAtAs(int index, bool isMoving) {
