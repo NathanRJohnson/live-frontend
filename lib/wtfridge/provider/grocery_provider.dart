@@ -72,8 +72,8 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
   }
 
   void toggleActiveAt(int index) async {
-    await groceryHandler.toggleActiveByID(IOClient(), state.elementAt(index).id!);
     state.elementAt(index).isActive = !state.elementAt(index).isActive;
+    await groceryHandler.toggleActiveByID(IOClient(), state.elementAt(index).id!);
   }
 
   int countActive() {
