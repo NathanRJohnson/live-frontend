@@ -18,7 +18,6 @@ class GroceryItemCard extends ConsumerStatefulWidget {
 
 class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
   bool isBeingDismissed = false;
-  bool isDismissed = false;
 
   Color getColor() {
     if (isBeingDismissed) {
@@ -36,7 +35,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
   Widget build(BuildContext context) {
     String done_item_text = "--${widget.item.name}--";
     return Visibility(
-      visible: !isDismissed,
+      visible: widget.item.visible,
       child: Dismissible(
         key: widget.key!,
         direction: DismissDirection.startToEnd,
@@ -90,7 +89,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
   }
 
   void _handleDeleteDismiss(BuildContext context) {
-    setState(() { isDismissed = true; });
+    setState(() { widget.item.visible = false; });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -102,7 +101,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
           textColor: Colors.green,
           onPressed: () {
             setState(() {
-              isDismissed = false;
+              widget.item.visible = true;
               isBeingDismissed = false;
             });
           },
@@ -110,12 +109,9 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
         duration: const Duration(seconds: 2),
       ));
       Timer(const Duration(seconds: 2), () {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        if (isDismissed) {
-          setState(() {
+        if (widget.item.visible) {
             widget.delete();
             isBeingDismissed = false;
-          });
         }
     });
   }

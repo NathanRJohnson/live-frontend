@@ -6,6 +6,7 @@ class FridgeItem {
   String timeInFridge;
   DateTime? dateAdded;
   int? id;
+  bool visible = true;
 
   FridgeItem({ required this.name, this.timeInFridge = "< 1 day", this.id, this.dateAdded }) {
     id ??= _generateID();

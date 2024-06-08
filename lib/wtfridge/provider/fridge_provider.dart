@@ -41,8 +41,8 @@ class FridgeNotifier extends Notifier<List<FridgeItem>> {
   }
 
   Future<void> removeByID(int removeId) async {
-    state = state.where((i) => i.id != removeId).toList();
     await fridgeHandler.deleteItemByID(IOClient(), removeId);
+    state = state.where((i) => i.id != removeId).toList();
   }
 
   Future<void> syncToDB() async {

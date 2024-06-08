@@ -96,14 +96,6 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     return items;
   }
 
-  void considerDeleting(GroceryItem item) {
-    item.isBeingDeleted = true;
-  }
-
-  void cancelDeleting(GroceryItem item) {
-    item.isBeingDeleted = false;
-  }
-
   int length() {
     return state.length;
   }

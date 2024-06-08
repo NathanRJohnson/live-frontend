@@ -4,7 +4,7 @@ import 'dart:math';
 class GroceryItem {
   String name;
   bool isActive;
-  bool isBeingDeleted = false;
+  bool visible = true;
   int? id;
   int index;
 
