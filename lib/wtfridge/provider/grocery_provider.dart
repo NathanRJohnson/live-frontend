@@ -17,25 +17,47 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     ];
   }
 
-  void addItemLocally(GroceryItem item) {
-    state = <GroceryItem>[...state, item];
-  }
 
   Future<void> addItem(String itemName, [int? id]) async {
-    GroceryItem item = GroceryItem(name: itemName, id: id);
+    GroceryItem item = GroceryItem(name: itemName, id: id, index: state.length+1);
     addItemLocally(item);
     await groceryHandler.pushToDB(IOClient(), item);
+  }
+
+  void addItemLocally(GroceryItem item) {
+    state = <GroceryItem>[...state, item];
   }
 
   Future<void> syncToDB() async {
     List<GroceryItem> dbItems = await groceryHandler.getAllItems(IOClient());
     state.clear();
+    dbItems.sort((a,b) => a.index.compareTo(b.index));
     state = dbItems;
   }
 
   Future<void> removeByID(int removeID) async {
     state = state.where((i) => i.id != removeID).toList();
     groceryHandler.deleteItemByID(IOClient(), removeID);
+  }
+
+  Future<void> reorder(int oldIndex, int newIndex) async {
+    if (oldIndex == newIndex) {
+      return;
+    }
+
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final GroceryItem i = state.removeAt(oldIndex);
+    state.insert(newIndex, i);
+    await groceryHandler.updateIndicies(IOClient(), oldIndex, newIndex);
+  }
+
+  void setMovingAtAs(int index, bool isMoving) {
+    if (index >= state.length) {
+      index -= 1;
+    }
+    state.elementAt(index).isMoving = isMoving;
   }
 
   Future<void> sendActiveToFridge(WidgetRef ref) async {
@@ -47,22 +69,6 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
 
   Future<void> removeActiveLocally() async {
     state = state.where((i) => !i.isActive).toList();
-  }
-
-  void considerDeleting(GroceryItem item) {
-    item.isBeingDeleted = true;
-  }
-
-  void cancelDeleting(GroceryItem item) {
-    item.isBeingDeleted = false;
-  }
-
-  int length() {
-    return state.length;
-  }
-
-  GroceryItem elementAt(int index) {
-    return state.elementAt(index);
   }
 
   void toggleActiveAt(int index) async {
@@ -86,6 +92,14 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
       }
     }
     return items;
+  }
+
+  int length() {
+    return state.length;
+  }
+
+  GroceryItem elementAt(int index) {
+    return state.elementAt(index);
   }
 
 }

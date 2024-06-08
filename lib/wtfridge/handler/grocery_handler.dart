@@ -74,4 +74,16 @@ class GroceryHandler {
     }
   }
 
+  Future<void> updateIndicies(Client client, int oldIndex, int newIndex) async {
+    String body = jsonEncode({
+      'old_index': oldIndex+1,
+      'new_index': newIndex+1,
+    });
+    var response = await client.patch(url, body: body);
+    if (response.statusCode != 200) {
+      throw ClientException("unable to rearrange items: ${response.statusCode}");
+    }
+
+  }
+
 }

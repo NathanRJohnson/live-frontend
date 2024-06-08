@@ -42,6 +42,7 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
             children: List.generate(fridgeItems.length, (i) {
               FridgeItem currentItem = fridgeItems.elementAt(i);
               return FridgeItemCard(
+                key: UniqueKey(),
                 item: currentItem,
                 delete: () {
                   ref.read(fridgeNotifierProvider.notifier).removeByID(currentItem.id!);
