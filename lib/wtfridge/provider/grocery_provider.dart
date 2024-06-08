@@ -48,14 +48,12 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
-    print("oldIndex: $oldIndex, newIndex: $newIndex");
     final GroceryItem i = state.removeAt(oldIndex);
     state.insert(newIndex, i);
     await groceryHandler.updateIndicies(IOClient(), oldIndex, newIndex);
   }
 
   void setMovingAtAs(int index, bool isMoving) {
-    print("i: $index, isMoving: $isMoving");
     if (index >= state.length) {
       index -= 1;
     }

@@ -11,7 +11,7 @@ void main() {
     expect(item.isActive, false);
     expect(item.id, isNotNull);
     expect(item.index, 10);
-    expect(item.isBeingDeleted, false);
+    expect(item.visible, true);
   });
 
   test('valid item from json', () {
@@ -45,7 +45,6 @@ void main() {
         id: 123, name: "F", isActive: true, index: 10);
 
     Map<String, dynamic> json = item.toJson();
-    print(json);
     assert(json.containsKey('item_id') && json['item_id'] == 123);
     assert(json.containsKey('item_name') && json['item_name'] == "F");
     assert(json.containsKey('is_active') && json['is_active'] == true);
