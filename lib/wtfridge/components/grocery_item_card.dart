@@ -109,7 +109,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
         duration: const Duration(seconds: 2),
       ));
       Timer(const Duration(seconds: 2), () {
-        if (widget.item.visible) {
+        if (!widget.item.visible) {
             widget.delete();
             isBeingDismissed = false;
         }
