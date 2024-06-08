@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -89,7 +90,17 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
           _displayAddToFridgeButton(ref),
       ]),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){},
+        onPressed: () async {
+          String message_text = ref.read(groceryNotifierProvider.notifier)
+              .getShareGroceryText();
+          await Clipboard.setData(ClipboardData(text: message_text));
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("grocery list copied to clipboard",  style: TextStyle(fontSize: 16.0))),
+            );
+          }
+        },
         backgroundColor: const Color(0xFF292929),
         shape: const CircleBorder(),
         child: const Icon(Icons.share,

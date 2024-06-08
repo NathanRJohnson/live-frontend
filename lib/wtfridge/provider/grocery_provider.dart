@@ -72,8 +72,8 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
   }
 
   void toggleActiveAt(int index) async {
-    state.elementAt(index).isActive = !state.elementAt(index).isActive;
     await groceryHandler.toggleActiveByID(IOClient(), state.elementAt(index).id!);
+    state.elementAt(index).isActive = !state.elementAt(index).isActive;
   }
 
   int countActive() {
@@ -100,6 +100,16 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
 
   GroceryItem elementAt(int index) {
     return state.elementAt(index);
+  }
+
+  String getShareGroceryText() {
+    String message = "Grocery List:\n";
+    for (GroceryItem i in state) {
+      if (!i.isActive) {
+        message += "- ${i.toString()}\n";
+      }
+    }
+    return message;
   }
 
 }

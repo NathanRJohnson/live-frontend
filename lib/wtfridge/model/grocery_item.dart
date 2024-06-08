@@ -39,6 +39,11 @@ class GroceryItem {
     Random random = Random();
     return random.nextInt(900000000) + 100000000;
   }
+
+  @override
+  String toString() {
+    return name;
+  }
 }
 
 
