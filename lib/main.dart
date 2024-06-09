@@ -42,8 +42,14 @@ class FirstRoute extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(fridgeNotifierProvider.notifier).syncToDB();
+      ref.read(groceryNotifierProvider.notifier).syncToDB();
+      context.push('/fridge');
+    });
+
     return Scaffold(
+      backgroundColor: const Color(0xFF292929),
       appBar: AppBar(
         title: const Text('First Route'),
       ),
@@ -52,11 +58,11 @@ class FirstRoute extends ConsumerWidget {
           child: const Text('Open route'),
           onPressed: () async {
             // Navigate to second route when tapped.
-            ref.read(fridgeNotifierProvider.notifier).syncToDB();
-            ref.read(groceryNotifierProvider.notifier).syncToDB();
-            if (context.mounted) {
-              context.push('/fridge');
-            }
+            // ref.read(fridgeNotifierProvider.notifier).syncToDB();
+            // ref.read(groceryNotifierProvider.notifier).syncToDB();
+            // if (context.mounted) {
+            //   context.push('/fridge');
+            // }
           },
         ),
       ),
