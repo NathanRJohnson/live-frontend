@@ -1,7 +1,7 @@
 
 
 import 'package:flutter/material.dart';
-import '../components/no_connection_message.dart';
+import '../components/under_construction_message.dart';
 
 class MealsView extends StatefulWidget {
   const MealsView({super.key});
@@ -16,10 +16,8 @@ class _MealsViewState extends State<MealsView> {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFF141414),
-      child: Center(
-        child: NoConnectionMessage(
-          onRetry: (){},
-        ),
+      child: const Center(
+        child: UnderConstructionMessage(),
       ),
     );
   }
