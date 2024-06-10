@@ -43,49 +43,52 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
       backgroundColor: const Color(0xFF141414),
       body: Stack(
         children: <Widget> [
-          Column(
-            children: <Widget> [
-              ReorderableListView(
-                shrinkWrap: true,
-                proxyDecorator: proxyDecorator,
-                onReorderStart: (index) {
-                  ref.read(groceryNotifierProvider.notifier)
-                      .setMovingAtAs(index, true);
-                },
-                onReorderEnd: (index) {
-                  ref.read(groceryNotifierProvider.notifier)
-                      .setMovingAtAs(index, false);
-                },
-                onReorder: (oldIndex, newIndex) {
-                  ref.read(groceryNotifierProvider.notifier)
-                      .setMovingAtAs(oldIndex, false);
-                  setState(() {
+          SingleChildScrollView(
+            child: Column(
+              children: <Widget> [
+                ReorderableListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  proxyDecorator: proxyDecorator,
+                  onReorderStart: (index) {
                     ref.read(groceryNotifierProvider.notifier)
-                        .reorder(oldIndex, newIndex);
-                  });
-                },
-                children: List.generate(groceryItems.length, (i) {
-                  GroceryItem currentItem = groceryItems.elementAt(i);
-                  return GestureDetector(
-                    key: UniqueKey(),
-                    onTap: () {
-                      setState(() {});
+                        .setMovingAtAs(index, true);
+                  },
+                  onReorderEnd: (index) {
+                    ref.read(groceryNotifierProvider.notifier)
+                        .setMovingAtAs(index, false);
+                  },
+                  onReorder: (oldIndex, newIndex) {
+                    ref.read(groceryNotifierProvider.notifier)
+                        .setMovingAtAs(oldIndex, false);
+                    setState(() {
                       ref.read(groceryNotifierProvider.notifier)
-                        .toggleActiveAt(i);
-                    },
-                    child: GroceryItemCard(
+                          .reorder(oldIndex, newIndex);
+                    });
+                  },
+                  children: List.generate(groceryItems.length, (i) {
+                    GroceryItem currentItem = groceryItems.elementAt(i);
+                    return GestureDetector(
                       key: UniqueKey(),
-                      item: currentItem,
-                      delete: () {
+                      onTap: () {
+                        setState(() {});
                         ref.read(groceryNotifierProvider.notifier)
-                            .removeByID(currentItem.id!);
+                          .toggleActiveAt(i);
                       },
-                    ));
-                  }
+                      child: GroceryItemCard(
+                        key: UniqueKey(),
+                        item: currentItem,
+                        delete: () {
+                          ref.read(groceryNotifierProvider.notifier)
+                              .removeByID(currentItem.id!);
+                        },
+                      ));
+                    }
+                  ),
                 ),
-              ),
-              GroceryAddButton(key: UniqueKey()),
-            ],
+                GroceryAddButton(key: UniqueKey()),
+              ],
+            ),
           ),
           _displayAddToFridgeButton(ref),
       ]),
