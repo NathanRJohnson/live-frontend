@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/io_client.dart';
+import 'package:project_l/wtfridge/provider/grocery_card_provider.dart';
 import 'package:project_l/wtfridge/provider/grocery_provider.dart';
 
 import '../provider/fridge_provider.dart';
@@ -22,17 +24,21 @@ Color focusLabelColor = Colors.green;
 
   @override
   void dispose() {
-    nameController.dispose();
     super.dispose();
+    nameController.dispose();
   }
 
 /* TODO: i hate this code, but it's the only think I can think of to get
          around the grocery add button being destroyed every time a new item is added.
          At worst it could be an enum. At best I make an addable interface.
  */
-  void action(String s) {
+  void action() {
+    if (widget.action_type == "test") {
+      return;
+    }
+
     if (widget.action_type == "grocery"){
-      ref.read(groceryNotifierProvider.notifier).addItem(nameController.text.trim());
+      ref.read(groceryCardNotifierProvider.notifier).addItem(IOClient(), nameController.text.trim());
     } else {
       ref.read(fridgeNotifierProvider.notifier).addItem(nameController.text.trim());
     }
@@ -109,8 +115,7 @@ Color focusLabelColor = Colors.green;
                 TextButton(
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
-                        action(nameController.text.trim());
-
+                        action();
                         Navigator.pop(context);
                       }
                     },
@@ -123,7 +128,7 @@ Color focusLabelColor = Colors.green;
                 TextButton(
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
-                        action(nameController.text.trim());
+                        action();
                         nameController.clear();
                       }
                     },

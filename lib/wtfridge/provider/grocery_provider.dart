@@ -40,6 +40,12 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     groceryHandler.deleteItemByID(IOClient(), removeID);
   }
 
+  Future<void> updateNameByID(int updateID, String newName) async {
+    GroceryItem item = state.where((i) => i.id == updateID).first;
+    item.name = newName;
+    await groceryHandler.renameItemByID(IOClient(), updateID, newName);
+  }
+
   Future<void> reorder(int oldIndex, int newIndex) async {
     if (oldIndex == newIndex) {
       return;
@@ -53,12 +59,12 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     await groceryHandler.updateIndicies(IOClient(), oldIndex, newIndex);
   }
 
-  void setMovingAtAs(int index, bool isMoving) {
-    if (index >= state.length) {
-      index -= 1;
-    }
-    state.elementAt(index).isMoving = isMoving;
-  }
+  // void setMovingAtAs(int index, bool isMoving) {
+  //   if (index >= state.length) {
+  //     index -= 1;
+  //   }
+  //   state.elementAt(index).isMoving = isMoving;
+  // }
 
   Future<void> sendActiveToFridge(WidgetRef ref) async {
     ref.read(fridgeNotifierProvider.notifier)

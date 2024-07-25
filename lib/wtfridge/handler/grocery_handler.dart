@@ -56,6 +56,18 @@ class GroceryHandler {
     }
   }
 
+    Future<void> renameItemByID(Client client, int itemID, String newName) async {
+    String body = json.encode({
+      "item_id": itemID,
+      "new_name": newName,
+    });
+
+    var response = await client.put(url, body: body);
+    if (response.statusCode != 200) {
+      throw ClientException("Failed to rename item");
+    }
+  }
+
   Future<void> toggleActiveByID(Client client, int itemID) async {
     var request = url.resolve(itemID.toString());
 

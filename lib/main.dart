@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
+import 'package:http/io_client.dart';
 import 'package:project_l/wtfridge/provider/fridge_provider.dart';
-import 'package:project_l/wtfridge/provider/grocery_provider.dart';
+import 'package:project_l/wtfridge/provider/grocery_card_provider.dart';
 
 import 'wtfridge/wtfridge.dart';
 
@@ -44,7 +45,7 @@ class FirstRoute extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(fridgeNotifierProvider.notifier).syncToDB();
-      ref.read(groceryNotifierProvider.notifier).syncToDB();
+      ref.read(groceryCardNotifierProvider.notifier).syncToDB(IOClient());
       context.push('/fridge');
     });
 

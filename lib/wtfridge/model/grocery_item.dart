@@ -4,14 +4,15 @@ import 'dart:math';
 class GroceryItem {
   String name;
   bool isActive;
-  bool visible = true;
   int? id;
   int index;
 
-  bool isMoving = false;
-
   GroceryItem({ required this.name, this.isActive = false, this.id, this.index = -1}) {
     id ??= _generateID();
+  }
+
+  GroceryItem copy() {
+    return GroceryItem(id: id, name: name, isActive: isActive, index: index);
   }
 
   factory GroceryItem.fromJSON(Map<String, dynamic> json) {
