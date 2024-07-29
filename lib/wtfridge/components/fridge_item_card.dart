@@ -2,22 +2,30 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:project_l/wtfridge/components/update_item_form.dart';
+import 'package:http/http.dart';
+import 'package:http/io_client.dart';
 
+
+import '../components/update_item_form.dart';
 import '../model/fridge_item.dart';
+import '../provider/fridge_card_provider.dart';
+import '../provider/grocery_card_provider.dart';
 
-class FridgeItemCard extends StatefulWidget {
+class FridgeItemCard extends ConsumerStatefulWidget {
   final FridgeItem item;
-  final Function() delete;
-  final Function() toGroceries;
-  const FridgeItemCard({super.key, required this.item, required this.delete, required this.toGroceries});
+  late Client client;
+
+  FridgeItemCard({super.key, required this.item, Client? client }) {
+    this.client = client ?? IOClient();
+  }
 
   @override
   _FridgeItemCardState createState() => _FridgeItemCardState();
 }
 
-class _FridgeItemCardState extends State<FridgeItemCard> {
+class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
   Color backgroundColor = const Color(0xFF292929);
   Color borderColor = Colors.green;
 
@@ -32,32 +40,6 @@ class _FridgeItemCardState extends State<FridgeItemCard> {
     );
   }
 
-  void _handleDeleteDismiss(BuildContext context) {
-    setState(() { widget.item.visible = false; });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "Removed ${widget.item.name}",
-          style: const TextStyle(fontSize: 16.0)
-        ),
-        action: SnackBarAction(
-          label: "Undo",
-          textColor: Colors.green,
-          onPressed: () {
-            setState(() {
-              widget.item.visible = true;
-            });
-          },
-        ),
-        duration: const Duration(seconds: 2),
-      ));
-      Timer(const Duration(seconds: 2), () {
-        if (!widget.item.visible) {
-          widget.delete();
-        }
-      });
-  }
-
   SlidableAction wasteItemAction() {
     return SlidableAction(
       label: 'wasted',
@@ -65,7 +47,8 @@ class _FridgeItemCardState extends State<FridgeItemCard> {
       foregroundColor: Colors.white,
       icon: Icons.delete,
       onPressed: (context) async {
-        widget.delete();
+        ref.read(fridgeCardNotifierProvider.notifier)
+            .remove(widget.client, widget.item);
       },
     );
   }
@@ -77,7 +60,8 @@ class _FridgeItemCardState extends State<FridgeItemCard> {
       foregroundColor: Colors.white,
       icon: Icons.done,
       onPressed: (context) async {
-        widget.delete();
+        ref.read(fridgeCardNotifierProvider.notifier)
+            .remove(widget.client, widget.item);
       },
     );
   }
@@ -105,7 +89,8 @@ class _FridgeItemCardState extends State<FridgeItemCard> {
       foregroundColor: Colors.black,
       icon: Icons.shopping_basket_outlined,
       onPressed: (context) {
-        widget.toGroceries();
+        ref.read(groceryCardNotifierProvider.notifier)
+            .addItem(widget.client, widget.item.name);
       },
     );
   }
@@ -168,7 +153,5 @@ class _FridgeItemCardState extends State<FridgeItemCard> {
       ),
     );
   }
-
-
 }
 

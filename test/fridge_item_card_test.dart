@@ -11,12 +11,7 @@ void main() {
     final item = FridgeItem(name: "Test Item", timeInFridge: "5 days");
     await tester.pumpWidget(
         MaterialApp(
-            home: FridgeItemCard(
-                item: item,
-                toGroceries: (){},
-                delete: (){}
-            )
-        )
+            home: FridgeItemCard(item: item))
     );
 
     final nameFinder = find.text("Test Item");
@@ -30,11 +25,7 @@ void main() {
     final item = FridgeItem(name: "Test Item", timeInFridge: "5 days");
     await tester.pumpWidget(
         MaterialApp(
-            home: FridgeItemCard(
-                item: item,
-                toGroceries: (){},
-                delete: (){}
-            )
+            home: FridgeItemCard(item: item)
         )
     );
 
@@ -57,11 +48,7 @@ void main() {
     final item = FridgeItem(name: "Test Item", timeInFridge: "5 days");
     await tester.pumpWidget(
         MaterialApp(
-            home: FridgeItemCard(
-                item: item,
-                toGroceries: (){},
-                delete: (){}
-            )
+            home: FridgeItemCard(item: item)
         )
     );
 
@@ -85,11 +72,7 @@ void main() {
     await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
-              home: FridgeItemCard(
-                  item: item,
-                  toGroceries: (){},
-                  delete: (){}
-              )
+              home: FridgeItemCard(item: item)
           ),
         )
     );
@@ -102,15 +85,10 @@ void main() {
 
     await tester.pumpAndSettle(Durations.short2);
     final editFinder = find.byIcon(Icons.edit);
-    expect(editFinder, findsOneWidget);
     await tester.tap(editFinder);
-    await tester.pumpAndSettle(Durations.long2);
+    await tester.pumpAndSettle(Durations.short2);
 
     final formFinder = find.byType(UpdateItemForm);
-    // debugDumpApp();
     expect(formFinder, findsOneWidget);
-    // await tester.pumpAndSettle(Durations.long4);
-    // final textFinder = find.text("Test Item");
-    // expect(textFinder, findsNWidgets(2));
   });
 }
