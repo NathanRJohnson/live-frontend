@@ -21,7 +21,7 @@ void main() {
     expect(tifFinder, findsOneWidget);
   });
 
-  testWidgets('right swipe on card displays eat and waste options', (tester) async {
+  testWidgets('right swipe on card displays edit and send to fridge options', (tester) async {
     final item = FridgeItem(name: "Test Item", timeInFridge: "5 days");
     await tester.pumpWidget(
         MaterialApp(
@@ -32,29 +32,6 @@ void main() {
     final widgetFinder = find.byType(FridgeItemCard);
     await tester.startGesture(tester.getCenter(widgetFinder)).then((gesture) async {
       await gesture.moveBy(const Offset(200, 0));
-      await gesture.up();
-    });
-
-    await tester.pumpAndSettle(Durations.short2);
-
-    final deleteFinder = find.byIcon(Icons.delete);
-    final eatFinder = find.byIcon(Icons.done);
-
-    expect(deleteFinder, findsOneWidget);
-    expect(eatFinder, findsOneWidget);
-  });
-
-  testWidgets('left swipe on card displays edit and send to fridge options', (tester) async {
-    final item = FridgeItem(name: "Test Item", timeInFridge: "5 days");
-    await tester.pumpWidget(
-        MaterialApp(
-            home: FridgeItemCard(item: item)
-        )
-    );
-
-    final widgetFinder = find.byType(FridgeItemCard);
-    await tester.startGesture(tester.getCenter(widgetFinder)).then((gesture) async {
-      await gesture.moveBy(const Offset(-200, 0));
       await gesture.up();
     });
 
@@ -79,7 +56,7 @@ void main() {
 
     final cardFinder = find.byType(FridgeItemCard);
     await tester.startGesture(tester.getCenter(cardFinder)).then((gesture) async {
-      await gesture.moveBy(const Offset(-200, 0));
+      await gesture.moveBy(const Offset(200, 0));
       await gesture.up();
     });
 

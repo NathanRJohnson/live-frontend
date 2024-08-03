@@ -113,15 +113,8 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
         startActionPane: ActionPane(
           motion: const BehindMotion(),
           children: [
-            wasteItemAction(),
-            eatItemAction(),
-          ],
-        ),
-        endActionPane: ActionPane(
-          motion: const BehindMotion(),
-          children: [
             editItemAction(),
-            moveToFridgeItemAction()
+            moveToFridgeItemAction(),
           ],
         ),
         child: Row(
