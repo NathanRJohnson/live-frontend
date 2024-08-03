@@ -1,20 +1,31 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:http/http.dart';
+import 'package:http/io_client.dart';
 
+
+import '../components/update_item_form.dart';
 import '../model/fridge_item.dart';
+import '../provider/fridge_card_provider.dart';
+import '../provider/grocery_card_provider.dart';
 
-class FridgeItemCard extends StatefulWidget {
+class FridgeItemCard extends ConsumerStatefulWidget {
   final FridgeItem item;
-  final Function() delete;
-  final Function() toGroceries;
-  const FridgeItemCard({super.key, required this.item, required this.delete, required this.toGroceries});
+  late Client client;
+
+  FridgeItemCard({super.key, required this.item, Client? client }) {
+    this.client = client ?? IOClient();
+  }
 
   @override
   _FridgeItemCardState createState() => _FridgeItemCardState();
 }
 
-class _FridgeItemCardState extends State<FridgeItemCard> {
+class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
   Color backgroundColor = const Color(0xFF292929);
   Color borderColor = Colors.green;
 
@@ -24,119 +35,69 @@ class _FridgeItemCardState extends State<FridgeItemCard> {
       visible: widget.item.visible,
       child: Container(
         margin: const EdgeInsets.fromLTRB(0, 16.0, 0, 0.0),
-        child: Dismissible(
-          key: ValueKey(widget.item.id),
-          direction: DismissDirection.horizontal,
-          background: displayDeleteDismissContainer(),
-          secondaryBackground: displayToGroceriesDismissContainer(),
-          onDismissed: (direction) {
-            borderColor = Colors.green;
-            if (direction == DismissDirection.startToEnd) {
-              _handleDeleteDismiss(context);
-            }
-          },
-          confirmDismiss: (direction) async {
-            if (direction == DismissDirection.endToStart) {
-              widget.toGroceries();
-              return false;
-            } else {
-              return true;
-            }
-          },
-
-          onUpdate: (details) {
-            if (details.direction == DismissDirection.endToStart && details.progress > 0.01) {
-              setState(() {
-                borderColor = Colors.yellow;
-              });
-            } else if (details.direction == DismissDirection.startToEnd && details.progress > 0.01) {
-              setState(() {
-                borderColor = Colors.redAccent;
-              });
-            } else {
-              setState(() {
-                borderColor = Colors.green;
-              });
-            }
-          },
-          child: displayItemDetails()
-          ),
+        child: displayItemDetails(),
       ),
     );
   }
 
-  void _handleDeleteDismiss(BuildContext context) {
-    setState(() { widget.item.visible = false; });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "Removed ${widget.item.name}",
-          style: const TextStyle(fontSize: 16.0)
-        ),
-        action: SnackBarAction(
-          label: "Undo",
-          textColor: Colors.green,
-          onPressed: () {
-            setState(() {
-              widget.item.visible = true;
-            });
-          },
-        ),
-        duration: const Duration(seconds: 2),
-      ));
-      Timer(const Duration(seconds: 2), () {
-        if (!widget.item.visible) {
-          widget.delete();
-        }
-      });
-  }
-
-  Widget displayDeleteDismissContainer() {
-    return Container(
-      color: Colors.redAccent,
-      margin: const EdgeInsets.fromLTRB(16.0, 0, 0, 0.0),
-      padding: const EdgeInsets.fromLTRB(16.0, 0, 0, 0.0),
-      child: const  Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text("Remove Item",
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold
-              ),
-            ),
-            Icon(Icons.double_arrow_rounded)
-          ]),
+  SlidableAction wasteItemAction() {
+    return SlidableAction(
+      label: 'wasted',
+      backgroundColor: Colors.red[800]!,
+      foregroundColor: Colors.white,
+      icon: Icons.delete,
+      onPressed: (context) async {
+        ref.read(fridgeCardNotifierProvider.notifier)
+            .remove(widget.client, widget.item);
+      },
     );
   }
 
-  Widget displayToGroceriesDismissContainer() {
-    return Container(
-      color: Colors.yellow,
-      margin: const EdgeInsets.fromLTRB(48.0, 0, 16.0, 0),
-      padding: const EdgeInsets.fromLTRB(0, 0, 16.0, 0),
-      child:  Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Transform.flip(
-                flipX: true,
-                child: const Icon(Icons.double_arrow_rounded)
-            ),
-            const Text("To Groceries",
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold
-              ),
-            )
-          ]),
+  SlidableAction eatItemAction() {
+    return SlidableAction(
+      label: 'eaten',
+      backgroundColor: Colors.green[800]!,
+      foregroundColor: Colors.white,
+      icon: Icons.done,
+      onPressed: (context) async {
+        ref.read(fridgeCardNotifierProvider.notifier)
+            .remove(widget.client, widget.item);
+      },
+    );
+  }
+
+  SlidableAction editItemAction() {
+    return SlidableAction(
+      label: 'edit',
+      backgroundColor: Colors.blueAccent,
+      foregroundColor: Colors.white,
+      icon: Icons.edit,
+      onPressed: (context) {
+        UpdateItemForm.displayUpdateItemForm(
+          context,
+          (newName) => () {},
+          widget.item.name
+        );
+      }
+    );
+  }
+
+  SlidableAction moveToFridgeItemAction() {
+    return SlidableAction(
+      label: 'to list',
+      backgroundColor: Colors.yellow,
+      foregroundColor: Colors.black,
+      icon: Icons.shopping_basket_outlined,
+      onPressed: (context) {
+        ref.read(groceryCardNotifierProvider.notifier)
+            .addItem(widget.client, widget.item.name);
+      },
     );
   }
 
   Widget displayItemDetails() {
     return AnimatedContainer(
+      clipBehavior: Clip.hardEdge,
       duration: const Duration(milliseconds: 100),
       decoration: BoxDecoration(
           color: backgroundColor,
@@ -147,35 +108,43 @@ class _FridgeItemCardState extends State<FridgeItemCard> {
           )
       ),
       margin: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 0.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24.0, 16.0, 16.0, 16.0),
-              child: Text(widget.item.name,
-                style: const TextStyle(
-                  fontSize: 18.0,
-                  color: Colors.white,
+      child: Slidable(
+        key: UniqueKey(),
+        startActionPane: ActionPane(
+          motion: const BehindMotion(),
+          children: [
+            editItemAction(),
+            moveToFridgeItemAction(),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24.0, 16.0, 16.0, 16.0),
+                child: Text(widget.item.name,
+                  style: const TextStyle(
+                    fontSize: 18.0,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 24.0, 16.0),
-            child: Text(widget.item.timeInFridge,
-              style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.grey[600],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 24.0, 16.0),
+              child: Text(widget.item.timeInFridge,
+                style: TextStyle(
+                  fontSize: 18.0,
+                  color: Colors.grey[600],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-
-
 }
 
