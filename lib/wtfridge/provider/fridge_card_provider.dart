@@ -28,9 +28,9 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
       FridgeItemCard(item: FridgeItem(name: "Test Item 8", timeInFridge: "7 days", id: 1, dateAdded: DateTime(2022))),
       FridgeItemCard(item: FridgeItem(name: "Test Item 9", timeInFridge: "11 days", id: 2, dateAdded: DateTime(2022))),
 
-      FridgeItemCard(item: FridgeItem(name: "Test Item 10", timeInFridge: "3 days", id: 0, dateAdded: DateTime(2022))),
-      FridgeItemCard(item: FridgeItem(name: "Test Item 11", timeInFridge: "7 days", id: 1, dateAdded: DateTime(2022))),
-      FridgeItemCard(item: FridgeItem(name: "Test Item 12", timeInFridge: "11 days", id: 2, dateAdded: DateTime(2022))),
+      // FridgeItemCard(item: FridgeItem(name: "Test Item 10", timeInFridge: "3 days", id: 0, dateAdded: DateTime(2022))),
+      // FridgeItemCard(item: FridgeItem(name: "Test Item 11", timeInFridge: "7 days", id: 1, dateAdded: DateTime(2022))),
+      // FridgeItemCard(item: FridgeItem(name: "Test Item 12", timeInFridge: "11 days", id: 2, dateAdded: DateTime(2022))),
 
     ];
   }

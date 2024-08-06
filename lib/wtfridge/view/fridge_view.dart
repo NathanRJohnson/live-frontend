@@ -33,16 +33,16 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
   Widget build(BuildContext context) {
     final fridgeCards = ref.watch(fridgeCardNotifierProvider);
     return
-      // !ref.read(fridgeCardNotifierProvider.notifier).isConnected ?
-      // Container(
-      //   color: const Color(0xFF141414),
-      //   child: Center(
-      //       child: NoConnectionMessage(
-      //         onRetry: () async {
-      //           await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(IOClient());
-      //         },
-      //       )),
-      // ) :
+      !ref.read(fridgeCardNotifierProvider.notifier).isConnected ?
+      Container(
+        color: const Color(0xFF141414),
+        child: Center(
+            child: NoConnectionMessage(
+              onRetry: () async {
+                await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(IOClient());
+              },
+            )),
+      ) :
       Scaffold(
       backgroundColor: const Color(0xFFFFFFFF), //0xFF141414
       body: Stack(

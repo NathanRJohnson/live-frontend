@@ -37,11 +37,12 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
 
   bool isExpanded = false;
   bool isSelected = false;
+  bool isVisible = true;
 
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: widget.item.visible,
+      visible: isVisible,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: GestureDetector(
@@ -84,9 +85,15 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         title: _displayNameAndQuantity(),
         trailing:  Transform.translate(
-            offset: const Offset(0, -7),
+            offset: (isExpanded || widget.item.notes != "") ? const Offset(0, -10) : const Offset(0, -2),
             child: (isSelected) ? _displaySelectedStatus() : _displayTimeInFridge()),
-        subtitle: (isExpanded) ? _displayDateAdded() : _displayNotesHint(),
+        subtitle: () {
+          if (isExpanded) {
+            return  _displayDateAdded();
+          } else if (widget.item.notes != "") {
+            return _displayNotesHint();
+          }
+        }(),
         expandedAlignment: Alignment.topLeft,
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
         onExpansionChanged: (expandState) {
@@ -147,7 +154,8 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
-          child: Text("x2",
+          child: (widget.item.quantity <= 1) ? const Text("") :
+          Text("x${widget.item.quantity}",
             style: TextStyle(
               fontSize: Theme.of(context).textTheme.bodyMedium!.fontSize,
               color: onBackgroundSecondaryColor,
@@ -208,7 +216,7 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 0.0, 8.0, 0.0),
       child: Text(
-        "Lorem ipsum dolor sit amet and one for the road",
+        widget.item.notes,
         textAlign: TextAlign.justify,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -255,7 +263,7 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
             ),
           ),
           Text(
-            "Lorem ipsum dolor sit amet and one for the road",
+            (widget.item.notes != "") ? widget.item.notes : "No notes.",
             style: TextStyle(
               color: onBackgroundSecondaryColor,
               fontSize: Theme.of(context).textTheme.bodySmall!.fontSize
