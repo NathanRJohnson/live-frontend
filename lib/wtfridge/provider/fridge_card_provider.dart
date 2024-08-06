@@ -15,24 +15,7 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
   // initial value
   @override
   List<FridgeItemCard> build() {
-    return [
-      FridgeItemCard(item: FridgeItem(name: "Test Item 1", timeInFridge: "3 days", id: 0, dateAdded: DateTime(2022))),
-      FridgeItemCard(item: FridgeItem(name: "Test Item 2", timeInFridge: "7 days", id: 1, dateAdded: DateTime(2022))),
-      FridgeItemCard(item: FridgeItem(name: "Test Item 3", timeInFridge: "11 days", id: 2, dateAdded: DateTime(2022))),
-
-      FridgeItemCard(item: FridgeItem(name: "Test Item 4", timeInFridge: "3 days", id: 0, dateAdded: DateTime(2022))),
-      FridgeItemCard(item: FridgeItem(name: "Test Item 5", timeInFridge: "7 days", id: 1, dateAdded: DateTime(2022))),
-      FridgeItemCard(item: FridgeItem(name: "Test Item 6", timeInFridge: "11 days", id: 2, dateAdded: DateTime(2022))),
-
-      FridgeItemCard(item: FridgeItem(name: "Test Item 7", timeInFridge: "3 days", id: 0, dateAdded: DateTime(2022))),
-      FridgeItemCard(item: FridgeItem(name: "Test Item 8", timeInFridge: "7 days", id: 1, dateAdded: DateTime(2022))),
-      FridgeItemCard(item: FridgeItem(name: "Test Item 9", timeInFridge: "11 days", id: 2, dateAdded: DateTime(2022))),
-
-      FridgeItemCard(item: FridgeItem(name: "Test Item 10", timeInFridge: "3 days", id: 0, dateAdded: DateTime(2022))),
-      FridgeItemCard(item: FridgeItem(name: "Test Item 11", timeInFridge: "7 days", id: 1, dateAdded: DateTime(2022))),
-      FridgeItemCard(item: FridgeItem(name: "Test Item 12", timeInFridge: "11 days", id: 2, dateAdded: DateTime(2022))),
-
-    ];
+    return [];
   }
 
   // methods to update state

@@ -1,20 +1,11 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/io_client.dart';
-
 
 import '../components/fridge_speed_dial.dart';
 import '../components/fridge_item_card.dart';
 import '../components/no_connection_message.dart';
 import '../provider/fridge_card_provider.dart';
-import '../provider/grocery_provider.dart';
-import '../model/fridge_item.dart';
 
 class FridgeView extends ConsumerStatefulWidget {
   const FridgeView({super.key});
@@ -33,16 +24,16 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
   Widget build(BuildContext context) {
     final fridgeCards = ref.watch(fridgeCardNotifierProvider);
     return
-      // !ref.read(fridgeCardNotifierProvider.notifier).isConnected ?
-      // Container(
-      //   color: const Color(0xFF141414),
-      //   child: Center(
-      //       child: NoConnectionMessage(
-      //         onRetry: () async {
-      //           await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(IOClient());
-      //         },
-      //       )),
-      // ) :
+      !ref.read(fridgeCardNotifierProvider.notifier).isConnected ?
+      Container(
+        color: const Color(0xFFFFFFFF),
+        child: Center(
+            child: NoConnectionMessage(
+              onRetry: () async {
+                await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(IOClient());
+              },
+            )),
+      ) :
       Scaffold(
       backgroundColor: const Color(0xFFFFFFFF), //0xFF141414
       body: Stack(

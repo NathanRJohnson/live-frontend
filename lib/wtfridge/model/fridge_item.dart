@@ -5,10 +5,11 @@ class FridgeItem {
   String name;
   String timeInFridge;
   DateTime? dateAdded;
+  int quantity;
+  String notes;
   int? id;
-  bool visible = true;
 
-  FridgeItem({ required this.name, this.timeInFridge = "< 1 day", this.id, this.dateAdded }) {
+  FridgeItem({ required this.name, this.timeInFridge = "< 1 day", this.id, this.dateAdded, this.quantity = 1, this.notes = "" }) {
     id ??= _generateID();
   }
 
@@ -23,11 +24,17 @@ class FridgeItem {
 
     String timeInFridge = _getDateDisplayMessage(difference);
 
+    int quantity = json.containsKey('quantity') ? json['quantity'] as int : 1;
+    String notes =  json.containsKey('notes') ? json['notes'] as String : "";
+
+
     return FridgeItem(
       name: json['item_name'] as String,
       timeInFridge: timeInFridge,
+      dateAdded: dateAdded,
+      quantity: quantity,
+      notes: notes,
       id: json['item_id'] as int,
-      dateAdded: dateAdded
     );
   }
 
