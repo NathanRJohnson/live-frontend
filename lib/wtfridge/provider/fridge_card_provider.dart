@@ -15,7 +15,9 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
   // initial value
   @override
   List<FridgeItemCard> build() {
-    return [];
+    return [
+      FridgeItemCard(item: FridgeItem(id: 100, name:"yogurt", quantity: 3))
+    ];
   }
 
   // methods to update state
@@ -28,8 +30,18 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
       )];
   }
 
-  Future<void> addItem(Client client, String itemName, [int? id]) async {
-    FridgeItem item = FridgeItem(name: itemName, id: id, dateAdded: DateTime.now());
+  Future<void> addItem(Client client, Map<String, String> values, [int? id]) async {
+    int quantity = values["quantity"] != null ? int.parse(values["quantity"]!) : 1;
+    DateTime dateAdded = values["date_added"] != null ? DateTime.parse(values["date_added"]!) : DateTime.now();
+    String notes = values["notes"] != null ? values["notes"]! : "oya";
+
+    FridgeItem item = FridgeItem(
+      name: values["item_name"]!,
+      quantity: quantity,
+      notes: notes,
+      id: id,
+      dateAdded: dateAdded
+    );
     addItemLocally(item);
     await fridgeHandler.pushToDB(client, item);
   }

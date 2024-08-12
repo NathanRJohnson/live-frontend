@@ -44,7 +44,7 @@ class FirstRoute extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(fridgeCardNotifierProvider.notifier).syncToDB(IOClient());
-      ref.read(groceryCardNotifierProvider.notifier).syncToDB(IOClient());
+      // ref.read(groceryCardNotifierProvider.notifier).syncToDB(IOClient());
       context.push('/fridge');
     });
 

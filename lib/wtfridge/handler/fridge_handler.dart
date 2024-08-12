@@ -13,6 +13,7 @@ class FridgeHandler {
 
   Future<void> pushToDB(Client client, FridgeItem i) async {
     var body = jsonEncode(i);
+    print("HIMARK $body");
     var response = await client.post(url, body: body);
     if (response.statusCode == 200 || response.statusCode == 201) {
       print("Item added!");

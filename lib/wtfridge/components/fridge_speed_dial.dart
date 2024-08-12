@@ -12,20 +12,9 @@ class FridgeSpeedDial extends ConsumerWidget {
   Future<void> displayAddForm(BuildContext context, Function action) async {
     return await showDialog<void>(
       context: context,
-      builder: (context) =>  AlertDialog(
-          backgroundColor: const Color(0xFF292929),
-          elevation: 0,
-          title:  Text("Add Item",
-              style: TextStyle(
-                  color: Colors.grey[200]
-              )),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: const BorderSide(
-                  color: Colors.white60
-              )
-          ),
-          content: const ManualAddForm(action_type: "fridge",)
+      builder: (context) =>  const Dialog(
+        backgroundColor: Color(0xFFFFFFFF),
+        child: ManualAddForm(action_type: "fridge",)
       ),
     );
   }
