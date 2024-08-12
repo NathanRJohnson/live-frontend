@@ -42,7 +42,10 @@ class FridgeItem {
   Map<String, dynamic> toJson() =>
     {
       "item_id": id,
-      "item_name": name
+      "item_name": name,
+      "quantity": quantity,
+      "notes": notes,
+      // "date_added": dateAdded
     };
 
   @override
