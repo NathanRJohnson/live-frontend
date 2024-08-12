@@ -169,7 +169,7 @@ class _ManualAddFormState extends ConsumerState<ManualAddForm> {
       },
       child: AbsorbPointer(
         child: _displayField(
-          "Date",
+          "Date Added",
           dateController,
           (value) {
               try {
