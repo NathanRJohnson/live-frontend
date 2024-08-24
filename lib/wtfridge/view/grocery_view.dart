@@ -28,6 +28,7 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
           SingleChildScrollView(
             child: Column(
               children: <Widget> [
+                const SizedBox(height: 16),
                 ReorderableListView(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
