@@ -11,7 +11,10 @@ void main() {
     final item = FridgeItem(name: "Test Item", timeInFridge: "5 days");
     await tester.pumpWidget(
         MaterialApp(
-            home: FridgeItemCard(item: item))
+            home: Scaffold(
+                body: FridgeItemCard(item: item)
+            )
+        )
     );
 
     final nameFinder = find.text("Test Item");
@@ -25,7 +28,9 @@ void main() {
     final item = FridgeItem(name: "Test Item", timeInFridge: "5 days");
     await tester.pumpWidget(
         MaterialApp(
-            home: FridgeItemCard(item: item)
+            home: Scaffold(
+                body: FridgeItemCard(item: item)
+            )
         )
     );
 
@@ -49,8 +54,10 @@ void main() {
     await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
-              home: FridgeItemCard(item: item)
-          ),
+              home: Scaffold(
+                  body: FridgeItemCard(item: item)
+              )
+          )
         )
     );
 

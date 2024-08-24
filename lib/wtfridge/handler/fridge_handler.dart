@@ -11,7 +11,7 @@ class FridgeHandler {
   // constructor
   FridgeHandler();
 
-  Future<void> pushToDB(Client client, FridgeItem i) async {
+Future<void> pushToDB(Client client, FridgeItem i) async {
     var body = jsonEncode(i);
     print("HIMARK $body");
     var response = await client.post(url, body: body);
