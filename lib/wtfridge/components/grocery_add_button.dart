@@ -42,9 +42,9 @@ class GroceryAddButton extends ConsumerWidget {
         });
       },
       child: Container(
-        margin: const EdgeInsets.fromLTRB(36.0, 16.0, 36.0, 0),
+        margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
         child: DottedBorder(
-            color: Colors.white,
+            color: Color(0xFFAAAAAA),
             strokeWidth: 1,
             dashPattern: const [16],
             child: const ClipRRect(
@@ -52,7 +52,7 @@ class GroceryAddButton extends ConsumerWidget {
                 heightFactor: 1.75,
                 child: Icon(
                   Icons.add,
-                  color: Colors.white,
+                  color: Color(0xFFAAAAAA),
                 ),
               ),
             )),
