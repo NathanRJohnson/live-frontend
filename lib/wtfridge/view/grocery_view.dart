@@ -22,12 +22,13 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
   Widget build(BuildContext context) {
     final groceryItems = ref.watch(groceryCardNotifierProvider);
     return Scaffold(
-      backgroundColor: const Color(0xFF141414),
+      backgroundColor: const Color(0xFFFFFFFF), // 141414
       body: Stack(
         children: <Widget> [
           SingleChildScrollView(
             child: Column(
               children: <Widget> [
+                const SizedBox(height: 16),
                 ReorderableListView(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),

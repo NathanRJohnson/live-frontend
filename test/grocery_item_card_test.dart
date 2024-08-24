@@ -15,7 +15,7 @@ void main() {
   testWidgets('GroceryItemCard displays correct text', (tester) async {
     final item = GroceryItem(name: "Test Item");
     await tester.pumpWidget(MaterialApp(
-      home: GroceryItemCard(key: UniqueKey(), item: item)
+      home: Scaffold(body: GroceryItemCard(key: UniqueKey(), item: item))
     ));
 
     final textFinder = find.text("Test Item");
@@ -35,7 +35,7 @@ void main() {
     final card =  GroceryItemCard(key: UniqueKey(), item: item, client: client);
     await tester.pumpWidget(
       ProviderScope(
-        child: MaterialApp(home: card)
+        child: MaterialApp(home: Scaffold(body: card))
       ),
     );
 
@@ -57,7 +57,7 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-          child: MaterialApp(home: card)
+          child: MaterialApp(home: Scaffold(body: card))
       ),
     );
 
@@ -79,7 +79,7 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-          child: MaterialApp(home: card)
+          child: MaterialApp(home: Scaffold(body: card))
       ),
     );
 
@@ -103,7 +103,7 @@ void main() {
     final card =  GroceryItemCard(key: UniqueKey(), item: item, client: MockClient());
     await tester.pumpWidget(
       ProviderScope(
-          child: MaterialApp(home: card)
+          child: MaterialApp(home: Scaffold(body: card))
       ),
     );
 

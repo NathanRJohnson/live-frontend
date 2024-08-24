@@ -6,13 +6,15 @@ class GroceryItem {
   bool isActive;
   int? id;
   int index;
+  int quantity;
+  String notes;
 
-  GroceryItem({ required this.name, this.isActive = false, this.id, this.index = -1}) {
+  GroceryItem({ required this.name, this.isActive = false, this.id, this.index = -1, this.quantity=1, this.notes=""}) {
     id ??= _generateID();
   }
 
   GroceryItem copy() {
-    return GroceryItem(id: id, name: name, isActive: isActive, index: index);
+    return GroceryItem(id: id, name: name, isActive: isActive, index: index, quantity: quantity, notes: notes);
   }
 
   factory GroceryItem.fromJSON(Map<String, dynamic> json) {
@@ -24,7 +26,9 @@ class GroceryItem {
       id: json['item_id'] as int,
       name: json['item_name'] as String,
       isActive: json['is_active'] as bool,
-      index: json['index'] as int
+      index: json['index'] as int,
+      quantity: json['quantity'] as int,
+      notes: json['notes'] as String
     );
   }
 
@@ -33,7 +37,9 @@ class GroceryItem {
       "item_id": id,
       "item_name": name,
       "is_active": isActive,
-      "index": index
+      "index": index,
+      "quantity": quantity,
+      "notes": notes
     };
 
   int _generateID() {
