@@ -2,19 +2,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import '../components/fridge_add_form.dart';
 
-import 'manual_add_form.dart';
+import 'common/item_action_form.dart';
 
 import '../provider/fridge_provider.dart';
 
 class FridgeSpeedDial extends ConsumerWidget {
 
-  Future<void> displayAddForm(BuildContext context, Function action) async {
+  Future<void> openFridgeAddForm(BuildContext context) async {
     return await showDialog<void>(
       context: context,
-      builder: (context) =>  const Dialog(
-        backgroundColor: Color(0xFFFFFFFF),
-        child: ManualAddForm(action_type: "fridge",)
+      builder: (context) => Dialog(
+        backgroundColor: const Color(0xFFFFFFFF),
+        child: FridgeAddForm(formKey: GlobalKey<FormState>())
       ),
     );
   }
@@ -45,10 +46,7 @@ class FridgeSpeedDial extends ConsumerWidget {
           foregroundColor: Colors.green,
           backgroundColor: const Color(0xFF292929),
           onTap: () async {
-            displayAddForm(context, (String s) {
-              ref.read(fridgeNotifierProvider.notifier)
-                  .addItem(s);
-            });
+            openFridgeAddForm(context);
           }
         ),
         SpeedDialChild(

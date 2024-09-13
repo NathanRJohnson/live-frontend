@@ -134,7 +134,7 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
       icon: Icons.shopping_basket_outlined,
       onPressed: (context) {
         ref.read(groceryCardNotifierProvider.notifier)
-            .addItem(widget.client, widget.item.name);
+            .addItemFromFridge(widget.client, widget.item);
       },
     );
   }

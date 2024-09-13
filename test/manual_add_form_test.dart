@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:project_l/wtfridge/components/manual_add_form.dart';
+import 'package:project_l/wtfridge/components/item_action_form.dart';
 
 void main() {
 

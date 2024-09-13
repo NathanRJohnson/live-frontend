@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
+import '../model/fridge_item.dart';
 
 import '../provider/fridge_provider.dart';
 import '../components/grocery_item_card.dart';
@@ -29,10 +30,37 @@ class GroceryCardNotifier extends Notifier<List<GroceryItemCard>> {
     state = cards;
   }
 
-  Future<void> addItem(Client client, String itemName, [int? id]) async {
-    GroceryItem newItem = GroceryItem(name: itemName, id: id, index: state.length+1);
-    state = <GroceryItemCard>[...state, GroceryItemCard(key: UniqueKey(), item: newItem)];
-    await groceryHandler.pushToDB(client, newItem);
+  Future<void> addItem(Client client, Map<String, String> values, [int? id]) async {
+    int quantity = values["quantity"] != null ? int.parse(values["quantity"]!) : 1;
+    String notes = values["notes"] != null ? values["notes"]! : "oya";
+
+    GroceryItem item = GroceryItem(
+      name: values["item_name"]!,
+      quantity: quantity,
+      notes: notes,
+      id: id,
+      index: state.length+1,
+      isActive: false
+    );
+    addItemLocally(item);
+    await groceryHandler.pushToDB(client, item);
+  }
+
+Future<void> addItemFromFridge(Client client, FridgeItem f) async {
+    Map<String, String> map = {
+      "item_name": f.name,
+      "quantity": f.quantity.toString(),
+      "notes": f.notes,
+    };
+    return await addItem(client, map);
+}
+
+  void addItemLocally(GroceryItem item) {
+    state = <GroceryItemCard>[...state,
+      GroceryItemCard(
+        key: UniqueKey(),
+        item: item
+      )];
   }
 
   Future<void> remove(Client client, GroceryItem item) async {
