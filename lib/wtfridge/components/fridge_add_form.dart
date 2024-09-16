@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
+import '../components/common/form_utils.dart';
 import '../components/common/item_action_form.dart';
 import 'package:project_l/wtfridge/provider/fridge_card_provider.dart';
 
-class FridgeAddForm extends ItemActionForm {
-  FridgeAddForm({super.key, super.fields, super.actionButtons, super.title, required super.formKey}){
-    formKey = GlobalKey<FormState>();
-  }
+class FridgeAddForm extends ConsumerStatefulWidget {
+  const FridgeAddForm({super.key});
 
   @override
-  FridgeAddFormState createState() => FridgeAddFormState();
+  ConsumerState<FridgeAddForm> createState() => _FridgeAddFormState();
 }
 
-class FridgeAddFormState extends ItemActionFormState {
+class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
   late final TextEditingController nameController;
   late final TextEditingController quantityController;
   late final TextEditingController notesController;
   late final TextEditingController dateController;
 
-  DateTime dateAdded = DateTime.now();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -52,36 +52,32 @@ class FridgeAddFormState extends ItemActionFormState {
   @override
   Widget build(BuildContext context) {
     return ItemActionForm(
-        formKey: widget.formKey,
+        formKey: formKey,
         title: "Add new item",
         fields: [
-          textField(labelText: "Name", controller: nameController, validator: requiredFieldValidator),
-          textField(labelText: "Quantity", controller: quantityController, validator: (value) {
-            String? r = requiredFieldValidator(value);
+          FormUtils.textField(labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator),
+          FormUtils.textField(labelText: "Quantity", controller: quantityController, validator: (value) {
+            String? r = FormUtils.requiredFieldValidator(value);
             if (r != null) return null;
-            String? i = integerFieldValidator(value);
+            String? i = FormUtils.integerFieldValidator(value);
             return i;
           }, keyboardType: TextInputType.number),
-          dateField(labelText: "Date Added", controller: dateController,
+          FormUtils.dateField(context: context, labelText: "Date Added", controller: dateController,
               validator: (value) {
                 try {
                   DateTime.parse(value!);
                 } on Exception {
-                  setState(() {
-                    focusLabelColor = Colors.red;
-                    unfocusedLabelColor = Colors.red;
-                  });
                   return 'Please enter a valid date added for the item.';
                 }
                 return null;
               }
           ),
-          textField(labelText: "Notes", controller: notesController, validator: (string){ return null; }),
+          FormUtils.textField(labelText: "Notes", controller: notesController, validator: (string){ return null; }),
         ],
         actionButtons: [
-          cancelActionButton(),
-          actionButton("Add", _action),
-          actionAndRepeatButton("Add & Continue", _action)
+          FormUtils.cancelActionButton(context),
+          FormUtils.actionButton(context, formKey, "Add", _action),
+          FormUtils.actionAndRepeatButton(formKey, "Add & Continue", _action)
         ],
     );
   }

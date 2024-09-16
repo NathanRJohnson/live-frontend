@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:http/src/io_client.dart';
+import 'package:intl/intl.dart';
+
 import '../model/fridge_item.dart';
 import 'package:http/http.dart';
 
@@ -13,10 +16,8 @@ class FridgeHandler {
 
 Future<void> pushToDB(Client client, FridgeItem i) async {
     var body = jsonEncode(i);
-    print("HIMARK $body");
     var response = await client.post(url, body: body);
     if (response.statusCode == 200 || response.statusCode == 201) {
-      print("Item added!");
     } else {
       throw ClientException("Failed to add Item: [${response.statusCode}] ${response.body}");
     }
@@ -39,7 +40,6 @@ Future<void> pushToDB(Client client, FridgeItem i) async {
           FridgeItem newItem = FridgeItem.fromJSON(itemMap);
           dbItems.add(newItem);
         } on Exception catch (e) {
-          print(e.toString());
           continue;
         }
       }
@@ -63,6 +63,16 @@ Future<void> pushToDB(Client client, FridgeItem i) async {
     var response = await client.post(request);
     if (response.statusCode != 200) {
       throw ClientException("Failed send fridge item to groceries");
+    }
+  }
+
+  updateItem(IOClient client, Map<String, dynamic> newValues) async {
+    newValues["new_date"] = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format((newValues["new_date"] as DateTime).toUtc());
+    String body = json.encode(newValues);
+
+    var response = await client.put(url, body: body);
+    if (response.statusCode != 200) {
+      throw ClientException("Failed to update item: ${response.body}");
     }
   }
 

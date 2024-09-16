@@ -3,7 +3,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
-import 'package:http/io_client.dart';
 import '../model/fridge_item.dart';
 
 import '../provider/fridge_provider.dart';
@@ -32,7 +31,7 @@ class GroceryCardNotifier extends Notifier<List<GroceryItemCard>> {
 
   Future<void> addItem(Client client, Map<String, String> values, [int? id]) async {
     int quantity = values["quantity"] != null ? int.parse(values["quantity"]!) : 1;
-    String notes = values["notes"] != null ? values["notes"]! : "oya";
+    String notes = values["notes"] != null ? values["notes"]! : "";
 
     GroceryItem item = GroceryItem(
       name: values["item_name"]!,
@@ -71,10 +70,23 @@ Future<void> addItemFromFridge(Client client, FridgeItem f) async {
     await groceryHandler.deleteItemByID(client, item.id!);
   }
 
-  Future<void> updateNameByID(Client client, int updateID, String newName) async {
-    GroceryItem item = state.where((c) => c.item.id == updateID).first.item;
-    item.name = newName;
-    await groceryHandler.renameItemByID(client, updateID, newName);
+  Future<void> updateItemByID(Client client, Map<String, dynamic> newValues) async {
+    GroceryItem item = state.where((c) => c.item.id == newValues["item_id"]!).first.item;
+    await groceryHandler.updateItem(client, newValues);
+    state = [
+      for (GroceryItemCard current in state)
+        if (item.id == current.item.id)
+          GroceryItemCard(key: UniqueKey(), item: GroceryItem(
+            id: item.id,
+            name: newValues["new_name"] as String,
+            index: item.index,
+            isActive: item.isActive,
+            quantity: newValues["new_quantity"] as int,
+            notes: newValues["new_notes"] as String,
+          ))
+        else
+          current
+    ];
   }
 
   Future<void> reorder(Client client, int oldIndex, int newIndex) async {

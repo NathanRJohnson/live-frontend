@@ -13,9 +13,9 @@ class GroceryAddButton extends ConsumerWidget {
   Future<void> openGroceryAddForm(BuildContext context) async {
     return await showDialog<void>(
       context: context,
-      builder: (context) =>  Dialog(
-        backgroundColor: const Color(0xFFFFFFFF),
-        child: GroceryAddForm(formKey: GlobalKey<FormState>())
+      builder: (context) =>  const Dialog(
+        backgroundColor: Color(0xFFFFFFFF),
+        child: GroceryAddForm()
       ),
     );
   }
@@ -27,7 +27,7 @@ class GroceryAddButton extends ConsumerWidget {
         openGroceryAddForm(context);
       },
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
+        padding: const EdgeInsets.only(bottom: 16.0),
         child: Container(
           margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
           child: DottedBorder(

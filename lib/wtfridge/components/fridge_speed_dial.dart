@@ -13,9 +13,9 @@ class FridgeSpeedDial extends ConsumerWidget {
   Future<void> openFridgeAddForm(BuildContext context) async {
     return await showDialog<void>(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: const Color(0xFFFFFFFF),
-        child: FridgeAddForm(formKey: GlobalKey<FormState>())
+      builder: (context) => const Dialog(
+        backgroundColor: Color(0xFFFFFFFF),
+        child: FridgeAddForm()
       ),
     );
   }
