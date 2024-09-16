@@ -1,15 +1,10 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 
-
-import '../components/update_item_form.dart';
+import '../components/fridge_update_form.dart';
 import '../model/fridge_item.dart';
 import '../provider/grocery_card_provider.dart';
 
@@ -117,10 +112,9 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
       borderRadius: const BorderRadius.only(topLeft: Radius.circular(8.0), bottomLeft: Radius.circular(8.0)),
       icon: Icons.edit,
       onPressed: (context) {
-        UpdateItemForm.displayUpdateItemForm(
+        FridgeUpdateForm.displayUpdateItemForm(
           context,
-          (newName) => () {},
-          widget.item.name
+          widget.item
         );
       }
     );

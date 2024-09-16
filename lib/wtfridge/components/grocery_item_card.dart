@@ -7,8 +7,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 
+import '../components/grocery_update_form.dart';
 import '../provider/grocery_card_provider.dart';
-import '../components/update_item_form.dart';
 import '../model/grocery_item.dart';
 
 class GroceryItemCard extends ConsumerStatefulWidget {
@@ -158,10 +158,9 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(8.0), bottomLeft: Radius.circular(8.0)),
         icon: Icons.edit,
         onPressed: (context) {
-          UpdateItemForm.displayUpdateItemForm(
+          GroceryUpdateForm.displayUpdateItemForm(
               context,
-              (newName) => () {},
-              widget.item.name
+              widget.item
           );
         }
     );

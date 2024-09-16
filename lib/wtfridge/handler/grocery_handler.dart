@@ -1,6 +1,5 @@
-
-
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart';
 
@@ -14,7 +13,6 @@ class GroceryHandler {
 
   Future<void> pushToDB(Client client, GroceryItem i) async {
     var body = jsonEncode(i);
-
     var response = await client.post(url, body: body);
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw ClientException("Failed to add Item: [${response.statusCode}] ${response.body}");
@@ -56,15 +54,12 @@ class GroceryHandler {
     }
   }
 
-    Future<void> renameItemByID(Client client, int itemID, String newName) async {
-    String body = json.encode({
-      "item_id": itemID,
-      "new_name": newName,
-    });
+    Future<void> updateItem(Client client, Map<String, dynamic> newValues) async {
+    String body = json.encode(newValues);
 
     var response = await client.put(url, body: body);
     if (response.statusCode != 200) {
-      throw ClientException("Failed to rename item");
+      throw ClientException("Failed to update item: ${response.body}");
     }
   }
 

@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
+import 'package:http/src/io_client.dart';
 
 import '../components/fridge_item_card.dart';
 import '../handler/fridge_handler.dart';
@@ -65,6 +66,25 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
     state = state.where((i) => i.item.id != removeId).toList();
   }
 
+  updateItemByID(IOClient client, Map<String, dynamic> newValues) async {
+    FridgeItem item = state.where((c) => c.item.id == newValues["item_id"]!).first.item;
+    await fridgeHandler.updateItem(client, Map.from(newValues));
+
+    state = [
+      for (FridgeItemCard current in state)
+        if (item.id == current.item.id)
+          FridgeItemCard(key: UniqueKey(), item: FridgeItem(
+            id: item.id,
+            name: newValues["new_name"] as String,
+            dateAdded: newValues["new_date"] as DateTime,
+            quantity: newValues["new_quantity"] as int,
+            notes: newValues["new_notes"] as String,
+          ))
+        else
+          current
+    ];
+  }
+
   Future<void> syncToDB(Client client) async {
     try {
       List<FridgeItem> dbItems = await fridgeHandler.getAllItems(client);
@@ -76,7 +96,6 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
       state = cards;
       isConnected = true;
     } on ClientException catch(e) {
-      print(e.message);
       isConnected = false;
     }
   }

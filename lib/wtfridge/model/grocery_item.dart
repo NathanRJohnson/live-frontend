@@ -22,6 +22,10 @@ class GroceryItem {
       throw const FormatException("Missing required fields for GroceryItem in JSON");
     }
 
+    if (!json.containsKey('quantity') || json["quantity"] <= 0) {
+      json["quantity"] = 1;
+    }
+
     return GroceryItem(
       id: json['item_id'] as int,
       name: json['item_name'] as String,

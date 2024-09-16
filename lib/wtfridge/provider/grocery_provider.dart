@@ -40,12 +40,6 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     groceryHandler.deleteItemByID(IOClient(), removeID);
   }
 
-  Future<void> updateNameByID(int updateID, String newName) async {
-    GroceryItem item = state.where((i) => i.id == updateID).first;
-    item.name = newName;
-    await groceryHandler.renameItemByID(IOClient(), updateID, newName);
-  }
-
   Future<void> reorder(int oldIndex, int newIndex) async {
     if (oldIndex == newIndex) {
       return;
