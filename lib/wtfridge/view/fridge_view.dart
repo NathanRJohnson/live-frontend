@@ -51,7 +51,8 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
                         FridgeItemCard currentCard = fridgeCards.elementAt(i);
                         return currentCard;
                     }).toList(),
-                            ),
+                  ),
+                  const SizedBox(height: 50.0)
                 ],
               ),
             )],
