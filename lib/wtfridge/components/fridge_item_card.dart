@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 
+import '../provider/fridge_card_provider.dart';
 import '../components/fridge_update_form.dart';
 import '../model/fridge_item.dart';
 import '../provider/grocery_card_provider.dart';
@@ -17,10 +18,10 @@ class FridgeItemCard extends ConsumerStatefulWidget {
   }
 
   @override
-  _FridgeItemCardState createState() => _FridgeItemCardState();
+  FridgeItemCardState createState() => FridgeItemCardState();
 }
 
-class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
+class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTickerProviderStateMixin {
   Color backgroundColor = const Color(0xFFFFFFFF);
   Color borderColor = const Color(0xFFDDDDDD);
   Color onBackgroundPrimaryColor = const Color(0xFF2C2C2C);
@@ -29,10 +30,37 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
   Color selectedBorderColor = const Color(0xFF528DFF);
   Color inactiveActionColor = const Color(0xFFD7D7D7);
 
+  late AnimationController _animationController;
+  late Animation<Color?> _colorAnimation;
 
-  bool isExpanded = false;
   bool isSelected = false;
   bool isVisible = true;
+  final ExpansionTileController controller = ExpansionTileController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
+
+    _colorAnimation = ColorTween(
+      end: onBackgroundSecondaryColor.withOpacity(1.0),
+      begin: Colors.orangeAccent.withOpacity(1.0),
+    ).animate(_animationController);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void startAnimation() {
+    _animationController.forward(from: 0.0); // Restart animation from the beginning
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,27 +102,36 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
     return ListTileTheme(
       contentPadding: const EdgeInsets.all(0),
       child: ExpansionTile(
+        controller: controller,
         backgroundColor: (isSelected) ? selectedBackgroundColor : backgroundColor,
         collapsedBackgroundColor: (isSelected) ? selectedBackgroundColor : backgroundColor,
         collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         title: _displayNameAndQuantity(),
-        trailing:  Transform.translate(
-            offset: (isExpanded || widget.item.notes != "") ? const Offset(0, -10) : const Offset(0, -2),
-            child: (isSelected) ? _displaySelectedStatus() : _displayTimeInFridge()),
+        trailing:  Builder(
+          builder: (context) {
+            return Transform.translate(
+                offset: (ExpansionTileController.of(context).isExpanded || widget.item.notes != "") ? const Offset(0, -10) : const Offset(0, -2),
+                child: (isSelected) ? _displaySelectedStatus() : _displayTimeInFridge());
+          }
+        ),
         subtitle: () {
-          if (isExpanded) {
-            return  _displayDateAdded();
-          } else if (widget.item.notes != "") {
-            return _displayNotesHint();
+          if (widget.item.notes != "") {
+            return  _displaySubtitle();
           }
         }(),
         expandedAlignment: Alignment.topLeft,
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        initiallyExpanded: ref.read(fridgeCardNotifierProvider.notifier).isInitiallyExpanded(this),
         onExpansionChanged: (expandState) {
-          setState(() {
-            isExpanded = expandState;
-          });
+          if (expandState) {
+            ref.read(fridgeCardNotifierProvider.notifier)
+                .setCurrentlyExpandedTile(this);
+          } else {
+            ref.read(fridgeCardNotifierProvider.notifier)
+                .setCurrentlyExpandedTile(null);
+          }
+          setState(() {});
         },
         children: [
           _displayNotesFull(),
@@ -102,6 +139,16 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
         ],
       ),
     );
+  }
+
+  Widget _displaySubtitle() {
+    return Builder(builder: (context) {
+        if (ExpansionTileController.of(context).isExpanded) {
+          return  _displayDateAdded();
+        } else {
+          return _displayNotesHint();
+        }
+    });
   }
 
   SlidableAction editItemAction() {
@@ -149,12 +196,18 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: (widget.item.quantity <= 1) ? const Text("") :
-          Text("x${widget.item.quantity}",
-            style: TextStyle(
-              fontSize: Theme.of(context).textTheme.bodyMedium!.fontSize,
-              color: onBackgroundSecondaryColor,
-            ),
-          ),
+          AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return Text(
+                "x${widget.item.quantity}",
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.bodyMedium!.fontSize,
+                    color: (_animationController.isAnimating) ? _colorAnimation.value : onBackgroundSecondaryColor,
+                  )
+              );
+            }
+          )
         ),
       ],
     );
@@ -269,41 +322,84 @@ class _FridgeItemCardState extends ConsumerState<FridgeItemCard> {
   }
 
   Widget _displayActionButtons() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: <Widget>[
-          _buttonFormatting(
-            ElevatedButton.icon(
-              onPressed: (){},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: (isSelected) ? inactiveActionColor : Colors.redAccent,
-                foregroundColor: (isSelected) ? Colors.black : Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0))
+    return Builder(
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: <Widget>[
+              _buttonFormatting(
+                GestureDetector(
+                  onLongPressUp: () async {
+                    ExpansionTileController.of(context).collapse();
+                    ref.read(fridgeCardNotifierProvider.notifier)
+                        .remove(widget.client, widget.item);
+                  },
+                  child:
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await reduceOrDelete(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: (isSelected) ? inactiveActionColor : Colors.redAccent,
+                      foregroundColor: (isSelected) ? Colors.black : Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0))
+                    ),
+                    label: const Text("Wasted"),
+                    icon: Icon(
+                      Icons.delete_forever_outlined,
+                      color: (isSelected) ? Colors.black : Colors.white,
+                      size: 20.0,
+                    ),
+                  ),
+                ),
               ),
-              label: const Text("Wasted"),
-              icon: Icon(
-                Icons.delete_forever_outlined,
-                color: (isSelected) ? Colors.black : Colors.white,
-                size: 20.0,
-              ),
-            ),
+              _buttonFormatting(
+                GestureDetector(
+                  onLongPressUp: () async {
+                    ExpansionTileController.of(context).collapse();
+                    ref.read(fridgeCardNotifierProvider.notifier)
+                        .remove(widget.client, widget.item);
+                  },
+                  child:
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await reduceOrDelete(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: (isSelected) ? inactiveActionColor : const Color(0xFFE8EEFF),
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0))
+                    ),
+                    label: const Text("Eaten"),
+                    icon: const Icon(Icons.restaurant_menu, size: 20.0,),
+                  ),
+                ),
+              )
+            ],
           ),
-          _buttonFormatting(
-            ElevatedButton.icon(
-              onPressed: (){},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: (isSelected) ? inactiveActionColor : const Color(0xFFE8EEFF),
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0))
-              ),
-              label: const Text("Eaten"),
-              icon: const Icon(Icons.restaurant_menu, size: 20.0,),
-            ),
-          )
-        ],
-      ),
+        );
+      }
     );
+  }
+
+  Future<void> reduceOrDelete(BuildContext context) async {
+    if (widget.item.quantity > 1) {
+      var update = {
+        "item_id": widget.item.id,
+        "new_quantity": widget.item.quantity-1
+      };
+      ref.read(fridgeCardNotifierProvider.notifier)
+          .updateItemByID(widget.client, update, rebuild: false);
+      startAnimation();
+      setState(() {
+        widget.item.quantity -= 1;
+      });
+    } else {
+      ExpansionTileController.of(context).collapse();
+      ref.read(fridgeCardNotifierProvider.notifier)
+          .remove(widget.client, widget.item);
+    }
   }
 
   Widget _buttonFormatting(Widget w) {
