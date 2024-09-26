@@ -1,5 +1,6 @@
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
 import 'package:http/src/io_client.dart';
@@ -12,6 +13,7 @@ import '../model/grocery_item.dart';
 class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
   FridgeHandler fridgeHandler = FridgeHandler();
   bool isConnected = true;
+  FridgeItemCardState? currentExpandedTileState;
 
   // initial value
   @override
@@ -66,23 +68,25 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
     state = state.where((i) => i.item.id != removeId).toList();
   }
 
-  updateItemByID(IOClient client, Map<String, dynamic> newValues) async {
+  updateItemByID(Client client, Map<String, dynamic> newValues, {bool rebuild=true}) async {
     FridgeItem item = state.where((c) => c.item.id == newValues["item_id"]!).first.item;
     await fridgeHandler.updateItem(client, Map.from(newValues));
 
-    state = [
-      for (FridgeItemCard current in state)
-        if (item.id == current.item.id)
-          FridgeItemCard(key: UniqueKey(), item: FridgeItem(
-            id: item.id,
-            name: newValues["new_name"] as String,
-            dateAdded: newValues["new_date"] as DateTime,
-            quantity: newValues["new_quantity"] as int,
-            notes: newValues["new_notes"] as String,
-          ))
-        else
-          current
-    ];
+    if (rebuild){
+      state = [
+        for (FridgeItemCard current in state)
+          if (item.id == current.item.id)
+            FridgeItemCard(key: UniqueKey(), item: FridgeItem(
+              id: item.id,
+              name: newValues.containsKey("new_name") ? newValues["new_name"] as String : item.name,
+              dateAdded: newValues.containsKey("new_date") ? newValues["new_date"] as DateTime : item.dateAdded,
+              quantity: newValues.containsKey("new_quantity") ? newValues["new_quantity"] as int : item.quantity,
+              notes: newValues.containsKey("new_notes") ? newValues["new_notes"] as String : item.notes,
+            ))
+          else
+            current
+      ];
+    }
   }
 
   Future<void> syncToDB(Client client) async {
@@ -100,6 +104,18 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
     }
   }
 
+  bool isInitiallyExpanded(FridgeItemCardState etc) {
+    return currentExpandedTileState == etc;
+  }
+
+  void setCurrentlyExpandedTile(FridgeItemCardState? etc) {
+    if (currentExpandedTileState?.controller.isExpanded ?? false) {
+      currentExpandedTileState?.controller.collapse();
+      currentExpandedTileState = null;
+    }
+    currentExpandedTileState = etc;
+  }
+
   int length() {
     return state.length;
   }
@@ -108,6 +124,8 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
     FridgeItemCard item = state.elementAt(index);
     return item;
   }
+
+
 
 }
 
