@@ -66,10 +66,12 @@ Future<void> pushToDB(Client client, FridgeItem i) async {
     }
   }
 
-  updateItem(IOClient client, Map<String, dynamic> newValues) async {
-    newValues["new_date"] = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format((newValues["new_date"] as DateTime).toUtc());
-    String body = json.encode(newValues);
+  updateItem(Client client, Map<String, dynamic> newValues) async {
+    if (newValues.containsKey("new_date")) {
+      newValues["new_date"] = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format((newValues["new_date"] as DateTime).toUtc());
+    }
 
+    String body = json.encode(newValues);
     var response = await client.put(url, body: body);
     if (response.statusCode != 200) {
       throw ClientException("Failed to update item: ${response.body}");
