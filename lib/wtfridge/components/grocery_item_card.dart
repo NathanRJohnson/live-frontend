@@ -39,11 +39,11 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
 
   Color getColor() {
     if (widget.isMoving) {
-      return Colors.yellow;
+      return Colors.orangeAccent;
     } else if (widget.item.isActive) {
-      return Colors.green;
+      return selectedBorderColor;
     } else {
-      return Colors.white60;
+      return borderColor;
     }
   }
 
@@ -64,7 +64,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8.0),
                   border: Border.all(
-                      color: (widget.item.isActive) ? selectedBorderColor : borderColor,
+                      color: getColor(),
                       width: 1.0
                   )
               ),
@@ -118,7 +118,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
         Text(widget.item.name,
           style: TextStyle(
               fontSize: Theme.of(context).textTheme.bodyMedium!.fontSize,
-              color: onBackgroundPrimaryColor,
+              color:  (widget.isMoving) ? Colors.orangeAccent : onBackgroundPrimaryColor,
               fontWeight: FontWeight.bold
           ),
         ),

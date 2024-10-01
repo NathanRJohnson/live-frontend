@@ -90,8 +90,8 @@ Widget _displayAddToFridgeButton(WidgetRef ref) {
           width: 175,
           height: 55,
           child: ElevatedButton(
-            onPressed: (){
-              ref.read(groceryCardNotifierProvider.notifier).sendActiveToFridge(IOClient(), ref);
+            onPressed: () async {
+              await ref.read(groceryCardNotifierProvider.notifier).sendActiveToFridge(IOClient(), ref);
             },
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.green),

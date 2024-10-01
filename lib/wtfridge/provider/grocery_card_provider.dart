@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
+import '../provider/fridge_card_provider.dart';
 import '../model/fridge_item.dart';
 
 import '../provider/fridge_provider.dart';
@@ -118,7 +119,7 @@ Future<void> addItemFromFridge(Client client, FridgeItem f) async {
   }
 
   Future<void> sendActiveToFridge(Client client, WidgetRef ref) async {
-    ref.read(fridgeNotifierProvider.notifier)
+    ref.read(fridgeCardNotifierProvider.notifier)
         .extendItemsWithGroceriesLocally(getActive());
     removeActiveLocally();
     await groceryHandler.sendActiveToFridge(client);

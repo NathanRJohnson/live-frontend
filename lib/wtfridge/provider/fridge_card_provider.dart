@@ -50,7 +50,7 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
   }
 
   void extendItemsWithGroceriesLocally(List<GroceryItem> items) {
-    for (GroceryItem g in items){
+    for (GroceryItem g in items) {
       FridgeItem f = FridgeItem(name: g.name, id: g.id, dateAdded: DateTime.now());
       addItemLocally(f);
     }
