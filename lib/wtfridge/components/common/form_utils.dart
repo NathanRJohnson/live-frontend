@@ -4,19 +4,19 @@ import 'package:intl/intl.dart';
 class FormUtils {
 
   // Method to build a TextFormField
-  static TextFormField textField({ required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType}) {
+  static TextFormField textField({ required BuildContext context, required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType}) {
     // controllers.add(controller);
     return TextFormField(
       controller: controller,
       validator: validator,
       keyboardType: keyboardType,
-      cursorColor: Colors.black,
+      cursorColor: Theme.of(context).colorScheme.onSurface,
       autofocus: true,
 
       // Input text
-      style: const TextStyle(
-          color: Color(0xFF1D1B20),
-          decorationColor: Colors.black
+      style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
+          decorationColor: Theme.of(context).colorScheme.onSurface
       ),
 
       // Label text pre-focus
@@ -28,17 +28,17 @@ class FormUtils {
         ),
 
         // Label text post-focus
-        floatingLabelStyle: const TextStyle(
-            color: Colors.green
+        floatingLabelStyle: TextStyle(
+            color: Theme.of(context).colorScheme.primary
         ),
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
         ),
 
-        focusedBorder: const OutlineInputBorder(
+        focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: Colors.green,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ),
@@ -52,6 +52,7 @@ class FormUtils {
         },
         child: AbsorbPointer(
             child: textField(
+                context: context,
                 labelText: labelText,
                 controller: controller,
                 validator: validator,
@@ -73,12 +74,9 @@ class FormUtils {
         lastDate: DateTime(2100),
         builder: (BuildContext context, Widget? child) {
           return Theme(
-              data: Theme.of(context).copyWith(
-                  colorScheme: const ColorScheme.light(
-                      primary: Colors.green
-                  )
-              ),
-              child: child!);
+              data: Theme.of(context),
+              child: child!
+          );
         }
     );
     if (picked != null && picked != dateAdded) {
@@ -94,6 +92,7 @@ class FormUtils {
       child: Text(
         text,
         style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: Theme.of(context).textTheme.titleLarge!.fontSize
         ),
       ),
@@ -132,14 +131,14 @@ class FormUtils {
         },
         child: Text(
             label,
-            style: const TextStyle(
-                color: Colors.green
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.primary
             ))
     );
   }
 
 
-  static TextButton actionAndRepeatButton(GlobalKey<FormState> formKey, String label, VoidCallback action) {
+  static TextButton actionAndRepeatButton(BuildContext context, GlobalKey<FormState> formKey, String label, VoidCallback action) {
     return TextButton(
         onPressed: () {
           final formState = formKey.currentState;
@@ -150,8 +149,8 @@ class FormUtils {
         },
         child: Text(
             label,
-            style: const TextStyle(
-                color: Colors.green
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.primary
             )
         )
     );
@@ -163,9 +162,9 @@ class FormUtils {
         onPressed: () {
           Navigator.pop(context);
         },
-        child: const Text(
+        child: Text(
             "Cancel",
-            style: TextStyle(color: Color(0xFF1D1B20))
+            style: TextStyle(color: Theme.of(context).colorScheme.tertiary)
         )
     );
   }

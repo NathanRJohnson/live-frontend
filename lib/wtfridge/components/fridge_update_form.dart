@@ -18,7 +18,7 @@ class FridgeUpdateForm extends ConsumerStatefulWidget {
     return await showDialog<void>(
         context: context,
         builder: (context) => Dialog(
-            backgroundColor: const Color(0xFFFFFFFF),
+            backgroundColor: Theme.of(context).colorScheme.surface,
             child: FridgeUpdateForm(currentItem: currentItem)
         )
     );
@@ -73,8 +73,8 @@ class _FridgeUpdateFormState extends ConsumerState<FridgeUpdateForm> {
       formKey: formKey,
       title: "Update item",
       fields: [
-        FormUtils.textField(labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator),
-        FormUtils.textField(labelText: "Quantity", controller: quantityController, validator: (value) {
+        FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator),
+        FormUtils.textField(context: context, labelText: "Quantity", controller: quantityController, validator: (value) {
           String? r =  FormUtils.requiredFieldValidator(value);
           if (r != null) return null;
           String? i =  FormUtils.integerFieldValidator(value);
@@ -90,7 +90,7 @@ class _FridgeUpdateFormState extends ConsumerState<FridgeUpdateForm> {
               return null;
             }
         ),
-        FormUtils.textField(labelText: "Notes", controller: notesController, validator: (string){ return null; }),
+        FormUtils.textField(context: context, labelText: "Notes", controller: notesController, validator: (string){ return null; }),
       ],
       actionButtons: [
         FormUtils.cancelActionButton(context),

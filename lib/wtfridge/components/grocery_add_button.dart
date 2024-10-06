@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../provider/grocery_provider.dart';
 import '../components/grocery_add_form.dart';
 
 class GroceryAddButton extends ConsumerWidget {
@@ -13,9 +12,9 @@ class GroceryAddButton extends ConsumerWidget {
   Future<void> openGroceryAddForm(BuildContext context) async {
     return await showDialog<void>(
       context: context,
-      builder: (context) =>  const Dialog(
-        backgroundColor: Color(0xFFFFFFFF),
-        child: GroceryAddForm()
+      builder: (context) =>  Dialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        child: const GroceryAddForm()
       ),
     );
   }

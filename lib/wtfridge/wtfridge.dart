@@ -32,13 +32,13 @@ class _WTFridgePageState extends State<WTFridgeMainPage> {
           onPressed: (){
             context.go('/');
           },
-          child: const Text('WhatTheFridge',
+          child: Text('WhatTheFridge',
             style: TextStyle(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
             )),
         ),
-        backgroundColor: const Color(0xFF292929),
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         automaticallyImplyLeading: false
       ),
       body: PageView(
@@ -61,9 +61,9 @@ class _WTFridgePageState extends State<WTFridgeMainPage> {
         onTap: (index) {
          _pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.ease);
         },
-        backgroundColor: const Color(0xFF292929),
-        unselectedItemColor: Colors.white70,
-        selectedItemColor: Colors.green,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        unselectedItemColor: Theme.of(context).colorScheme.outline,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
       ),
     );
   }
