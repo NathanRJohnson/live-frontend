@@ -220,7 +220,11 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
         ),
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: Icon(Icons.access_time, size: Theme.of(context).textTheme.bodySmall!.fontSize),
+          child: Icon(
+            Icons.access_time,
+            size: Theme.of(context).textTheme.bodySmall!.fontSize,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         )
       ],
     );
