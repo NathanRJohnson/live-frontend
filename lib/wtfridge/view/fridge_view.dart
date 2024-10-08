@@ -26,7 +26,7 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
     return
       !ref.read(fridgeCardNotifierProvider.notifier).isConnected ?
       Container(
-        color: const Color(0xFFFFFFFF),
+        color: Theme.of(context).colorScheme.surface, // const Color(0xFFFFFFFF),
         child: Center(
             child: NoConnectionMessage(
               onRetry: () async {
@@ -35,7 +35,7 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
             )),
       ) :
       Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF), //0xFF141414
+      backgroundColor: Theme.of(context).colorScheme.surface, // const Color(0xFFFFFFFF), //0xFF141414
       body: Stack(
           children: <Widget>[
             SingleChildScrollView(
@@ -66,8 +66,8 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
       trailing: <Widget>[
         ElevatedButton.icon(
           onPressed: (){},
-          label: SizedBox(),
-          icon: Icon(Icons.filter_alt_outlined)
+          label: const SizedBox(),
+          icon: const Icon(Icons.filter_alt_outlined)
         )
       ]
     );
@@ -85,12 +85,12 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
             height: 36,
             child: SearchAnchor(
               builder: (BuildContext context, SearchController controller) {
-                return const SearchBar(
-                  leading: Icon(Icons.search),
+                return SearchBar(
+                  leading: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurface),
                   hintText: "Search",
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(left: Radius.circular(4.0), right: Radius.circular(4.0)))),
-                  backgroundColor: MaterialStatePropertyAll(Color(0xFFF7F9F7)),
-                  elevation: MaterialStatePropertyAll(0.0),
+                  shape: const WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(left: Radius.circular(4.0), right: Radius.circular(4.0)))),
+                  backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surfaceContainer),
+                  elevation: const WidgetStatePropertyAll(0.0),
                 );
               },
               suggestionsBuilder: (BuildContext context, SearchController controller) {
@@ -100,7 +100,10 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
           ),
           IconButton(
             onPressed: (){},
-            icon: Icon(Icons.filter_alt_outlined)
+            icon: Icon(
+              Icons.filter_alt_outlined,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           )
         ],
     );

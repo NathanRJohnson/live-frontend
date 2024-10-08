@@ -30,10 +30,10 @@ class FridgeSpeedDial extends ConsumerWidget {
       animationCurve: Curves.elasticInOut,
       overlayColor: Colors.black54,
       overlayOpacity: 0.5,
-      foregroundColor: Colors.green,
-      backgroundColor: const Color(0xFF292929),
-      activeForegroundColor: Colors.green,
-      activeBackgroundColor: const Color(0xFF292929),
+      foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      activeForegroundColor: Theme.of(context).colorScheme.primaryContainer,
+      activeBackgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
       isOpenOnStart: false,
       label: const Text('Add'),
       activeLabel: const Text('Close'),
@@ -43,8 +43,8 @@ class FridgeSpeedDial extends ConsumerWidget {
         SpeedDialChild(
           child: const Icon(Icons.keyboard_alt_outlined),
           shape: const CircleBorder(),
-          foregroundColor: Colors.green,
-          backgroundColor: const Color(0xFF292929),
+          foregroundColor: Theme.of(context).colorScheme.primaryContainer,
+          backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
           onTap: () async {
             openFridgeAddForm(context);
           }

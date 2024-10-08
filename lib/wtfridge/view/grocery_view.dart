@@ -22,7 +22,7 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
   Widget build(BuildContext context) {
     final groceryItems = ref.watch(groceryCardNotifierProvider);
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF), // 141414
+      backgroundColor: Theme.of(context).colorScheme.surface, // 141414
       body: Stack(
         children: <Widget> [
           SingleChildScrollView(
@@ -58,7 +58,7 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
               ],
             ),
           ),
-          _displayAddToFridgeButton(ref),
+          _displayAddToFridgeButton(context, ref),
         ]),
       floatingActionButton: _displayShareFAB(context, ref),
       );
@@ -79,7 +79,7 @@ Widget _proxyDecorator(Widget child, int index, Animation<double> animation) {
   );
 }
 
-Widget _displayAddToFridgeButton(WidgetRef ref) {
+Widget _displayAddToFridgeButton(BuildContext context, WidgetRef ref) {
   return Visibility(
     visible: ref.watch(groceryCardNotifierProvider.notifier).countActive() > 0,
     child: Align(
@@ -93,13 +93,11 @@ Widget _displayAddToFridgeButton(WidgetRef ref) {
             onPressed: () async {
               await ref.read(groceryCardNotifierProvider.notifier).sendActiveToFridge(IOClient(), ref);
             },
-            style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
-                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    )
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
                 )
             ),
             child: Text(
@@ -114,12 +112,12 @@ Widget _displayAddToFridgeButton(WidgetRef ref) {
 
 Widget _displayShareFAB(BuildContext context, WidgetRef ref) {
   return FloatingActionButton(
-    backgroundColor: const Color(0xFF292929),
+    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
     shape: const CircleBorder(),
     onPressed: () async {
-      String message_text = ref.read(groceryCardNotifierProvider.notifier)
+      String messageText = ref.read(groceryCardNotifierProvider.notifier)
           .getShareGroceryText();
-      await Clipboard.setData(ClipboardData(text: message_text));
+      await Clipboard.setData(ClipboardData(text: messageText));
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -127,8 +125,8 @@ Widget _displayShareFAB(BuildContext context, WidgetRef ref) {
         );
       }
     },
-    child: const Icon(Icons.share,
-      color: Colors.green,
+    child: Icon(Icons.share,
+      color: Theme.of(context).colorScheme.onPrimaryContainer,
     ),
   );
 }

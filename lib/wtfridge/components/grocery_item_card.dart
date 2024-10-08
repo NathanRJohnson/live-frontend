@@ -28,22 +28,13 @@ class GroceryItemCard extends ConsumerStatefulWidget {
 class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
   bool isVisible = true;
 
-
-  Color backgroundColor = const Color(0xFFFFFFFF);
-  Color borderColor = const Color(0xFFDDDDDD);
-  Color onBackgroundPrimaryColor = const Color(0xFF2C2C2C);
-  Color onBackgroundSecondaryColor = const Color(0xFF444444);
-  Color selectedBackgroundColor = const Color(0xFFEEF7FF);
-  Color selectedBorderColor = Colors.green; // const Color(0xFF528DFF);
-  Color inactiveActionColor = const Color(0xFFD7D7D7);
-
   Color getColor() {
     if (widget.isMoving) {
-      return Colors.orangeAccent;
+      return Theme.of(context).colorScheme.tertiary;
     } else if (widget.item.isActive) {
-      return selectedBorderColor;
+      return Theme.of(context).colorScheme.primary;
     } else {
-      return borderColor;
+      return Theme.of(context).colorScheme.outlineVariant;
     }
   }
 
@@ -88,7 +79,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
     return ListTileTheme(
       contentPadding: const EdgeInsets.all(0),
       child: ListTile(
-        tileColor: backgroundColor,
+        tileColor: Theme.of(context).colorScheme.surfaceContainerLow,
         minVerticalPadding: 0.0,
         titleAlignment: ListTileTitleAlignment.top,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
@@ -98,7 +89,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                (widget.item.isActive) ? Icon(Icons.check_box, color: selectedBorderColor) : const Icon(Icons.check_box_outline_blank),
+                (widget.item.isActive) ? Icon(Icons.check_box, color: Theme.of(context).colorScheme.primary) : const Icon(Icons.check_box_outline_blank),
               ]),
         ),
         title: _displayNameAndQuantity(),
@@ -118,7 +109,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
         Text(widget.item.name,
           style: TextStyle(
               fontSize: Theme.of(context).textTheme.bodyMedium!.fontSize,
-              color:  (widget.isMoving) ? Colors.orangeAccent : onBackgroundPrimaryColor,
+              color:  (widget.isMoving) ? Theme.of(context).colorScheme.onErrorContainer : Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.bold
           ),
         ),
@@ -128,7 +119,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
           Text("x${widget.item.quantity}",
             style: TextStyle(
               fontSize: Theme.of(context).textTheme.bodyMedium!.fontSize,
-              color: onBackgroundSecondaryColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -142,7 +133,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
       child: Text(
         widget.item.notes,
         style: TextStyle(
-          color: onBackgroundSecondaryColor,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           fontSize: Theme.of(context).textTheme.bodySmall!.fontSize
         ),
       ),
@@ -153,8 +144,8 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
   SlidableAction editItemAction() {
     return SlidableAction(
         label: 'edit',
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+        foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(8.0), bottomLeft: Radius.circular(8.0)),
         icon: Icons.edit,
         onPressed: (context) {
@@ -172,8 +163,8 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
         onPressed: (context) async {
           await _handleDeleteDismiss(context);
         },
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
         icon: Icons.delete,
     );
   }

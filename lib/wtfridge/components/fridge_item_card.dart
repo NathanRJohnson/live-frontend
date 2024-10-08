@@ -22,14 +22,6 @@ class FridgeItemCard extends ConsumerStatefulWidget {
 }
 
 class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTickerProviderStateMixin {
-  Color backgroundColor = const Color(0xFFFFFFFF);
-  Color borderColor = const Color(0xFFDDDDDD);
-  Color onBackgroundPrimaryColor = const Color(0xFF2C2C2C);
-  Color onBackgroundSecondaryColor = const Color(0xFF444444);
-  Color selectedBackgroundColor = const Color(0xFFEEF7FF);
-  Color selectedBorderColor = const Color(0xFF528DFF);
-  Color inactiveActionColor = const Color(0xFFD7D7D7);
-
   late AnimationController _animationController;
   late Animation<Color?> _colorAnimation;
 
@@ -47,8 +39,8 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
     );
 
     _colorAnimation = ColorTween(
-      end: onBackgroundSecondaryColor.withOpacity(1.0),
-      begin: Colors.orangeAccent.withOpacity(1.0),
+      end: const Color(0xFF444444),
+      begin: Colors.orangeAccent,
     ).animate(_animationController);
   }
 
@@ -78,7 +70,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8.0),
               border: Border.all(
-                color: (isSelected) ? selectedBorderColor : borderColor,
+                color: (isSelected) ? Theme.of(context).colorScheme.onSecondaryContainer : Theme.of(context).colorScheme.outlineVariant,
                 width: 1.0
               )
             ),
@@ -103,8 +95,8 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
       contentPadding: const EdgeInsets.all(0),
       child: ExpansionTile(
         controller: controller,
-        backgroundColor: (isSelected) ? selectedBackgroundColor : backgroundColor,
-        collapsedBackgroundColor: (isSelected) ? selectedBackgroundColor : backgroundColor,
+        backgroundColor: (isSelected) ? Theme.of(context).colorScheme.secondaryContainer : Theme.of(context).colorScheme.surfaceContainerLow,
+        collapsedBackgroundColor: (isSelected) ? Theme.of(context).colorScheme.secondaryContainer : Theme.of(context).colorScheme.surfaceContainerLow,
         collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         title: _displayNameAndQuantity(),
@@ -154,8 +146,8 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
   SlidableAction editItemAction() {
     return SlidableAction(
       label: 'edit',
-      backgroundColor: Colors.blueAccent,
-      foregroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+      foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
       borderRadius: const BorderRadius.only(topLeft: Radius.circular(8.0), bottomLeft: Radius.circular(8.0)),
       icon: Icons.edit,
       onPressed: (context) {
@@ -170,8 +162,8 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
   SlidableAction moveToGroceryItemAction() {
     return SlidableAction(
       label: 'to list',
-      backgroundColor: Colors.yellow,
-      foregroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+      foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
       icon: Icons.shopping_basket_outlined,
       onPressed: (context) {
         ref.read(groceryCardNotifierProvider.notifier)
@@ -188,7 +180,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
           child: Text(widget.item.name,
             style: TextStyle(
                 fontSize: Theme.of(context).textTheme.bodyMedium!.fontSize,
-                color: onBackgroundPrimaryColor,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold
             ),
           ),
@@ -203,7 +195,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
                 "x${widget.item.quantity}",
                   style: TextStyle(
                     fontSize: Theme.of(context).textTheme.bodyMedium!.fontSize,
-                    color: (_animationController.isAnimating) ? _colorAnimation.value : onBackgroundSecondaryColor,
+                    color: (_animationController.isAnimating) ? _colorAnimation.value : Theme.of(context).colorScheme.onSurfaceVariant,
                   )
               );
             }
@@ -221,14 +213,18 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
           padding: const EdgeInsets.only(right: 4.0),
           child: Text(widget.item.timeInFridge,
             style: TextStyle(
-              color: onBackgroundSecondaryColor,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
             ),
           ),
         ),
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: Icon(Icons.access_time, size: Theme.of(context).textTheme.bodySmall!.fontSize),
+          child: Icon(
+            Icons.access_time,
+            size: Theme.of(context).textTheme.bodySmall!.fontSize,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         )
       ],
     );
@@ -242,7 +238,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
           padding: const EdgeInsets.only(right: 4.0),
           child: Text("Selected",
             style: TextStyle(
-              color: selectedBorderColor,
+              color: Theme.of(context).colorScheme.onTertiaryContainer,
               fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
             ),
           ),
@@ -251,7 +247,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
           padding: const EdgeInsets.only(right: 16.0),
           child: Icon(
             Icons.check_circle_outline,
-            color: selectedBorderColor,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
             size: Theme.of(context).textTheme.bodySmall!.fontSize
           ),
         )
@@ -268,7 +264,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          color: onBackgroundSecondaryColor,
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
           fontSize: Theme.of(context).textTheme.bodySmall!.fontSize
         ),
       ),
@@ -285,9 +281,9 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
       child: Text(
-        "Added: ${s}",
+        "Added: $s",
         style: TextStyle(
-          color: onBackgroundSecondaryColor,
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
           fontSize: Theme.of(context).textTheme.bodySmall!.fontSize
         ),
       ),
@@ -304,7 +300,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
           Text(
             "Notes:",
             style: TextStyle(
-              color: onBackgroundPrimaryColor,
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.bold,
               fontSize: Theme.of(context).textTheme.bodySmall!.fontSize
             ),
@@ -312,7 +308,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
           Text(
             (widget.item.notes != "") ? widget.item.notes : "No notes.",
             style: TextStyle(
-              color: onBackgroundSecondaryColor,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: Theme.of(context).textTheme.bodySmall!.fontSize
             ),
           )
@@ -337,18 +333,17 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
                   },
                   child:
                   ElevatedButton.icon(
-                    onPressed: () async {
+                    onPressed: (isSelected) ? null : () async {
                       await reduceOrDelete(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: (isSelected) ? inactiveActionColor : Colors.redAccent,
-                      foregroundColor: (isSelected) ? Colors.black : Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                      foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0))
                     ),
                     label: const Text("Wasted"),
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.delete_forever_outlined,
-                      color: (isSelected) ? Colors.black : Colors.white,
                       size: 20.0,
                     ),
                   ),
@@ -363,12 +358,12 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
                   },
                   child:
                   ElevatedButton.icon(
-                    onPressed: () async {
+                    onPressed: (isSelected) ? null : () async {
                       await reduceOrDelete(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: (isSelected) ? inactiveActionColor : const Color(0xFFE8EEFF),
-                      foregroundColor: Colors.black,
+                      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                      foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0))
                     ),
                     label: const Text("Eaten"),
@@ -384,6 +379,10 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
   }
 
   Future<void> reduceOrDelete(BuildContext context) async {
+    if (isSelected) {
+      return;
+    }
+
     if (widget.item.quantity > 1) {
       var update = {
         "item_id": widget.item.id,
