@@ -103,7 +103,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
         trailing:  Builder(
           builder: (context) {
             return Transform.translate(
-                offset: (ExpansionTileController.of(context).isExpanded || widget.item.notes != "") ? const Offset(0, -10) : const Offset(0, -2),
+                offset: (widget.item.notes == "") ? const Offset(0, -2) : const Offset(0, -10),
                 child: (isSelected) ? _displaySelectedStatus() : _displayTimeInFridge());
           }
         ),

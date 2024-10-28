@@ -44,13 +44,14 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _displaySearchAndFilterBar(),
-                  ListView(
+                  ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    children: List.generate(fridgeCards.length, (i) {
-                        FridgeItemCard currentCard = fridgeCards.elementAt(i);
-                        return currentCard;
-                    }).toList(),
+                    itemCount: fridgeCards.length,
+                    itemBuilder: (context, i) {
+                      FridgeItemCard currentCard = fridgeCards.elementAt(i);
+                      return currentCard;
+                    }
                   ),
                   const SizedBox(height: 50.0)
                 ],
