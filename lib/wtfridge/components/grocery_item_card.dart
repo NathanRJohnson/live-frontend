@@ -79,7 +79,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
     return ListTileTheme(
       contentPadding: const EdgeInsets.all(0),
       child: ListTile(
-        tileColor: Theme.of(context).colorScheme.surfaceContainerLow,
+        tileColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         minVerticalPadding: 0.0,
         titleAlignment: ListTileTitleAlignment.top,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
