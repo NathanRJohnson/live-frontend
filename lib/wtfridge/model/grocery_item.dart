@@ -53,7 +53,8 @@ class GroceryItem {
 
   @override
   String toString() {
-    return name;
+    String n = (notes != "") ? " ($notes)" : "";
+    return "x$quantity $name$n";
   }
 }
 
