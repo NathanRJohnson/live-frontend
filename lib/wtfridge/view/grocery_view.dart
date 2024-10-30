@@ -1,11 +1,9 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/io_client.dart';
+import 'package:project_l/wtfridge/components/grocery_add_form.dart';
 
-import '../components/grocery_add_button.dart';
 import '../components/grocery_item_card.dart';
 import '../provider/grocery_card_provider.dart';
 
@@ -22,7 +20,7 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
   Widget build(BuildContext context) {
     final groceryItems = ref.watch(groceryCardNotifierProvider);
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface, // 141414
+      backgroundColor: Theme.of(context).colorScheme.onInverseSurface, // 141414
       body: Stack(
         children: <Widget> [
           SingleChildScrollView(
@@ -54,14 +52,22 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
                     return currentCard;
                   }),
                 ),
-                GroceryAddButton(key: UniqueKey()),
               ],
             ),
           ),
           _displayAddToFridgeButton(context, ref),
         ]),
-      floatingActionButton: _displayShareFAB(context, ref),
-      );
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _displayShareFAB(context, ref),
+          const SizedBox(height: 8.0),
+          _displayAddFAB(context),
+          const SizedBox(height: 4.0),
+        ],
+      )
+    );
   }
 }
 
@@ -110,9 +116,11 @@ Widget _displayAddToFridgeButton(BuildContext context, WidgetRef ref) {
   );
 }
 
+
 Widget _displayShareFAB(BuildContext context, WidgetRef ref) {
   return FloatingActionButton(
-    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+    heroTag: null,
+    backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
     shape: const CircleBorder(),
     onPressed: () async {
       String messageText = ref.read(groceryCardNotifierProvider.notifier)
@@ -126,7 +134,37 @@ Widget _displayShareFAB(BuildContext context, WidgetRef ref) {
       }
     },
     child: Icon(Icons.share,
-      color: Theme.of(context).colorScheme.onPrimaryContainer,
+      color: Theme.of(context).colorScheme.onTertiaryContainer,
+    ),
+  );
+}
+
+Widget _displayAddFAB(BuildContext context) {
+  return FloatingActionButton(
+    heroTag: null,
+    backgroundColor: Theme
+        .of(context)
+        .colorScheme
+        .primaryContainer,
+    shape: const CircleBorder(),
+    onPressed: () async {
+      openGroceryAddForm(context);
+    },
+    child: Icon(Icons.add,
+      color: Theme
+          .of(context)
+          .colorScheme
+          .onPrimaryContainer,
+    ),
+  );
+}
+
+Future<void> openGroceryAddForm(BuildContext context) async {
+  return await showDialog<void>(
+    context: context,
+    builder: (context) =>  Dialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        child: const GroceryAddForm()
     ),
   );
 }
