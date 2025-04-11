@@ -122,11 +122,13 @@ class FormUtils {
 
   static TextButton actionButton(BuildContext context, GlobalKey<FormState> formKey, String label, Future<void> Function() action) {
     return TextButton(
-        onPressed: () {
+        onPressed: () async {
           final formState = formKey.currentState;
           if (formState != null && formState.validate()) {
-            action();
-            Navigator.of(context).pop();
+            await action();
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
           }
         },
         child: Text(

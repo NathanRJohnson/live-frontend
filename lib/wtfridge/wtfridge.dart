@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:project_l/wtfridge/components/settings_drawer.dart';
 
 import 'view/grocery_view.dart';
 import 'view/fridge_view.dart';
@@ -16,6 +17,7 @@ class _WTFridgePageState extends State<WTFridgeMainPage> {
   int _currentIndex = 1;
 
   final PageController _pageController = PageController(initialPage: 1);
+  final GlobalKey<ScaffoldState> _key = GlobalKey();
 
   final _bottomNavigationBarItems = [
     const BottomNavigationBarItem(icon: Icon(Icons.shopping_basket_outlined), label: "Groceries"),
@@ -27,20 +29,20 @@ class _WTFridgePageState extends State<WTFridgeMainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _key,
       appBar: AppBar(
-        title: TextButton(
-          onPressed: (){
-            context.go('/');
-          },
-          child: Text('WhatTheFridge',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 24,
-            )),
+        leading: IconButton(onPressed: () => _key.currentState!.openDrawer(), icon: const Icon(Icons.menu)),
+        title: Text('WhatTheFridge',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 24,
+          ),
         ),
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         automaticallyImplyLeading: false
       ),
+      drawerEnableOpenDragGesture: false,
+      drawer: const SettingsDrawer(),
       body: PageView(
         scrollDirection: Axis.horizontal,
         controller: _pageController,
