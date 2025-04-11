@@ -1,22 +1,43 @@
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:http/src/io_client.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:project_l/wtfridge/handler/handler.dart';
+import 'package:project_l/wtfridge/storage/secure_storage.dart';
+import 'package:project_l/wtfridge/storage/storage.dart';
 
 import '../model/fridge_item.dart';
 import 'package:http/http.dart';
+
+import '../storage/web_storage.dart';
 
 // TODO: read in an API token
 class FridgeHandler {
 
   final Uri url = Uri.http("3.96.14.111", "/fridge/");
+  Client client = Client();
+  Storage storage = kIsWeb ? WebStorage() : SecureStorage();
+  late Handler userHandler;
 
   // constructor
-  FridgeHandler();
+  FridgeHandler({Client? client, Storage? storage}) {
+    if (client != null) {
+      this.client = client;
+    }
+    if (storage != null) {
+      this.storage = storage;
+    }
+  }
 
-Future<void> pushToDB(Client client, FridgeItem i) async {
+  Future<void> pushToDB(Client client, FridgeItem i) async {
     var body = jsonEncode(i);
-    var response = await client.post(url, body: body);
+    var response = await userHandler.makeRequest(client.post, url, {
+      #headers: {"Authorization": "Bearer "},
+      #body: body,
+    });
+
+    await client.post(url, headers: {"Authorization": "Bearer "}, body: body);
     if (response.statusCode == 200 || response.statusCode == 201) {
     } else {
       throw ClientException("Failed to add Item: [${response.statusCode}] ${response.body}");

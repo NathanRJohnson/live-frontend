@@ -30,11 +30,11 @@ void main() {
 
       // TODO: add headers
       when(client
-          .post(url, body: jsonEncode("username")))
+          .post(url, body: "{\"username\": \"test_user\"}"))
           .thenAnswer((_) async =>
           Response(responseBody, 200));
 
-      await handler.login("username");
+      await handler.login("test_user");
 
       expect(await store.read(key: "session"), "ABCDE");
       expect(await store.read(key: "refresh"), "12345");
