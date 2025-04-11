@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:project_l/wtfridge/components/common/form_utils.dart';
 import '../provider/grocery_card_provider.dart';
@@ -61,7 +62,7 @@ class _GroceryUpdateFormState extends ConsumerState<GroceryUpdateForm> {
       "new_notes": notesController.text.trim(),
     };
 
-    await ref.read(groceryCardNotifierProvider.notifier).updateItemByID(IOClient(), formValues);
+    await ref.read(groceryCardNotifierProvider.notifier).updateItemByID(Client(), formValues);
   }
 
   @override

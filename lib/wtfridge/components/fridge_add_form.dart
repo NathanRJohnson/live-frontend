@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:intl/intl.dart';
 import '../components/common/form_utils.dart';
@@ -46,7 +47,7 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
       "notes": notesController.text.trim(),
       "date_added": dateController.text.trim()
     };
-      ref.read(fridgeCardNotifierProvider.notifier).addItem(IOClient(), addForm);
+      ref.read(fridgeCardNotifierProvider.notifier).addItem(Client(), addForm);
     }
 
   @override

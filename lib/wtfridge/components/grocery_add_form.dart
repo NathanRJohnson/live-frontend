@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import '../components/common/form_utils.dart';
 import '../components/common/item_action_form.dart';
@@ -40,7 +41,7 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
       "quantity": quantityController.text.trim(),
       "notes": notesController.text.trim(),
     };
-    await ref.read(groceryCardNotifierProvider.notifier).addItem(IOClient(), addForm);
+    await ref.read(groceryCardNotifierProvider.notifier).addItem(Client(), addForm);
   }
 
   @override

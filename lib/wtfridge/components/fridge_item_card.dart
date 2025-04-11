@@ -14,7 +14,7 @@ class FridgeItemCard extends ConsumerStatefulWidget {
   late Client client;
 
   FridgeItemCard({super.key, required this.item, Client? client }) {
-    this.client = client ?? IOClient();
+    this.client = client ?? Client();
   }
 
   @override
@@ -107,11 +107,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
                 child: (isSelected) ? _displaySelectedStatus() : _displayTimeInFridge());
           }
         ),
-        subtitle: () {
-          if (widget.item.notes != "") {
-            return  _displaySubtitle();
-          }
-        }(),
+        subtitle: _displaySubtitle(),
         expandedAlignment: Alignment.topLeft,
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
         initiallyExpanded: ref.read(fridgeCardNotifierProvider.notifier).isInitiallyExpanded(this),
@@ -133,14 +129,16 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
     );
   }
 
-  Widget _displaySubtitle() {
-    return Builder(builder: (context) {
+  Widget? _displaySubtitle() {
+    Widget a = Builder(builder: (context) {
         if (ExpansionTileController.of(context).isExpanded) {
           return  _displayDateAdded();
-        } else {
+        } else if (widget.item.notes != "") {
           return _displayNotesHint();
         }
+        return const Text("do not display");
     });
+    return (a is Text) ? null : a;
   }
 
   SlidableAction editItemAction() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 
 import '../components/fridge_speed_dial.dart';
@@ -30,7 +31,7 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
         child: Center(
             child: NoConnectionMessage(
               onRetry: () async {
-                await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(IOClient());
+                await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(Client());
               },
             )),
       ) :

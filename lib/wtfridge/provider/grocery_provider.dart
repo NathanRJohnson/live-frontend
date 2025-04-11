@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/io_client.dart';
+import 'package:http/http.dart';
 
 import '../handler/grocery_handler.dart';
 import '../model/grocery_item.dart';
@@ -21,7 +21,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
   Future<void> addItem(String itemName, [int? id]) async {
     GroceryItem item = GroceryItem(name: itemName, id: id, index: state.length+1);
     addItemLocally(item);
-    await groceryHandler.pushToDB(IOClient(), item);
+    await groceryHandler.pushToDB(Client(), item);
   }
 
   void addItemLocally(GroceryItem item) {
@@ -29,7 +29,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
   }
 
   Future<void> syncToDB() async {
-    List<GroceryItem> dbItems = await groceryHandler.getAllItems(IOClient());
+    List<GroceryItem> dbItems = await groceryHandler.getAllItems(Client());
     state.clear();
     dbItems.sort((a,b) => a.index.compareTo(b.index));
     state = dbItems;
@@ -37,7 +37,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
 
   Future<void> removeByID(int removeID) async {
     state = state.where((i) => i.id != removeID).toList();
-    groceryHandler.deleteItemByID(IOClient(), removeID);
+    groceryHandler.deleteItemByID(Client(), removeID);
   }
 
   Future<void> reorder(int oldIndex, int newIndex) async {
@@ -50,7 +50,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     }
     final GroceryItem i = state.removeAt(oldIndex);
     state.insert(newIndex, i);
-    await groceryHandler.updateIndicies(IOClient(), oldIndex, newIndex);
+    await groceryHandler.updateIndicies(Client(), oldIndex, newIndex);
   }
 
   // void setMovingAtAs(int index, bool isMoving) {
@@ -64,7 +64,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
     ref.read(fridgeNotifierProvider.notifier)
         .extendItemsWithGroceriesLocally(getActive());
     removeActiveLocally();
-    await groceryHandler.sendActiveToFridge(IOClient());
+    await groceryHandler.sendActiveToFridge(Client());
 }
 
   Future<void> removeActiveLocally() async {
@@ -73,7 +73,7 @@ class GroceryNotifier extends Notifier<List<GroceryItem>> {
 
   void toggleActiveAt(int index) async {
     state.elementAt(index).isActive = !state.elementAt(index).isActive;
-    await groceryHandler.toggleActiveByID(IOClient(), state.elementAt(index).id!);
+    await groceryHandler.toggleActiveByID(Client(), state.elementAt(index).id!);
   }
 
   int countActive() {

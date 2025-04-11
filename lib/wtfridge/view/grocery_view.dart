@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:project_l/wtfridge/components/grocery_add_form.dart';
 
@@ -44,7 +45,7 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
                         .setMovingAtAs(oldIndex, false);
                     setState(() {
                       ref.read(groceryCardNotifierProvider.notifier)
-                          .reorder(IOClient(), oldIndex, newIndex);
+                          .reorder(Client(), oldIndex, newIndex);
                     });
                   },
                   children: List.generate(groceryItems.length, (i) {
@@ -97,7 +98,7 @@ Widget _displayAddToFridgeButton(BuildContext context, WidgetRef ref) {
           height: 55,
           child: ElevatedButton(
             onPressed: () async {
-              await ref.read(groceryCardNotifierProvider.notifier).sendActiveToFridge(IOClient(), ref);
+              await ref.read(groceryCardNotifierProvider.notifier).sendActiveToFridge(Client(), ref);
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
