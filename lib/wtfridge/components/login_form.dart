@@ -7,7 +7,6 @@ import 'package:project_l/wtfridge/components/common/form_utils.dart';
 import 'package:project_l/wtfridge/components/common/item_action_form.dart';
 import 'package:project_l/wtfridge/handler/handler.dart';
 import 'package:project_l/wtfridge/provider/fridge_card_provider.dart';
-import 'package:project_l/wtfridge/storage/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginForm extends ConsumerStatefulWidget {
@@ -48,10 +47,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     // ref.read(budgetNotifierProvider.notifier).fetchBudget(Client());
     // ref.read(transactionListNotifierProvider.notifier).fetchTransactions(Client());
     // TODO: add handler to login here
-    Handler h = Handler(client: Client(), storage: SecureStorage());
+    Handler h = Handler(client: Client());
     await h.login(prefs.getString("user")!);
     await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(Client());
-    print("Hello Mark");
   }
 
   @override

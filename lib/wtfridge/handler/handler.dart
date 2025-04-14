@@ -1,7 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
+import 'package:project_l/wtfridge/storage/secure_storage.dart';
 import 'package:project_l/wtfridge/storage/storage.dart';
+import 'package:project_l/wtfridge/storage/web_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Handler {
 
@@ -10,15 +14,22 @@ class Handler {
   static const String REFRESH_KEY = "refresh";
 
   Client client;
-  Storage storage;
+  late Storage storage;
 
-  Handler({required this.client, required this.storage});
+  Handler({required this.client, Storage? storage}) {
+   if (storage != null) {
+     this.storage = storage;
+   } else {
+     this.storage = kIsWeb ? WebStorage() : SecureStorage();
+   }
+  }
 
   Future<Response> makeRequest(Function f, Uri uri, Map<Symbol, dynamic> fargs) async {
     // make http function call
     Response response = await Function.apply(f, [uri], fargs);
     if (response.statusCode == 401) {
       try {
+        print("REFRESHING!");
         await refresh();
       } on ClientException catch (e) {
         throw ClientException("Session token out of date, but failed to refresh: $e");
@@ -46,17 +57,24 @@ class Handler {
       Map<String, dynamic> tokens = json.decode(response.body);
       try {
         // store keys to encrypted storage
-        await storage.write(key: "session", value: tokens["session"]);
-        await storage.write(key: "refresh", value: tokens["refresh"]);
+        await storage.write(key: SESSION_KEY, value: tokens["session"]);
+        await storage.write(key: REFRESH_KEY, value: tokens["refresh"]);
+        final prefs = await SharedPreferences.getInstance();
+        print("WHA TH SIGM: ${await prefs.getString(SESSION_KEY)}");
+        print("REALLY IN THE JUNGLE: ${await storage.read(key: SESSION_KEY)}");
       } on Exception catch (e) {
         throw Exception("Failed to store tokens: $e");
       }
     }
   }
 
+
+  // TODO: this needs testing
   Future<void> refresh() async {
     String? sessionToken = await storage.read(key: SESSION_KEY);
     String? refreshToken = await storage.read(key: REFRESH_KEY);
+    print(sessionToken);
+    print(refreshToken);
     if (sessionToken == null || refreshToken == null) {
       throw Exception("No tokens available to refresh.");
     }
