@@ -29,7 +29,6 @@ class Handler {
     Response response = await Function.apply(f, [uri], fargs);
     if (response.statusCode == 401) {
       try {
-        print("REFRESHING!");
         await refresh();
       } on ClientException catch (e) {
         throw ClientException("Session token out of date, but failed to refresh: $e");
@@ -48,20 +47,18 @@ class Handler {
 
   Future<void> login(String username) async {
     var body = "{\"username\": \"$username\"}";
-    print(body);
     var response = await client.post(url, body:body);
-    print(response.body);
     if (response.statusCode != 200) {
       throw ClientException("Failed to create user.");
     } else {
       Map<String, dynamic> tokens = json.decode(response.body);
+      // expired token
+      tokens[SESSION_KEY] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5SSiIsImV4cCI6MTc0NTg5NjU5OH0.Cint4iJeEdaOkLN1jQrmUjaReri7V8EXOyiG9C8RAZo";
+      //
       try {
         // store keys to encrypted storage
-        await storage.write(key: SESSION_KEY, value: tokens["session"]);
-        await storage.write(key: REFRESH_KEY, value: tokens["refresh"]);
-        final prefs = await SharedPreferences.getInstance();
-        print("WHA TH SIGM: ${await prefs.getString(SESSION_KEY)}");
-        print("REALLY IN THE JUNGLE: ${await storage.read(key: SESSION_KEY)}");
+        await storage.write(key: SESSION_KEY, value: tokens[SESSION_KEY]);
+        await storage.write(key: REFRESH_KEY, value: tokens[REFRESH_KEY]);
       } on Exception catch (e) {
         throw Exception("Failed to store tokens: $e");
       }
@@ -73,15 +70,15 @@ class Handler {
   Future<void> refresh() async {
     String? sessionToken = await storage.read(key: SESSION_KEY);
     String? refreshToken = await storage.read(key: REFRESH_KEY);
-    print(sessionToken);
-    print(refreshToken);
     if (sessionToken == null || refreshToken == null) {
       throw Exception("No tokens available to refresh.");
     }
-    var response = await client.get(url.resolve("/refresh"), headers: {
+    var response = await client.get(url.resolve("refresh"), headers: {
       "Authorization": "Bearer $sessionToken",
       "Refresh": refreshToken
     });
+
+    print("REFRESH RESPONSE: ${response.body}");
 
     if (response.statusCode == 401) {
       throw ClientException("Refresh token expired.");

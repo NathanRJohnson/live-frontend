@@ -7,6 +7,7 @@ import 'package:project_l/wtfridge/components/common/form_utils.dart';
 import 'package:project_l/wtfridge/components/common/item_action_form.dart';
 import 'package:project_l/wtfridge/handler/handler.dart';
 import 'package:project_l/wtfridge/provider/fridge_card_provider.dart';
+import 'package:project_l/wtfridge/provider/grocery_card_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginForm extends ConsumerStatefulWidget {
@@ -50,6 +51,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     Handler h = Handler(client: Client());
     await h.login(prefs.getString("user")!);
     await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(Client());
+    await ref.read(groceryCardNotifierProvider.notifier).syncToDB(Client());
   }
 
   @override

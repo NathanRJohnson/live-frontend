@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart';
-import 'package:http/io_client.dart';
 
 import '../provider/fridge_card_provider.dart';
 import '../components/fridge_update_form.dart';
@@ -27,6 +26,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
 
   bool isSelected = false;
   bool isVisible = true;
+  bool _isExpanded = false;
   final ExpansionTileController controller = ExpansionTileController();
 
   @override
@@ -103,7 +103,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
         trailing:  Builder(
           builder: (context) {
             return Transform.translate(
-                offset: (widget.item.notes == "") ? const Offset(0, -2) : const Offset(0, -10),
+                offset: (widget.item.notes == "") ? const Offset(0, 0) : const Offset(0, -2),
                 child: (isSelected) ? _displaySelectedStatus() : _displayTimeInFridge());
           }
         ),
@@ -113,9 +113,11 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
         initiallyExpanded: ref.read(fridgeCardNotifierProvider.notifier).isInitiallyExpanded(this),
         onExpansionChanged: (expandState) {
           if (expandState) {
+            _isExpanded = true;
             ref.read(fridgeCardNotifierProvider.notifier)
                 .setCurrentlyExpandedTile(this);
           } else {
+            _isExpanded = false;
             ref.read(fridgeCardNotifierProvider.notifier)
                 .setCurrentlyExpandedTile(null);
           }
@@ -130,15 +132,12 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
   }
 
   Widget? _displaySubtitle() {
-    Widget a = Builder(builder: (context) {
-        if (ExpansionTileController.of(context).isExpanded) {
-          return  _displayDateAdded();
-        } else if (widget.item.notes != "") {
-          return _displayNotesHint();
-        }
-        return const Text("do not display");
-    });
-    return (a is Text) ? null : a;
+    if (_isExpanded) {
+      return _displayDateAdded();
+    } else if (widget.item.notes != "") {
+      return _displayNotesHint();
+    }
+    return null;
   }
 
   SlidableAction editItemAction() {

@@ -36,8 +36,7 @@ class FridgeHandler {
       response = await client.post(url, body: body);
     }
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-    } else {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       throw ClientException("Failed to add Item: [${response.statusCode}] ${response.body}");
     }
   }
