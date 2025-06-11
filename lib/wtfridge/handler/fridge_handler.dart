@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
@@ -52,6 +53,7 @@ class FridgeHandler {
         #headers: {"Authorization": "Bearer $sessionToken"}
       });
     } else {
+      throw ClientException("No session token available.");
       response = await client.get(url);
     }
 

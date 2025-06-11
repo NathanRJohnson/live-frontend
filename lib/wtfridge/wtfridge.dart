@@ -1,6 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart';
+import 'package:project_l/wtfridge/components/login_promt.dart';
+import 'package:project_l/wtfridge/components/no_connection_message.dart';
+import 'package:project_l/wtfridge/components/page_loading_indicator.dart';
 import 'package:project_l/wtfridge/components/settings_drawer.dart';
+import 'package:project_l/wtfridge/provider/fridge_card_provider.dart';
 
 import 'view/grocery_view.dart';
 import 'view/fridge_view.dart';
@@ -28,45 +36,58 @@ class _WTFridgePageState extends State<WTFridgeMainPage> {
   // https://www.youtube.com/watch?v=mgpW7Ba2Pns&ab_channel=SyntacOps
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _key,
-      appBar: AppBar(
-        leading: IconButton(onPressed: () => _key.currentState!.openDrawer(), icon: const Icon(Icons.menu)),
-        title: Text('WhatTheFridge',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 24,
-          ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-        automaticallyImplyLeading: false
-      ),
-      drawerEnableOpenDragGesture: false,
-      drawer: const SettingsDrawer(),
-      body: PageView(
-        scrollDirection: Axis.horizontal,
-        controller: _pageController,
-        onPageChanged: (newIndex) {
-          setState(() {
-            _currentIndex = newIndex;
-          });
+    return Consumer(
+        builder: (context, ref, _) {
+          final asyncState = ref.watch(fridgeCardNotifierProvider);
+          if (asyncState.isLoading) {
+            return PageLoadingIndicator();
+          } else if (asyncState.exception is SocketException) {
+            return NoConnectionMessage(onRetry: () => {});
+          } else if (asyncState.exception is ClientException) {
+            return LoginPrompt();
+          } else {
+            return Scaffold(
+              key: _key,
+              appBar: AppBar(
+                  leading: IconButton(onPressed: () => _key.currentState!.openDrawer(), icon: const Icon(Icons.menu)),
+                  title: Text('WhatTheFridge',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 24,
+                    ),
+                  ),
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  automaticallyImplyLeading: false
+              ),
+              drawerEnableOpenDragGesture: false,
+              drawer: const SettingsDrawer(),
+              body: PageView(
+                scrollDirection: Axis.horizontal,
+                controller: _pageController,
+                onPageChanged: (newIndex) {
+                  setState(() {
+                    _currentIndex = newIndex;
+                  });
+                },
+                children: const [
+                  GroceryView(),
+                  FridgeView(),
+                  MealsView()
+                ],
+              ),
+              bottomNavigationBar: BottomNavigationBar(
+                currentIndex: _currentIndex,
+                items: _bottomNavigationBarItems,
+                onTap: (index) {
+                  _pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.ease);
+                },
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+                unselectedItemColor: Theme.of(context).colorScheme.outline,
+                selectedItemColor: Theme.of(context).colorScheme.primary,
+              ),
+            );
+          }
         },
-        children: const [
-          GroceryView(),
-          FridgeView(),
-          MealsView()
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        items: _bottomNavigationBarItems,
-        onTap: (index) {
-         _pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.ease);
-        },
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-        unselectedItemColor: Theme.of(context).colorScheme.outline,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-      ),
     );
   }
 }

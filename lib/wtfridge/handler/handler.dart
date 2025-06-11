@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:project_l/wtfridge/storage/secure_storage.dart';
 import 'package:project_l/wtfridge/storage/storage.dart';
 import 'package:project_l/wtfridge/storage/web_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Handler {
 
@@ -26,6 +26,11 @@ class Handler {
 
   Future<Response> makeRequest(Function f, Uri uri, Map<Symbol, dynamic> fargs) async {
     // make http function call
+
+    if (await storage.read(key: SESSION_KEY) == "") {
+      throw CertificateException("No session token available");
+    }
+
     Response response = await Function.apply(f, [uri], fargs);
     if (response.statusCode == 401) {
       try {
@@ -46,6 +51,10 @@ class Handler {
   }
 
   Future<void> login(String username) async {
+    if (username == "") {
+      throw CertificateException("No username provided.");
+    }
+
     var body = "{\"username\": \"$username\"}";
     var response = await client.post(url, body:body);
     if (response.statusCode != 200) {
@@ -71,7 +80,7 @@ class Handler {
     String? sessionToken = await storage.read(key: SESSION_KEY);
     String? refreshToken = await storage.read(key: REFRESH_KEY);
     if (sessionToken == null || refreshToken == null) {
-      throw Exception("No tokens available to refresh.");
+      throw CertificateException("No tokens available to refresh.");
     }
     var response = await client.get(url.resolve("refresh"), headers: {
       "Authorization": "Bearer $sessionToken",
@@ -101,5 +110,16 @@ class Handler {
     String newToken = jsonToken[SESSION_KEY];
 
     await storage.write(key: SESSION_KEY, value: newToken);
+  }
+
+
+  // todo: this needs to be replaced
+  Future<bool> isSignedIn() async {
+    try {
+      await refresh();
+      return true;
+    } on Exception catch (e) {
+      return false;
+    }
   }
 }

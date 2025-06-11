@@ -47,6 +47,7 @@ class GroceryHandler {
         #headers: {"Authorization": "Bearer $sessionToken"}
       });
     } else {
+      // throw ClientException("No session token available.");
       response = await client.get(url);
     }
 

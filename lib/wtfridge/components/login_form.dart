@@ -50,20 +50,21 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     // TODO: add handler to login here
     Handler h = Handler(client: Client());
     await h.login(prefs.getString("user")!);
-    await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(Client());
+
     await ref.read(groceryCardNotifierProvider.notifier).syncToDB(Client());
+    await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(Client());
   }
 
   @override
   Widget build(BuildContext context) {
     return ItemActionForm(
       formKey: formKey,
-      title: "Login",
+      title: "",
       fields: [
         FormUtils.textField(context: context, labelText: "username", controller: userController, validator: FormUtils.requiredFieldValidator)
       ],
       actionButtons: [
-        FormUtils.cancelActionButton(context),
+        // FormUtils.cancelActionButton(context),
         FormUtils.actionButton(context, formKey, "Login", _action)
       ],
     );
