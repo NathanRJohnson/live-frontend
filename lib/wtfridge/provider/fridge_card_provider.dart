@@ -17,7 +17,7 @@ class AsyncState {
   final List<FridgeItemCard> items;
   final Exception? exception;
 
-  AsyncState({this.isLoading = true, this.items=const [], this.exception});
+  AsyncState({this.isLoading = false, this.items=const [], this.exception});
 }
 
 

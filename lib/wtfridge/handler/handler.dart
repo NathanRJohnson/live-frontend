@@ -44,7 +44,7 @@ class Handler {
       response = await Function.apply(f, [uri], fargs);
     }
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       throw ClientException("Failed to make request: [${response.statusCode}]: ${response.body}");
     }
     return response;
@@ -62,7 +62,7 @@ class Handler {
     } else {
       Map<String, dynamic> tokens = json.decode(response.body);
       // expired token
-      tokens[SESSION_KEY] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5SSiIsImV4cCI6MTc0NTg5NjU5OH0.Cint4iJeEdaOkLN1jQrmUjaReri7V8EXOyiG9C8RAZo";
+      // tokens[SESSION_KEY] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5SSiIsImV4cCI6MTc0NTg5NjU5OH0.Cint4iJeEdaOkLN1jQrmUjaReri7V8EXOyiG9C8RAZo";
       //
       try {
         // store keys to encrypted storage

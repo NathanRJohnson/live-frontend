@@ -41,14 +41,19 @@ class GroceryHandler {
     List<GroceryItem> dbItems = [];
 
     final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
-    Response response;
+    Response response = Response("", 404);
     if (sessionToken != null && sessionToken.isNotEmpty) {
       response = await handler.makeRequest(client.get, url, {
         #headers: {"Authorization": "Bearer $sessionToken"}
       });
     } else {
       // throw ClientException("No session token available.");
-      response = await client.get(url);
+      print("HLLOO");
+      try {
+        response = await client.get(url);
+      } on Exception catch (e) {
+        print(e.toString());
+      }
     }
 
     if (response.statusCode != 200) {

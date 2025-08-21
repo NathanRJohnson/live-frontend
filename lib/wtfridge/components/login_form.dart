@@ -42,6 +42,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   }
 
   Future<void> _action() async {
+    print("PING");
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("user", userController.text);
     // TODO: proper input validation here.
