@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart';
-import 'package:http/io_client.dart';
 
 import '../components/grocery_update_form.dart';
 import '../provider/grocery_card_provider.dart';
@@ -18,7 +17,7 @@ class GroceryItemCard extends ConsumerStatefulWidget {
   bool isMoving = false;
 
   GroceryItemCard({required super.key, required this.item, Client? client }) {
-    this.client = client ?? IOClient();
+    this.client = client ?? Client();
   }
 
   @override

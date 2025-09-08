@@ -30,7 +30,7 @@ class FridgeNotifier extends Notifier<List<FridgeItem>> {
   Future<void> addItem(String itemName, [int? id]) async {
     FridgeItem item = FridgeItem(name: itemName, id: id, dateAdded: DateTime.now());
     addItemLocally(item);
-    await fridgeHandler.pushToDB(IOClient(), item);
+    await fridgeHandler.pushToDB(Client(), item);
   }
 
   void extendItemsWithGroceriesLocally(List<GroceryItem> items) {
@@ -41,18 +41,17 @@ class FridgeNotifier extends Notifier<List<FridgeItem>> {
   }
 
   Future<void> removeByID(int removeId) async {
-    await fridgeHandler.deleteItemByID(IOClient(), removeId);
+    await fridgeHandler.deleteItemByID(Client(), removeId);
     state = state.where((i) => i.id != removeId).toList();
   }
 
   Future<void> syncToDB() async {
     try {
-      List<FridgeItem> dbItems = await fridgeHandler.getAllItems(IOClient());
+      List<FridgeItem> dbItems = await fridgeHandler.getAllItems(Client());
       state.clear();
       state = dbItems;
       isConnected = true;
     } on ClientException catch(e) {
-      print(e.message);
       isConnected = false;
     }
   }

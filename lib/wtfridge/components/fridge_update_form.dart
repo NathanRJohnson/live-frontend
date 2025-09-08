@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:project_l/wtfridge/components/common/form_utils.dart';
 import '../model/fridge_item.dart';
@@ -64,7 +65,7 @@ class _FridgeUpdateFormState extends ConsumerState<FridgeUpdateForm> {
       "new_notes": notesController.text.trim(),
     };
 
-    await ref.read(fridgeCardNotifierProvider.notifier).updateItemByID(IOClient(), formValues);
+    await ref.read(fridgeCardNotifierProvider.notifier).updateItemByID(Client(), formValues);
   }
 
   @override

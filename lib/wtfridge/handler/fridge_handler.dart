@@ -1,24 +1,43 @@
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:http/src/io_client.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+import 'package:project_l/wtfridge/handler/handler.dart';
 
 import '../model/fridge_item.dart';
-import 'package:http/http.dart';
+
 
 // TODO: read in an API token
 class FridgeHandler {
 
   final Uri url = Uri.http("3.96.14.111", "/fridge/");
+  Client client = Client();
+  late Handler handler;
 
   // constructor
-  FridgeHandler();
+  FridgeHandler({Client? client}) {
+    if (client != null) {
+      this.client = client;
+    }
+    handler = Handler(client: this.client);
+  }
 
-Future<void> pushToDB(Client client, FridgeItem i) async {
+  Future<void> pushToDB(Client client, FridgeItem i) async {
     var body = jsonEncode(i);
-    var response = await client.post(url, body: body);
-    if (response.statusCode == 200 || response.statusCode == 201) {
+
+    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
+    Response response;
+    if (sessionToken != null && sessionToken.isNotEmpty) {
+      response = await handler.makeRequest(client.post, url, {
+        #headers: {"Authorization": "Bearer $sessionToken"},
+        #body: body,
+      });
     } else {
+      response = await client.post(url, body: body);
+    }
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
       throw ClientException("Failed to add Item: [${response.statusCode}] ${response.body}");
     }
   }
@@ -26,8 +45,18 @@ Future<void> pushToDB(Client client, FridgeItem i) async {
   // TODO: fix api to not return the word null on empty list
   Future<List<FridgeItem>> getAllItems(Client client) async {
     List<FridgeItem> dbItems = [];
+    return dbItems;
 
-    var response = await client.get(url);
+    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
+    Response response;
+    if (sessionToken != null && sessionToken.isNotEmpty) {
+      response = await handler.makeRequest(client.get, url, {
+        #headers: {"Authorization": "Bearer $sessionToken"}
+      });
+    } else {
+      throw ClientException("No session token available.");
+      response = await client.get(url);
+    }
 
     if (response.statusCode != 200) {
       throw ClientException("Unable to access items from db: [${response.statusCode}]");
@@ -51,7 +80,15 @@ Future<void> pushToDB(Client client, FridgeItem i) async {
   Future<void> deleteItemByID(Client client, int itemID) async {
     var request = url.resolve(itemID.toString());
 
-    var response = await client.delete(request);
+    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
+    Response response;
+    if (sessionToken != null && sessionToken.isNotEmpty) {
+      response = await handler.makeRequest(client.delete, request, {
+        #headers: {"Authorization": "Bearer $sessionToken"}
+      });
+    } else {
+      response = await client.delete(request);
+    }
     if (response.statusCode != 200) {
       throw ClientException("Failed to delete Item!");
     }
@@ -72,7 +109,17 @@ Future<void> pushToDB(Client client, FridgeItem i) async {
     }
 
     String body = json.encode(newValues);
-    var response = await client.put(url, body: body);
+    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
+    Response response;
+    if (sessionToken != null && sessionToken.isNotEmpty) {
+      response = await handler.makeRequest(client.put, url, {
+        #headers: {"Authorization": "Bearer $sessionToken"},
+        #body: body
+      });
+    } else {
+      response = await client.put(url, body: body);
+    }
+
     if (response.statusCode != 200) {
       throw ClientException("Failed to update item: ${response.body}");
     }

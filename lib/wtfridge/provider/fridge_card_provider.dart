@@ -1,36 +1,51 @@
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
-import 'package:http/src/io_client.dart';
 
 import '../components/fridge_item_card.dart';
 import '../handler/fridge_handler.dart';
 import '../model/fridge_item.dart';
 import '../model/grocery_item.dart';
 
-class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
+class AsyncState {
+  final bool isLoading;
+  final List<FridgeItemCard> items;
+  final Exception? exception;
+
+  AsyncState({this.isLoading = false, this.items=const [], this.exception=const CertificateException()});
+}
+
+
+class FridgeCardNotifier extends Notifier<AsyncState> {
   FridgeHandler fridgeHandler = FridgeHandler();
   bool isConnected = true;
   FridgeItemCardState? currentExpandedTileState;
 
   // initial value
   @override
-  List<FridgeItemCard> build() {
-    return [
-      FridgeItemCard(item: FridgeItem(id: 100, name:"yogurt", quantity: 3))
-    ];
+  AsyncState build() {
+    return AsyncState(
+        isLoading: false,
+        items: [],
+        exception: const CertificateException("Could not connect to backend services.")
+      );
   }
 
   // methods to update state
   // river pod state needs to be reassigned, not just updated
   void addItemLocally(FridgeItem item) {
-    state = <FridgeItemCard>[...state,
-      FridgeItemCard(
-          key: UniqueKey(),
-          item: item,
-      )];
+    state = AsyncState(
+     isLoading: false,
+     items: <FridgeItemCard>[...state.items,
+       FridgeItemCard(
+         key: UniqueKey(),
+         item: item,
+       )],
+    );
   }
 
   Future<void> addItem(Client client, Map<String, String> values, [int? id]) async {
@@ -57,24 +72,28 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
   }
 
   Future<void> remove(Client client, FridgeItem item) async {
-    if (state.isEmpty) return;
+    if (state.items.isEmpty) return;
 
-    state = state.where((c) => c.item.id! != item.id).toList();
+    state = AsyncState(
+        items: state.items.where((c) => c.item.id! != item.id).toList()
+    );
     await fridgeHandler.deleteItemByID(client, item.id!);
   }
 
   Future<void> removeByID(Client client, int removeId) async {
     await fridgeHandler.deleteItemByID(client, removeId);
-    state = state.where((i) => i.item.id != removeId).toList();
+    state = AsyncState(
+        items: state.items.where((i) => i.item.id != removeId).toList()
+    );
   }
 
   updateItemByID(Client client, Map<String, dynamic> newValues, {bool rebuild=true}) async {
-    FridgeItem item = state.where((c) => c.item.id == newValues["item_id"]!).first.item;
+    FridgeItem item = state.items.where((c) => c.item.id == newValues["item_id"]!).first.item;
     await fridgeHandler.updateItem(client, Map.from(newValues));
 
     if (rebuild){
-      state = [
-        for (FridgeItemCard current in state)
+      List<FridgeItemCard> updatedItems = [
+        for (FridgeItemCard current in state.items)
           if (item.id == current.item.id)
             FridgeItemCard(key: UniqueKey(), item: FridgeItem(
               id: item.id,
@@ -86,10 +105,14 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
           else
             current
       ];
+      state = AsyncState(
+        items: updatedItems
+      );
     }
   }
 
   Future<void> syncToDB(Client client) async {
+    state = AsyncState(isLoading: true);
     try {
       List<FridgeItem> dbItems = await fridgeHandler.getAllItems(client);
       List<FridgeItemCard> cards = [];
@@ -97,10 +120,10 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
         FridgeItemCard c = FridgeItemCard(item: item);
         cards.add(c);
       }
-      state = cards;
+      state = AsyncState(items: cards, exception: null);
       isConnected = true;
-    } on ClientException catch(e) {
-      isConnected = false;
+    } on Exception catch(e) {
+      state = AsyncState(exception: e);
     }
   }
 
@@ -117,11 +140,11 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
   }
 
   int length() {
-    return state.length;
+    return state.items.length;
   }
 
   FridgeItemCard elementAt(int index) {
-    FridgeItemCard item = state.elementAt(index);
+    FridgeItemCard item = state.items.elementAt(index);
     return item;
   }
 
@@ -129,7 +152,7 @@ class FridgeCardNotifier extends Notifier<List<FridgeItemCard>> {
 
 }
 
-final fridgeCardNotifierProvider = NotifierProvider<FridgeCardNotifier, List<FridgeItemCard>>(
+final fridgeCardNotifierProvider = NotifierProvider<FridgeCardNotifier, AsyncState>(
         () {
       return FridgeCardNotifier();
     }

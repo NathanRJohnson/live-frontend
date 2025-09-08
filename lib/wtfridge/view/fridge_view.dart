@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/io_client.dart';
+import 'package:http/http.dart';
 
 import '../components/fridge_speed_dial.dart';
 import '../components/fridge_item_card.dart';
-import '../components/no_connection_message.dart';
 import '../provider/fridge_card_provider.dart';
+import '../handler/handler.dart';
 
 class FridgeView extends ConsumerStatefulWidget {
   const FridgeView({super.key});
@@ -20,47 +20,38 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
     super.initState();
   }
 
+  Handler userHandler = Handler(client: Client());
+
   @override
   Widget build(BuildContext context) {
     final fridgeCards = ref.watch(fridgeCardNotifierProvider);
-    return
-      !ref.read(fridgeCardNotifierProvider.notifier).isConnected ?
-      Container(
-        color: Theme.of(context).colorScheme.surface, // const Color(0xFFFFFFFF),
-        child: Center(
-            child: NoConnectionMessage(
-              onRetry: () async {
-                await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(IOClient());
-              },
-            )),
-      ) :
-      Scaffold(
+    return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface, // const Color(0xFFFFFFFF), //0xFF141414
       body: Stack(
-          children: <Widget>[
-            SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _displaySearchAndFilterBar(),
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: fridgeCards.length,
-                    itemBuilder: (context, i) {
-                      FridgeItemCard currentCard = fridgeCards.elementAt(i);
-                      return currentCard;
-                    }
-                  ),
-                  const SizedBox(height: 50.0)
-                ],
-              ),
-            )],
+        children: <Widget>[
+          SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _displaySearchAndFilterBar(),
+                ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: fridgeCards.items.length,
+                  itemBuilder: (context, i) {
+                    FridgeItemCard currentCard = fridgeCards.items.elementAt(i);
+                    return currentCard;
+                  }
+                ),
+                const SizedBox(height: 50.0)
+              ],
+            ),
+          )],
         ),
-      floatingActionButton: FridgeSpeedDial()
-    );
-  }
+        floatingActionButton: FridgeSpeedDial()
+      );
+    }
 
   Widget _displaySearchBar() {
     return SearchBar(
