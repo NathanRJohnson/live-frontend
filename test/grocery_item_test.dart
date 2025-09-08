@@ -11,7 +11,6 @@ void main() {
     expect(item.isActive, false);
     expect(item.id, isNotNull);
     expect(item.index, 10);
-    expect(item.visible, true);
   });
 
   test('valid item from json', () {

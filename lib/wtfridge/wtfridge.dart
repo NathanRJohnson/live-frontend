@@ -1,14 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:http/http.dart';
 import 'package:project_l/wtfridge/components/login_promt.dart';
-import 'package:project_l/wtfridge/components/no_connection_message.dart';
 import 'package:project_l/wtfridge/components/page_loading_indicator.dart';
 import 'package:project_l/wtfridge/components/settings_drawer.dart';
 import 'package:project_l/wtfridge/provider/fridge_card_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'view/grocery_view.dart';
 import 'view/fridge_view.dart';
@@ -26,6 +22,8 @@ class _WTFridgePageState extends State<WTFridgeMainPage> {
 
   final PageController _pageController = PageController(initialPage: 1);
   final GlobalKey<ScaffoldState> _key = GlobalKey();
+  late final SharedPreferences prefs;
+  late final _prefsFuture = SharedPreferences.getInstance().then((v) => prefs = v);
 
   final _bottomNavigationBarItems = [
     const BottomNavigationBarItem(icon: Icon(Icons.shopping_basket_outlined), label: "Groceries"),
@@ -37,26 +35,36 @@ class _WTFridgePageState extends State<WTFridgeMainPage> {
   @override
   Widget build(BuildContext context) {
     return Consumer(
-        builder: (context, ref, _) {
-          final asyncState = ref.watch(fridgeCardNotifierProvider);
-          if (asyncState.isLoading) {
+      builder: (context, ref, _) {
+        ref.watch(fridgeCardNotifierProvider);
+        return FutureBuilder(
+          future: _prefsFuture, builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting ||
+              !snapshot.hasData) {
             return PageLoadingIndicator();
-          } else if (asyncState.exception is SocketException) {
-            return NoConnectionMessage(onRetry: () => {});
-          } else if (asyncState.exception is ClientException) {
+          }
+          if (prefs.getString("user") == null) {
             return LoginPrompt();
           } else {
             return Scaffold(
               key: _key,
               appBar: AppBar(
-                  leading: IconButton(onPressed: () => _key.currentState!.openDrawer(), icon: const Icon(Icons.menu)),
+                  leading: IconButton(
+                      onPressed: () => _key.currentState!.openDrawer(),
+                      icon: const Icon(Icons.menu)),
                   title: Text('WhatTheFridge',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: Theme
+                          .of(context)
+                          .colorScheme
+                          .onSurface,
                       fontSize: 24,
                     ),
                   ),
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  backgroundColor: Theme
+                      .of(context)
+                      .colorScheme
+                      .surfaceContainerHigh,
                   automaticallyImplyLeading: false
               ),
               drawerEnableOpenDragGesture: false,
@@ -79,15 +87,26 @@ class _WTFridgePageState extends State<WTFridgeMainPage> {
                 currentIndex: _currentIndex,
                 items: _bottomNavigationBarItems,
                 onTap: (index) {
-                  _pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.ease);
+                  _pageController.animateToPage(
+                      index, duration: const Duration(milliseconds: 500),
+                      curve: Curves.ease);
                 },
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                unselectedItemColor: Theme.of(context).colorScheme.outline,
-                selectedItemColor: Theme.of(context).colorScheme.primary,
+                backgroundColor: Theme
+                    .of(context)
+                    .colorScheme
+                    .surfaceContainerHigh,
+                unselectedItemColor: Theme
+                    .of(context)
+                    .colorScheme
+                    .outline,
+                selectedItemColor: Theme
+                    .of(context)
+                    .colorScheme
+                    .primary,
               ),
             );
           }
-        },
-    );
+        });
+      });
   }
 }

@@ -42,7 +42,6 @@ void main() {
         id: 123, name: "F", dateAdded: DateTime(2001), timeInFridge: "< 1 day");
 
     Map<String, dynamic> json = item.toJson();
-    print(json);
     assert(json.containsKey('item_id') && json['item_id'] == 123);
     assert(json.containsKey('item_name') && json['item_name'] == "F");
     assert(!json.containsKey('date_added'));

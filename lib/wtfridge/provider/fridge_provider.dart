@@ -52,7 +52,6 @@ class FridgeNotifier extends Notifier<List<FridgeItem>> {
       state = dbItems;
       isConnected = true;
     } on ClientException catch(e) {
-      print(e.message);
       isConnected = false;
     }
   }

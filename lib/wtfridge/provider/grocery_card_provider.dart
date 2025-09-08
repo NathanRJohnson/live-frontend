@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
 import '../provider/fridge_card_provider.dart';
 import '../model/fridge_item.dart';
-
-import '../provider/fridge_provider.dart';
 import '../components/grocery_item_card.dart';
 import '../handler/grocery_handler.dart';
 import '../model/grocery_item.dart';

@@ -45,6 +45,7 @@ class FridgeHandler {
   // TODO: fix api to not return the word null on empty list
   Future<List<FridgeItem>> getAllItems(Client client) async {
     List<FridgeItem> dbItems = [];
+    return dbItems;
 
     final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
     Response response;
@@ -89,7 +90,6 @@ class FridgeHandler {
       response = await client.delete(request);
     }
     if (response.statusCode != 200) {
-      print("[${response.statusCode}]: ${response.body}");
       throw ClientException("Failed to delete Item!");
     }
   }

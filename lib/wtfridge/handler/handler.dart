@@ -87,8 +87,6 @@ class Handler {
       "Refresh": refreshToken
     });
 
-    print("REFRESH RESPONSE: ${response.body}");
-
     if (response.statusCode == 401) {
       throw ClientException("Refresh token expired.");
     }

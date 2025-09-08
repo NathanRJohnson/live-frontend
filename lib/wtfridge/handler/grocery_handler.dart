@@ -40,6 +40,8 @@ class GroceryHandler {
   Future<List<GroceryItem>> getAllItems(Client client) async {
     List<GroceryItem> dbItems = [];
 
+    return dbItems;
+
     final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
     Response response = Response("", 404);
     if (sessionToken != null && sessionToken.isNotEmpty) {
@@ -48,7 +50,6 @@ class GroceryHandler {
       });
     } else {
       // throw ClientException("No session token available.");
-      print("HLLOO");
       try {
         response = await client.get(url);
       } on Exception catch (e) {

@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
-import 'package:http/src/io_client.dart';
 
 import '../components/fridge_item_card.dart';
 import '../handler/fridge_handler.dart';
@@ -17,7 +16,7 @@ class AsyncState {
   final List<FridgeItemCard> items;
   final Exception? exception;
 
-  AsyncState({this.isLoading = false, this.items=const [], this.exception});
+  AsyncState({this.isLoading = false, this.items=const [], this.exception=const CertificateException()});
 }
 
 
@@ -32,7 +31,7 @@ class FridgeCardNotifier extends Notifier<AsyncState> {
     return AsyncState(
         isLoading: false,
         items: [],
-        exception: const SocketException("Could not connect to backend services.")
+        exception: const CertificateException("Could not connect to backend services.")
       );
   }
 
@@ -121,7 +120,7 @@ class FridgeCardNotifier extends Notifier<AsyncState> {
         FridgeItemCard c = FridgeItemCard(item: item);
         cards.add(c);
       }
-      state = AsyncState(items: cards);
+      state = AsyncState(items: cards, exception: null);
       isConnected = true;
     } on Exception catch(e) {
       state = AsyncState(exception: e);
