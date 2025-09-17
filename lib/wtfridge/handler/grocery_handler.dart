@@ -3,10 +3,12 @@ import 'package:project_l/wtfridge/storage/database.dart' as DB;
 
 import '../model/grocery_item.dart';
 
+
 class GroceryHandler {
   final database = DB.AppDatabase.instance;
 
-  GroceryHandler() {}
+  GroceryHandler();
+
 
   Future<void> pushToDB(GroceryItem newItem) async {
     await database.managers.groceryItems
@@ -19,6 +21,7 @@ class GroceryHandler {
         notes: newItem.notes,
     ));
   }
+
 
   Future<List<GroceryItem>> getAllItems() async {
     List<DB.GroceryItem> dbItems = await database.managers.groceryItems.get();
@@ -35,9 +38,21 @@ class GroceryHandler {
     return items;
   }
 
+
   Future<void> deleteItemByID(int itemID) async {
-    await database.managers.groceryItems.filter((g) => g.itemId.equals(itemID)).delete();
+    database.transaction(() async {
+      DB.GroceryItem deletedItem = await database.managers.groceryItems.filter((
+          g) => g.itemId.equals(itemID)).getSingle();
+      int lastIndex = await database.managers.groceryItems.count();
+
+      await database.managers.groceryItems.filter((g) =>
+          g.itemId.equals(itemID)).delete();
+
+      // reindex everything after the deleted item
+      await database.updateGroceryIndicies(deletedItem.index, lastIndex);
+    });
   }
+
 
   Future<void> updateItem(Map<String, dynamic> newValues) async {
     await database.managers.groceryItems
@@ -49,6 +64,7 @@ class GroceryHandler {
         ));
   }
 
+
   Future<void> toggleActiveByID(int itemID, bool newState) async {
     await database.managers.groceryItems
       .filter((g) => g.itemId.equals(itemID))
@@ -57,25 +73,28 @@ class GroceryHandler {
       ));
   }
 
-  Future<void> sendActiveToFridge() async {
-    List<DB.GroceryItem> activeItems = await database.managers.groceryItems
-        .filter((g) => g.isActive.equals(true)).get();
-    await database.transaction(() async {
-      await database.managers.fridgeItems.bulkCreate((f) =>
-          activeItems.map(
-                  (groceryItem) =>
-                  f(
-                    itemId: groceryItem.itemId,
-                    name: groceryItem.name,
-                    dateAdded: DateTime.now(),
-                    quantity: groceryItem.quantity,
-                    notes: groceryItem.notes,
-                  )
-          ).toList()
-      );
 
-      await database.managers.groceryItems
-          .filter((g) => g.isActive.equals(true)).delete();
+  Future<void> sendActiveToFridge() async {
+    await database.transaction(() async {
+      List<DB.GroceryItem> activeItems = await database.managers.groceryItems
+          .filter((g) => g.isActive.equals(true)).get();
+      await database.transaction(() async {
+        await database.managers.fridgeItems.bulkCreate((f) =>
+            activeItems.map(
+                    (groceryItem) =>
+                    f(
+                      itemId: groceryItem.itemId,
+                      name: groceryItem.name,
+                      dateAdded: DateTime.now(),
+                      quantity: groceryItem.quantity,
+                      notes: groceryItem.notes,
+                    )
+            ).toList()
+        );
+
+        await database.managers.groceryItems
+            .filter((g) => g.isActive.equals(true)).delete();
+      });
     });
   }
 
@@ -89,14 +108,16 @@ class GroceryHandler {
     newIndex += 1;
     oldIndex += 1;
 
-    DB.GroceryItem shiftedItem = await database.managers.groceryItems
-        .filter((g) => g.index.equals(oldIndex)).getSingle();
+    await database.transaction(() async {
+      DB.GroceryItem shiftedItem = await database.managers.groceryItems
+          .filter((g) => g.index.equals(oldIndex)).getSingle();
 
-    await database.updateGroceryIndicies(oldIndex, newIndex);
+      await database.updateGroceryIndicies(oldIndex, newIndex);
 
-    await database.managers.groceryItems
-      .filter((g) => g.itemId.equals(shiftedItem.itemId))
-      .update((o) => o(index: Value(newIndex)));
+      await database.managers.groceryItems
+        .filter((g) => g.itemId.equals(shiftedItem.itemId))
+        .update((o) => o(index: Value(newIndex)));
+    });
   }
 
 }

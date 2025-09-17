@@ -6,11 +6,10 @@ import '../model/fridge_item.dart';
 
 
 class FridgeHandler {
-
   final database = DB.AppDatabase.instance;
 
   // constructor
-  FridgeHandler() {}
+  FridgeHandler();
 
   Future<void> pushToDB(FridgeItem i) async {
     await database.into(database.fridgeItems).insert(DB.FridgeItemsCompanion.insert(
@@ -21,6 +20,7 @@ class FridgeHandler {
         notes: i.notes
     ));
   }
+
 
   Future<List<FridgeItem>> getAllItems() async {
     List<DB.FridgeItem> dbItems = await database.select(database.fridgeItems).get();
@@ -37,13 +37,30 @@ class FridgeHandler {
     return items;
   }
 
+
   Future<void> deleteItemByID(int itemID) async {
     await database.managers.fridgeItems.filter((f) => f.itemId.equals(itemID)).delete();
   }
 
-  Future<void> copyToGroceryByID(int itemID) async {
 
+  Future<void> copyToGroceryByID(int itemID) async {
+    await database.transaction(() async {
+      DB.FridgeItem item = await database.managers.fridgeItems
+          .filter((f) => f.itemId.equals(itemID)).getSingle();
+
+      int newIndex = await database.managers.groceryItems.count();
+
+      await database.into(database.groceryItems).insert(DB.GroceryItemsCompanion.insert(
+          itemId: item.itemId,
+          name: item.name,
+          isActive: false,
+          index: newIndex + 1,
+          quantity: item.quantity,
+          notes: item.notes
+      ));
+    });
   }
+
 
   updateItem(Map<String, dynamic> newValues) async {
     if (newValues.containsKey("new_date")) {
@@ -60,5 +77,4 @@ class FridgeHandler {
           notes: Value(newValues["new_notes"])
     ));
   }
-
 }
