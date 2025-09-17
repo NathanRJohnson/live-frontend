@@ -58,7 +58,7 @@ class GroceryHandler {
     await database.managers.groceryItems
         .filter((g) => g.itemId.equals(newValues["item_id"]))
         .update((o) => o(
-          name: Value(newValues["newName"]),
+          name: Value(newValues["new_name"]),
           quantity: Value(newValues["new_quantity"]),
           notes: Value(newValues["new_notes"])
         ));
