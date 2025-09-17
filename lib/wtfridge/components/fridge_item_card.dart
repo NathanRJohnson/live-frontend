@@ -164,7 +164,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
       icon: Icons.shopping_basket_outlined,
       onPressed: (context) {
         ref.read(groceryCardNotifierProvider.notifier)
-            .addItemFromFridge(widget.client, widget.item);
+            .addItemFromFridge(widget.item);
       },
     );
   }
@@ -326,7 +326,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
                   onLongPressUp: () async {
                     ExpansionTileController.of(context).collapse();
                     ref.read(fridgeCardNotifierProvider.notifier)
-                        .remove(widget.client, widget.item);
+                        .remove(widget.item);
                   },
                   child:
                   ElevatedButton.icon(
@@ -351,7 +351,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
                   onLongPressUp: () async {
                     ExpansionTileController.of(context).collapse();
                     ref.read(fridgeCardNotifierProvider.notifier)
-                        .remove(widget.client, widget.item);
+                        .remove(widget.item);
                   },
                   child:
                   ElevatedButton.icon(
@@ -386,7 +386,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
         "new_quantity": widget.item.quantity-1
       };
       ref.read(fridgeCardNotifierProvider.notifier)
-          .updateItemByID(widget.client, update, rebuild: false);
+          .updateItemByID(update, rebuild: false);
       startAnimation();
       setState(() {
         widget.item.quantity -= 1;
@@ -394,7 +394,7 @@ class FridgeItemCardState extends ConsumerState<FridgeItemCard> with SingleTicke
     } else {
       ExpansionTileController.of(context).collapse();
       ref.read(fridgeCardNotifierProvider.notifier)
-          .remove(widget.client, widget.item);
+          .remove(widget.item);
     }
   }
 

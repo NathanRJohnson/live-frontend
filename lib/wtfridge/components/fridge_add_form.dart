@@ -47,7 +47,7 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
       "notes": notesController.text.trim(),
       "date_added": dateController.text.trim()
     };
-      ref.read(fridgeCardNotifierProvider.notifier).addItem(Client(), addForm);
+      ref.read(fridgeCardNotifierProvider.notifier).addItem(addForm);
     }
 
   @override

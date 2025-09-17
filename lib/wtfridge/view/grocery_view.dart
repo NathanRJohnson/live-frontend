@@ -17,6 +17,11 @@ class GroceryView extends ConsumerStatefulWidget {
 
 class _GroceryViewState extends ConsumerState<GroceryView> {
 
+  @override void initState() {
+    Future(() => ref.read(groceryCardNotifierProvider.notifier).syncToDB());
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final groceryItems = ref.watch(groceryCardNotifierProvider);
@@ -45,7 +50,7 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
                         .setMovingAtAs(oldIndex, false);
                     setState(() {
                       ref.read(groceryCardNotifierProvider.notifier)
-                          .reorder(Client(), oldIndex, newIndex);
+                          .reorder(oldIndex, newIndex);
                     });
                   },
                   children: List.generate(groceryItems.length, (i) {
@@ -98,7 +103,7 @@ Widget _displayAddToFridgeButton(BuildContext context, WidgetRef ref) {
           height: 55,
           child: ElevatedButton(
             onPressed: () async {
-              await ref.read(groceryCardNotifierProvider.notifier).sendActiveToFridge(Client(), ref);
+              await ref.read(groceryCardNotifierProvider.notifier).sendActiveToFridge(ref);
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,

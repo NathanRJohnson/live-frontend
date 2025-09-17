@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart';
 
 import '../components/fridge_item_card.dart';
 import '../handler/fridge_handler.dart';
@@ -48,7 +47,7 @@ class FridgeCardNotifier extends Notifier<AsyncState> {
     );
   }
 
-  Future<void> addItem(Client client, Map<String, String> values, [int? id]) async {
+  Future<void> addItem(Map<String, String> values, [int? id]) async {
     int quantity = values["quantity"] != null ? int.parse(values["quantity"]!) : 1;
     DateTime dateAdded = values["date_added"] != null ? DateTime.parse(values["date_added"]!) : DateTime.now();
     String notes = values["notes"] != null ? values["notes"]! : "oya";
@@ -61,7 +60,7 @@ class FridgeCardNotifier extends Notifier<AsyncState> {
       dateAdded: dateAdded
     );
     addItemLocally(item);
-    await fridgeHandler.pushToDB(client, item);
+    await fridgeHandler.pushToDB(item);
   }
 
   void extendItemsWithGroceriesLocally(List<GroceryItem> items) {
@@ -71,25 +70,25 @@ class FridgeCardNotifier extends Notifier<AsyncState> {
     }
   }
 
-  Future<void> remove(Client client, FridgeItem item) async {
+  Future<void> remove(FridgeItem item) async {
     if (state.items.isEmpty) return;
 
     state = AsyncState(
         items: state.items.where((c) => c.item.id! != item.id).toList()
     );
-    await fridgeHandler.deleteItemByID(client, item.id!);
+    await fridgeHandler.deleteItemByID(item.id!);
   }
 
-  Future<void> removeByID(Client client, int removeId) async {
-    await fridgeHandler.deleteItemByID(client, removeId);
+  Future<void> removeByID(int removeId) async {
+    await fridgeHandler.deleteItemByID(removeId);
     state = AsyncState(
         items: state.items.where((i) => i.item.id != removeId).toList()
     );
   }
 
-  updateItemByID(Client client, Map<String, dynamic> newValues, {bool rebuild=true}) async {
+  updateItemByID(Map<String, dynamic> newValues, {bool rebuild=true}) async {
     FridgeItem item = state.items.where((c) => c.item.id == newValues["item_id"]!).first.item;
-    await fridgeHandler.updateItem(client, Map.from(newValues));
+    await fridgeHandler.updateItem(Map.from(newValues));
 
     if (rebuild){
       List<FridgeItemCard> updatedItems = [
@@ -111,10 +110,10 @@ class FridgeCardNotifier extends Notifier<AsyncState> {
     }
   }
 
-  Future<void> syncToDB(Client client) async {
+  Future<void> syncToDB() async {
     state = AsyncState(isLoading: true);
     try {
-      List<FridgeItem> dbItems = await fridgeHandler.getAllItems(client);
+      List<FridgeItem> dbItems = await fridgeHandler.getAllItems();
       List<FridgeItemCard> cards = [];
       for (FridgeItem item in dbItems) {
         FridgeItemCard c = FridgeItemCard(item: item);
@@ -147,9 +146,6 @@ class FridgeCardNotifier extends Notifier<AsyncState> {
     FridgeItemCard item = state.items.elementAt(index);
     return item;
   }
-
-
-
 }
 
 final fridgeCardNotifierProvider = NotifierProvider<FridgeCardNotifier, AsyncState>(

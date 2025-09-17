@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart';
 import 'package:project_l/wtfridge/components/common/form_utils.dart';
 import 'package:project_l/wtfridge/components/common/item_action_form.dart';
 import 'package:project_l/wtfridge/provider/fridge_card_provider.dart';
@@ -46,8 +45,8 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     // Handler h = Handler(client: Client());
     // await h.login(prefs.getString("user")!);
 
-    await ref.read(groceryCardNotifierProvider.notifier).syncToDB(Client());
-    await ref.read(fridgeCardNotifierProvider.notifier).syncToDB(Client());
+    await ref.read(groceryCardNotifierProvider.notifier).syncToDB();
+    await ref.read(fridgeCardNotifierProvider.notifier).syncToDB();
   }
 
   @override

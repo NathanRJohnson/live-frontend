@@ -47,7 +47,7 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
             onTap: () {
               setState(() {
                 ref.read(groceryCardNotifierProvider.notifier)
-                    .toggleActive(widget.client, widget.item);
+                    .toggleActive(widget.item);
               });
             },
             child: Container(
@@ -171,6 +171,6 @@ class _GroceryItemCardState extends ConsumerState<GroceryItemCard> {
 
   Future<void> _handleDeleteDismiss(BuildContext context) async {
     setState(() { isVisible = false; });
-    await ref.read(groceryCardNotifierProvider.notifier).remove(widget.client, widget.item);
+    await ref.read(groceryCardNotifierProvider.notifier).remove(widget.item);
   }
 }
