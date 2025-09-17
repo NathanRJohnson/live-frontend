@@ -65,7 +65,7 @@ class _FridgeUpdateFormState extends ConsumerState<FridgeUpdateForm> {
       "new_notes": notesController.text.trim(),
     };
 
-    await ref.read(fridgeCardNotifierProvider.notifier).updateItemByID(Client(), formValues);
+    await ref.read(fridgeCardNotifierProvider.notifier).updateItemByID(formValues);
   }
 
   @override

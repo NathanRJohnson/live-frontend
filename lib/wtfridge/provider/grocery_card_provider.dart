@@ -2,7 +2,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart';
 import '../provider/fridge_card_provider.dart';
 import '../model/fridge_item.dart';
 import '../components/grocery_item_card.dart';
@@ -17,8 +16,8 @@ class GroceryCardNotifier extends Notifier<List<GroceryItemCard>> {
     return [];
   }
 
-  Future<void> syncToDB(Client client) async {
-    List<GroceryItem> dbItems = await groceryHandler.getAllItems(client);
+  Future<void> syncToDB() async {
+    List<GroceryItem> dbItems = await groceryHandler.getAllItems();
     List<GroceryItemCard> cards = [];
     for (GroceryItem item in dbItems) {
       GroceryItemCard g = GroceryItemCard(key: UniqueKey(), item: item);
@@ -28,7 +27,7 @@ class GroceryCardNotifier extends Notifier<List<GroceryItemCard>> {
     state = cards;
   }
 
-  Future<void> addItem(Client client, Map<String, String> values, [int? id]) async {
+  Future<void> addItem(Map<String, String> values, [int? id]) async {
     int quantity = values["quantity"] != null ? int.parse(values["quantity"]!) : 1;
     String notes = values["notes"] != null ? values["notes"]! : "";
 
@@ -41,16 +40,16 @@ class GroceryCardNotifier extends Notifier<List<GroceryItemCard>> {
       isActive: false
     );
     addItemLocally(item);
-    await groceryHandler.pushToDB(client, item);
+    await groceryHandler.pushToDB(item);
   }
 
-Future<void> addItemFromFridge(Client client, FridgeItem f) async {
+Future<void> addItemFromFridge(FridgeItem f) async {
     Map<String, String> map = {
       "item_name": f.name,
       "quantity": f.quantity.toString(),
       "notes": f.notes,
     };
-    return await addItem(client, map);
+    return await addItem(map);
 }
 
   void addItemLocally(GroceryItem item) {
@@ -61,17 +60,17 @@ Future<void> addItemFromFridge(Client client, FridgeItem f) async {
       )];
   }
 
-  Future<void> remove(Client client, GroceryItem item) async {
+  Future<void> remove(GroceryItem item) async {
     if (state.isEmpty) {
       return;
     }
     state = state.where((c) => c.item.id != item.id).toList();
-    await groceryHandler.deleteItemByID(client, item.id!);
+    await groceryHandler.deleteItemByID(item.id!);
   }
 
-  Future<void> updateItemByID(Client client, Map<String, dynamic> newValues) async {
+  Future<void> updateItemByID(Map<String, dynamic> newValues) async {
     GroceryItem item = state.where((c) => c.item.id == newValues["item_id"]!).first.item;
-    await groceryHandler.updateItem(client, newValues);
+    await groceryHandler.updateItem(newValues);
     state = [
       for (GroceryItemCard current in state)
         if (item.id == current.item.id)
@@ -88,7 +87,7 @@ Future<void> addItemFromFridge(Client client, FridgeItem f) async {
     ];
   }
 
-  Future<void> reorder(Client client, int oldIndex, int newIndex) async {
+  Future<void> reorder(int oldIndex, int newIndex) async {
     if (oldIndex == newIndex) {
       return;
     }
@@ -98,7 +97,7 @@ Future<void> addItemFromFridge(Client client, FridgeItem f) async {
     }
     final GroceryItemCard card = state.removeAt(oldIndex);
     state.insert(newIndex, card);
-    await groceryHandler.updateIndicies(client, oldIndex, newIndex);
+    await groceryHandler.updateIndicies(oldIndex, newIndex);
   }
 
   void setMovingAtAs(int index, bool isMoving) {
@@ -108,19 +107,21 @@ Future<void> addItemFromFridge(Client client, FridgeItem f) async {
     state.elementAt(index).isMoving = isMoving;
   }
 
-  Future<void> toggleActive(Client client, GroceryItem item) async {
+
+  // TODO: this function is kind of a mess
+  Future<void> toggleActive(GroceryItem item) async {
     List<GroceryItemCard> currentList = state;
     // currentList.first.item.isActive = !currentList.first.item.isActive;
     state.where((card) => card.item.id == item.id).first.item.isActive = !item.isActive;
     state = List.from(currentList);
-    await groceryHandler.toggleActiveByID(client, item.id!);
+    await groceryHandler.toggleActiveByID(item.id!, item.isActive);
   }
 
-  Future<void> sendActiveToFridge(Client client, WidgetRef ref) async {
+  Future<void> sendActiveToFridge(WidgetRef ref) async {
     ref.read(fridgeCardNotifierProvider.notifier)
         .extendItemsWithGroceriesLocally(getActive());
     removeActiveLocally();
-    await groceryHandler.sendActiveToFridge(client);
+    await groceryHandler.sendActiveToFridge();
   }
 
   List<GroceryItem> getActive() {

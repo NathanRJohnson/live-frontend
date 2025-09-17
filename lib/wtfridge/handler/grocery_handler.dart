@@ -1,173 +1,102 @@
-import 'dart:convert';
-import 'dart:developer';
-
-import 'package:http/http.dart';
-import 'package:project_l/wtfridge/handler/handler.dart';
+import 'package:drift/drift.dart';
+import 'package:project_l/wtfridge/storage/database.dart' as DB;
 
 import '../model/grocery_item.dart';
 
 class GroceryHandler {
+  final database = DB.AppDatabase.instance;
 
-  final Uri url = Uri.http("3.96.14.111", "/grocery/");
-  Client client = Client();
-  late Handler handler;
+  GroceryHandler() {}
 
-  GroceryHandler({Client? client}) {
-    if (client != null) {
-      this.client = client;
-    }
-    handler = Handler(client: this.client);
+  Future<void> pushToDB(GroceryItem newItem) async {
+    await database.managers.groceryItems
+      .create((i) => i(
+        itemId: newItem.id!,
+        index: newItem.index,
+        name: newItem.name,
+        isActive: false,
+        quantity: newItem.quantity,
+        notes: newItem.notes,
+    ));
   }
 
-  Future<void> pushToDB(Client client, GroceryItem i) async {
-    var body = jsonEncode(i);
-    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
-    Response response;
-    if (sessionToken != null && sessionToken.isNotEmpty) {
-      response = await handler.makeRequest(client.post, url, {
-        #headers: {"Authorization": "Bearer $sessionToken"},
-        #body: body,
-      });
-    } else {
-      response = await client.post(url, body: body);
-    }
-
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw ClientException("Failed to add Item: [${response.statusCode}] ${response.body}");
-    }
+  Future<List<GroceryItem>> getAllItems() async {
+    List<DB.GroceryItem> dbItems = await database.managers.groceryItems.get();
+    List<GroceryItem> items = dbItems.map((dbItem) {
+      return GroceryItem(
+        id: dbItem.itemId,
+        index: dbItem.index,
+        name: dbItem.name,
+        isActive: dbItem.isActive,
+        quantity: dbItem.quantity,
+        notes: dbItem.notes,
+      );
+    }).toList();
+    return items;
   }
 
-  Future<List<GroceryItem>> getAllItems(Client client) async {
-    List<GroceryItem> dbItems = [];
-
-    return dbItems;
-
-    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
-    Response response = Response("", 404);
-    if (sessionToken != null && sessionToken.isNotEmpty) {
-      response = await handler.makeRequest(client.get, url, {
-        #headers: {"Authorization": "Bearer $sessionToken"}
-      });
-    } else {
-      // throw ClientException("No session token available.");
-      try {
-        response = await client.get(url);
-      } on Exception catch (e) {
-        print(e.toString());
-      }
-    }
-
-    if (response.statusCode != 200) {
-      throw ClientException("Unable to access items from db: [${response.statusCode}]");
-    }
-
-    else if (response.body.isNotEmpty && response.body != "null") {
-      List<dynamic> jsonItems = json.decode(response.body);
-      for (Map<String, dynamic> itemMap in jsonItems) {
-        try {
-          GroceryItem newItem = GroceryItem.fromJSON(itemMap);
-          dbItems.add(newItem);
-        } on Exception catch (e) {
-          continue;
-        }
-      }
-    }
-
-    return dbItems;
+  Future<void> deleteItemByID(int itemID) async {
+    await database.managers.groceryItems.filter((g) => g.itemId.equals(itemID)).delete();
   }
 
-  Future<void> deleteItemByID(Client client, int itemID) async {
-    var request = url.resolve(itemID.toString());
-
-    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
-    Response response;
-    if (sessionToken != null && sessionToken.isNotEmpty) {
-      response = await handler.makeRequest(client.delete, request, {
-        #headers: {"Authorization": "Bearer $sessionToken"}
-      });
-    } else {
-      response = await client.delete(request);
-    }
-    if (response.statusCode != 200) {
-      throw ClientException("Failed to delete grocery item");
-    }
+  Future<void> updateItem(Map<String, dynamic> newValues) async {
+    await database.managers.groceryItems
+        .filter((g) => g.itemId.equals(newValues["item_id"]))
+        .update((o) => o(
+          name: Value(newValues["newName"]),
+          quantity: Value(newValues["new_quantity"]),
+          notes: Value(newValues["new_notes"])
+        ));
   }
 
-    Future<void> updateItem(Client client, Map<String, dynamic> newValues) async {
-    String body = json.encode(newValues);
-
-    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
-    Response response;
-    if (sessionToken != null && sessionToken.isNotEmpty) {
-      response = await handler.makeRequest(client.put, url, {
-        #headers: {"Authorization": "Bearer $sessionToken"},
-        #body: body
-      });
-    } else {
-      response = await client.put(url, body: body);
-    }
-    if (response.statusCode != 200) {
-      throw ClientException("Failed to update item: ${response.body}");
-    }
+  Future<void> toggleActiveByID(int itemID, bool newState) async {
+    await database.managers.groceryItems
+      .filter((g) => g.itemId.equals(itemID))
+      .update((o) => o(
+       isActive: Value(newState)
+      ));
   }
 
-  Future<void> toggleActiveByID(Client client, int itemID) async {
-    var request = url.resolve(itemID.toString());
+  Future<void> sendActiveToFridge() async {
+    List<DB.GroceryItem> activeItems = await database.managers.groceryItems
+        .filter((g) => g.isActive.equals(true)).get();
+    await database.transaction(() async {
+      await database.managers.fridgeItems.bulkCreate((f) =>
+          activeItems.map(
+                  (groceryItem) =>
+                  f(
+                    itemId: groceryItem.itemId,
+                    name: groceryItem.name,
+                    dateAdded: DateTime.now(),
+                    quantity: groceryItem.quantity,
+                    notes: groceryItem.notes,
+                  )
+          ).toList()
+      );
 
-    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
-    Response response;
-    if (sessionToken != null && sessionToken.isNotEmpty) {
-      response = await handler.makeRequest(client.patch, request, {
-        #headers: {"Authorization": "Bearer $sessionToken"},
-      });
-    } else {
-      response = await client.patch(request);
-    }
-
-    if (response.statusCode != 200) {
-      throw ClientException("Failed to toggle grocery item");
-    }
-  }
-
-  Future<void> sendActiveToFridge(Client client) async {
-    var request = url.resolve("to_fridge");
-
-    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
-    Response response;
-    if (sessionToken != null && sessionToken.isNotEmpty) {
-      response = await handler.makeRequest(client.post, request, {
-        #headers: {"Authorization": "Bearer $sessionToken"},
-      });
-    } else {
-      response = await client.post(request);
-    }
-
-    if (response.statusCode != 200) {
-      throw ClientException("Failed send active grocery items to fridge");
-    }
-  }
-
-  Future<void> updateIndicies(Client client, int oldIndex, int newIndex) async {
-    String body = jsonEncode({
-      'old_index': oldIndex+1,
-      'new_index': newIndex+1,
+      await database.managers.groceryItems
+          .filter((g) => g.isActive.equals(true)).delete();
     });
+  }
 
-    final sessionToken = await handler.storage.read(key: Handler.SESSION_KEY);
-    Response response;
-    if (sessionToken != null && sessionToken.isNotEmpty) {
-      response = await handler.makeRequest(client.patch, url, {
-        #headers: {"Authorization": "Bearer $sessionToken"},
-        #body: body
-      });
-    } else {
-      response = await client.patch(url);
+
+  Future<void> updateIndicies(int oldIndex, int newIndex) async {
+    if (newIndex == oldIndex) {
+      return;
     }
 
-    if (response.statusCode != 200) {
-      throw ClientException("unable to rearrange items: ${response.statusCode}");
-    }
+    // index offset
+    newIndex += 1;
+    oldIndex += 1;
 
+    DB.GroceryItem shiftedItem = await database.managers.groceryItems
+        .filter((g) => g.index.equals(oldIndex)).getSingle();
+
+    await database.updateGroceryIndicies(oldIndex, newIndex);
+
+    await database.managers.groceryItems
+      .filter((g) => g.itemId.equals(shiftedItem.itemId))
+      .update((o) => o(index: Value(newIndex)));
   }
 
 }

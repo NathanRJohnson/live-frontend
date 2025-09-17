@@ -17,6 +17,7 @@ class FridgeView extends ConsumerStatefulWidget {
 class _FridgeViewState extends ConsumerState<FridgeView> {
 
   @override void initState() {
+    Future(() => ref.read(fridgeCardNotifierProvider.notifier).syncToDB());
     super.initState();
   }
 

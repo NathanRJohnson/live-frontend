@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project_l/wtfridge/provider/grocery_provider.dart';
 
 class UpdateItemForm extends ConsumerStatefulWidget {
   final Function action;
@@ -15,7 +14,7 @@ class UpdateItemForm extends ConsumerStatefulWidget {
     return await showDialog<void>(
         context: context,
         builder: (context) => AlertDialog(
-            backgroundColor: const Color(0xFF292929),
+            backgroundColor: Theme.of(context).colorScheme.surface,
             elevation: 0,
             title:  Text("Update Item",
                 style: TextStyle(

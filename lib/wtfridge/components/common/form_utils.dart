@@ -126,9 +126,6 @@ class FormUtils {
           final formState = formKey.currentState;
           if (formState != null && formState.validate()) {
             await action();
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
           }
         },
         child: Text(

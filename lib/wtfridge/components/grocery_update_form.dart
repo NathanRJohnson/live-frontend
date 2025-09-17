@@ -21,7 +21,7 @@ class GroceryUpdateForm extends ConsumerStatefulWidget {
     return await showDialog<void>(
         context: context,
         builder: (context) => Dialog(
-            backgroundColor: const Color(0xFFFFFFFF),
+            backgroundColor: Theme.of(context).colorScheme.surface,
             child: GroceryUpdateForm(currentItem: currentItem)
         )
     );
@@ -62,7 +62,7 @@ class _GroceryUpdateFormState extends ConsumerState<GroceryUpdateForm> {
       "new_notes": notesController.text.trim(),
     };
 
-    await ref.read(groceryCardNotifierProvider.notifier).updateItemByID(Client(), formValues);
+    await ref.read(groceryCardNotifierProvider.notifier).updateItemByID(formValues);
   }
 
   @override

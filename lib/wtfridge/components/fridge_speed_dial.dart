@@ -4,18 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../components/fridge_add_form.dart';
 
-import 'common/item_action_form.dart';
-
-import '../provider/fridge_provider.dart';
-
 class FridgeSpeedDial extends ConsumerWidget {
 
   Future<void> openFridgeAddForm(BuildContext context) async {
     return await showDialog<void>(
       context: context,
-      builder: (context) => const Dialog(
-        backgroundColor: Color(0xFFFFFFFF),
-        child: FridgeAddForm()
+      builder: (context) => Dialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        child: const FridgeAddForm()
       ),
     );
   }
