@@ -53,7 +53,7 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
       formKey: formKey,
       title: "Add new item",
       fields: [
-        FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator, focusNode: focusNode),
+        FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator, focusNode: focusNode, action: TextInputAction.next),
         FormUtils.textField(context: context, labelText: "Quantity", controller: quantityController,
           validator: (value) {
             String? r =  FormUtils.requiredFieldValidator(value);
@@ -61,7 +61,9 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
             String? i =  FormUtils.integerFieldValidator(value);
             return i;
           },
-          keyboardType: TextInputType.number),
+          keyboardType: TextInputType.number,
+          action: TextInputAction.next
+        ),
         FormUtils.textField(context: context, labelText: "Notes", controller: notesController, validator: (string){ return null; }),
       ],
       actionButtons: [

@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class FormUtils {
 
   // Method to build a TextFormField
-  static TextFormField textField({ required BuildContext context, required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType, FocusNode? focusNode, void Function()? onTap}) {
+  static TextFormField textField({ required BuildContext context, required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType, FocusNode? focusNode, void Function()? onTap, TextInputAction? action}) {
     // controllers.add(controller);
     return TextFormField(
       controller: controller,
@@ -15,6 +15,7 @@ class FormUtils {
       autofocus: true,
       focusNode: focusNode,
       onTap: onTap ?? selectAllText(controller),
+      textInputAction: action ?? TextInputAction.done,
       // Input text
       style: TextStyle(
           color: Theme.of(context).colorScheme.onSurface,
@@ -47,7 +48,7 @@ class FormUtils {
     );
   }
 
-  static Widget dateField({ required BuildContext context, required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType}) {
+  static Widget dateField({ required BuildContext context, required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType, TextInputAction? action}) {
     return GestureDetector(
         onTap: () async {
           await _selectDate(context, controller);
@@ -59,7 +60,8 @@ class FormUtils {
                 controller: controller,
                 validator: validator,
                 suffixIcon: suffixIcon,
-                keyboardType: keyboardType
+                keyboardType: keyboardType,
+                action: action,
             )
         )
     );

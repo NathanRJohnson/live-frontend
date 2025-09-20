@@ -74,7 +74,7 @@ class _FridgeUpdateFormState extends ConsumerState<FridgeUpdateForm> {
       formKey: formKey,
       title: "Update item",
       fields: [
-        FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator),
+        FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator, action: TextInputAction.next),
         FormUtils.textField(context: context, labelText: "Quantity", controller: quantityController,
           validator: (value) {
             String? r =  FormUtils.requiredFieldValidator(value);
@@ -82,7 +82,8 @@ class _FridgeUpdateFormState extends ConsumerState<FridgeUpdateForm> {
             String? i =  FormUtils.integerFieldValidator(value);
             return i;
           },
-          keyboardType: TextInputType.number
+          keyboardType: TextInputType.number,
+          action: TextInputAction.next,
         ),
         FormUtils.dateField(context: context, labelText: "Date Added", controller: dateController,
             validator: (value) {
@@ -92,7 +93,8 @@ class _FridgeUpdateFormState extends ConsumerState<FridgeUpdateForm> {
                 return 'Please enter a valid date added for the item.';
               }
               return null;
-            }
+            },
+            action: TextInputAction.next
         ),
         FormUtils.textField(context: context, labelText: "Notes", controller: notesController, validator: (string){ return null; }),
       ],

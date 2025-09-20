@@ -71,7 +71,7 @@ class _GroceryUpdateFormState extends ConsumerState<GroceryUpdateForm> {
       formKey: formKey,
       title: "Update item",
       fields: [
-        FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator),
+        FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator, action: TextInputAction.next),
         FormUtils.textField(context: context, labelText: "Quantity", controller: quantityController,
           validator: (value) {
             String? r =  FormUtils.requiredFieldValidator(value);
@@ -79,7 +79,8 @@ class _GroceryUpdateFormState extends ConsumerState<GroceryUpdateForm> {
             String? i =  FormUtils.integerFieldValidator(value);
             return i;
           },
-          keyboardType: TextInputType.number
+          keyboardType: TextInputType.number,
+          action: TextInputAction.next
         ),
         FormUtils.textField(context: context, labelText: "Notes", controller: notesController, validator: (string){ return null; }),
       ],
