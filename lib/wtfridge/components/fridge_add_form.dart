@@ -60,7 +60,7 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
         formKey: formKey,
         title: "Add new item",
         fields: [
-          FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator, focusNode: focusNode),
+          FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator, focusNode: focusNode, action: TextInputAction.next),
           FormUtils.textField(context: context, labelText: "Quantity", controller: quantityController,
             validator: (value) {
               String? r = FormUtils.requiredFieldValidator(value);
@@ -68,7 +68,9 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
               String? i = FormUtils.integerFieldValidator(value);
               return i;
             },
-              keyboardType: TextInputType.number),
+            keyboardType: TextInputType.number,
+            action: TextInputAction.next,
+          ),
           FormUtils.dateField(context: context, labelText: "Date Added", controller: dateController,
               validator: (value) {
                 try {
@@ -77,7 +79,8 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
                   return 'Please enter a valid date added for the item.';
                 }
                 return null;
-              }
+              },
+            action: TextInputAction.next,
           ),
           FormUtils.textField(context: context, labelText: "Notes", controller: notesController, validator: (string){ return null; }),
         ],
