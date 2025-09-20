@@ -16,6 +16,7 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
   late final TextEditingController nameController;
   late final TextEditingController quantityController;
   late final TextEditingController notesController;
+  late final FocusNode focusNode;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
@@ -24,6 +25,7 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
     nameController = TextEditingController();
     quantityController = TextEditingController(text: "1");
     notesController = TextEditingController();
+    focusNode = FocusNode();
   }
 
   @override
@@ -31,6 +33,7 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
     nameController.dispose();
     quantityController.dispose();
     notesController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -40,6 +43,7 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
       "quantity": quantityController.text.trim(),
       "notes": notesController.text.trim(),
     };
+    focusNode.requestFocus();
     await ref.read(groceryCardNotifierProvider.notifier).addItem(addForm);
   }
 
@@ -49,7 +53,7 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
       formKey: formKey,
       title: "Add new item",
       fields: [
-        FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator),
+        FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator, focusNode: focusNode),
         FormUtils.textField(context: context, labelText: "Quantity", controller: quantityController, validator: (value) {
           String? r =  FormUtils.requiredFieldValidator(value);
           if (r != null) return null;

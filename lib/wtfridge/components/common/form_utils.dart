@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class FormUtils {
 
   // Method to build a TextFormField
-  static TextFormField textField({ required BuildContext context, required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType}) {
+  static TextFormField textField({ required BuildContext context, required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType, FocusNode? focusNode}) {
     // controllers.add(controller);
     return TextFormField(
       controller: controller,
@@ -13,7 +13,7 @@ class FormUtils {
       keyboardType: keyboardType,
       cursorColor: Theme.of(context).colorScheme.onSurface,
       autofocus: true,
-
+      focusNode: focusNode,
       // Input text
       style: TextStyle(
           color: Theme.of(context).colorScheme.onSurface,
