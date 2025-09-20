@@ -61,7 +61,7 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
       actionButtons: [
         FormUtils.cancelActionButton(context),
         FormUtils.actionButton(context, formKey, "Add", _action),
-        FormUtils.actionAndRepeatButton(context, formKey, "Add & Continue", _action)
+        FormUtils.actionButton(context, formKey, "Add & Continue", _action, closeOnAction: false, resetOnAction: true)
       ],
     );
   }

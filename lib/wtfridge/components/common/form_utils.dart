@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class FormUtils {
@@ -120,12 +121,17 @@ class FormUtils {
   }
 
 
-  static TextButton actionButton(BuildContext context, GlobalKey<FormState> formKey, String label, Future<void> Function() action) {
+  static TextButton actionButton(BuildContext context, GlobalKey<FormState> formKey, String label, Future<void> Function() action, {bool closeOnAction=true, bool resetOnAction=false}) {
     return TextButton(
         onPressed: () async {
           final formState = formKey.currentState;
           if (formState != null && formState.validate()) {
             await action();
+            if (closeOnAction && context.mounted) {
+              Navigator.of(context).pop();
+            } else if (resetOnAction) {
+              formState.reset();
+            }
           }
         },
         child: Text(
@@ -137,23 +143,23 @@ class FormUtils {
   }
 
 
-  static TextButton actionAndRepeatButton(BuildContext context, GlobalKey<FormState> formKey, String label, VoidCallback action) {
-    return TextButton(
-        onPressed: () {
-          final formState = formKey.currentState;
-          if (formState != null && formState.validate()) {
-            action();
-            formState.reset();
-          }
-        },
-        child: Text(
-            label,
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.primary
-            )
-        )
-    );
-  }
+  // static TextButton actionAndRepeatButton(BuildContext context, GlobalKey<FormState> formKey, String label, VoidCallback action) {
+  //   return TextButton(
+  //       onPressed: () {
+  //         final formState = formKey.currentState;
+  //         if (formState != null && formState.validate()) {
+  //           action();
+  //           formState.reset();
+  //         }
+  //       },
+  //       child: Text(
+  //           label,
+  //           style: TextStyle(
+  //               color: Theme.of(context).colorScheme.primary
+  //           )
+  //       )
+  //   );
+  // }
 
 
   static TextButton cancelActionButton(BuildContext context) {

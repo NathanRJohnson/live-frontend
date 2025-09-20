@@ -78,7 +78,7 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
         actionButtons: [
           FormUtils.cancelActionButton(context),
           FormUtils.actionButton(context, formKey, "Add", _action),
-          FormUtils.actionAndRepeatButton(context, formKey, "Add & Continue", _action)
+          FormUtils.actionButton(context, formKey, "Add & Continue", _action, closeOnAction: false, resetOnAction: true)
         ],
     );
   }
