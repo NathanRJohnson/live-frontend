@@ -144,25 +144,6 @@ class FormUtils {
   }
 
 
-  // static TextButton actionAndRepeatButton(BuildContext context, GlobalKey<FormState> formKey, String label, VoidCallback action) {
-  //   return TextButton(
-  //       onPressed: () {
-  //         final formState = formKey.currentState;
-  //         if (formState != null && formState.validate()) {
-  //           action();
-  //           formState.reset();
-  //         }
-  //       },
-  //       child: Text(
-  //           label,
-  //           style: TextStyle(
-  //               color: Theme.of(context).colorScheme.primary
-  //           )
-  //       )
-  //   );
-  // }
-
-
   static TextButton cancelActionButton(BuildContext context) {
     return TextButton(
         onPressed: () {
@@ -174,6 +155,7 @@ class FormUtils {
         )
     );
   }
+
 
   static TextSelection Function() selectAllText(TextEditingController controller) {
     return () => controller.selection = TextSelection(baseOffset: 0, extentOffset: controller.value.text.length);
