@@ -59,7 +59,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       ],
       actionButtons: [
         // FormUtils.cancelActionButton(context),
-        FormUtils.actionButton(context, formKey, "Login", _action)
+        FormUtils.actionButton(context, formKey, "Login", _action, closeOnAction: false)
       ],
     );
   }

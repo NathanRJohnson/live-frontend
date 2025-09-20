@@ -19,6 +19,7 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
   late final TextEditingController quantityController;
   late final TextEditingController notesController;
   late final TextEditingController dateController;
+  late final FocusNode focusNode;
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -28,6 +29,7 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
     quantityController = TextEditingController(text: "1");
     notesController = TextEditingController();
     dateController = TextEditingController(text: DateFormat('yyyy-MM-dd').format(DateTime.now()));
+    focusNode = FocusNode();
     super.initState();
   }
 
@@ -37,6 +39,7 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
     dateController.dispose();
     quantityController.dispose();
     notesController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -48,6 +51,7 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
       "date_added": dateController.text.trim()
     };
       ref.read(fridgeCardNotifierProvider.notifier).addItem(addForm);
+      focusNode.requestFocus();
     }
 
   @override
@@ -56,13 +60,15 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
         formKey: formKey,
         title: "Add new item",
         fields: [
-          FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator),
-          FormUtils.textField(context: context, labelText: "Quantity", controller: quantityController, validator: (value) {
-            String? r = FormUtils.requiredFieldValidator(value);
-            if (r != null) return null;
-            String? i = FormUtils.integerFieldValidator(value);
-            return i;
-          }, keyboardType: TextInputType.number),
+          FormUtils.textField(context: context, labelText: "Name", controller: nameController, validator: FormUtils.requiredFieldValidator, focusNode: focusNode),
+          FormUtils.textField(context: context, labelText: "Quantity", controller: quantityController,
+            validator: (value) {
+              String? r = FormUtils.requiredFieldValidator(value);
+              if (r != null) return null;
+              String? i = FormUtils.integerFieldValidator(value);
+              return i;
+            },
+              keyboardType: TextInputType.number),
           FormUtils.dateField(context: context, labelText: "Date Added", controller: dateController,
               validator: (value) {
                 try {
@@ -78,7 +84,7 @@ class _FridgeAddFormState extends ConsumerState<FridgeAddForm> {
         actionButtons: [
           FormUtils.cancelActionButton(context),
           FormUtils.actionButton(context, formKey, "Add", _action),
-          FormUtils.actionAndRepeatButton(context, formKey, "Add & Continue", _action)
+          FormUtils.actionButton(context, formKey, "Add & Continue", _action, closeOnAction: false, resetOnAction: true)
         ],
     );
   }

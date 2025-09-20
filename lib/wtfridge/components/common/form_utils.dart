@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class FormUtils {
 
   // Method to build a TextFormField
-  static TextFormField textField({ required BuildContext context, required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType}) {
+  static TextFormField textField({ required BuildContext context, required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType, FocusNode? focusNode, void Function()? onTap}) {
     // controllers.add(controller);
     return TextFormField(
       controller: controller,
@@ -12,7 +13,8 @@ class FormUtils {
       keyboardType: keyboardType,
       cursorColor: Theme.of(context).colorScheme.onSurface,
       autofocus: true,
-
+      focusNode: focusNode,
+      onTap: onTap ?? selectAllText(controller),
       // Input text
       style: TextStyle(
           color: Theme.of(context).colorScheme.onSurface,
@@ -120,12 +122,17 @@ class FormUtils {
   }
 
 
-  static TextButton actionButton(BuildContext context, GlobalKey<FormState> formKey, String label, Future<void> Function() action) {
+  static TextButton actionButton(BuildContext context, GlobalKey<FormState> formKey, String label, Future<void> Function() action, {bool closeOnAction=true, bool resetOnAction=false}) {
     return TextButton(
         onPressed: () async {
           final formState = formKey.currentState;
           if (formState != null && formState.validate()) {
             await action();
+            if (closeOnAction && context.mounted) {
+              Navigator.of(context).pop();
+            } else if (resetOnAction) {
+              formState.reset();
+            }
           }
         },
         child: Text(
@@ -133,25 +140,6 @@ class FormUtils {
             style: TextStyle(
                 color: Theme.of(context).colorScheme.primary
             ))
-    );
-  }
-
-
-  static TextButton actionAndRepeatButton(BuildContext context, GlobalKey<FormState> formKey, String label, VoidCallback action) {
-    return TextButton(
-        onPressed: () {
-          final formState = formKey.currentState;
-          if (formState != null && formState.validate()) {
-            action();
-            formState.reset();
-          }
-        },
-        child: Text(
-            label,
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.primary
-            )
-        )
     );
   }
 
@@ -166,6 +154,11 @@ class FormUtils {
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary)
         )
     );
+  }
+
+
+  static TextSelection Function() selectAllText(TextEditingController controller) {
+    return () => controller.selection = TextSelection(baseOffset: 0, extentOffset: controller.value.text.length);
   }
 
 }
