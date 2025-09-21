@@ -27,42 +27,61 @@ class _GroceryViewState extends ConsumerState<GroceryView> {
     final groceryItems = ref.watch(groceryCardNotifierProvider);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.onInverseSurface, // 141414
-      body: Stack(
-        children: <Widget> [
-          SingleChildScrollView(
-            child: Column(
-              children: <Widget> [
-                const SizedBox(height: 16),
-                ReorderableListView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  proxyDecorator: _proxyDecorator,
-                  onReorderStart: (index) {
-                    ref.read(groceryCardNotifierProvider.notifier)
-                        .setMovingAtAs(index, true);
-                  },
-                  onReorderEnd: (index) {
-                    ref.read(groceryCardNotifierProvider.notifier)
-                        .setMovingAtAs(index, false);
-                  },
-                  onReorder: (oldIndex, newIndex) {
-                    ref.read(groceryCardNotifierProvider.notifier)
-                        .setMovingAtAs(oldIndex, false);
-                    setState(() {
-                      ref.read(groceryCardNotifierProvider.notifier)
-                          .reorder(oldIndex, newIndex);
-                    });
-                  },
-                  children: List.generate(groceryItems.length, (i) {
-                    GroceryItemCard currentCard = groceryItems.elementAt(i);
-                    return currentCard;
-                  }),
+      body: Column(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0.0, 16.0, 0.0, 0.0),
+              child: Text(
+                "Grocery List",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 26,
                 ),
-              ],
+              ),
             ),
           ),
-          _displayAddToFridgeButton(context, ref),
-        ]),
+          Expanded(
+            child: Stack(
+              children: <Widget> [
+                // Container(color: Colors.purple),
+                SingleChildScrollView(
+                  child: Column(
+                    children: <Widget> [
+                      const SizedBox(height: 16),
+                      ReorderableListView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        proxyDecorator: _proxyDecorator,
+                        onReorderStart: (index) {
+                          ref.read(groceryCardNotifierProvider.notifier)
+                              .setMovingAtAs(index, true);
+                        },
+                        onReorderEnd: (index) {
+                          ref.read(groceryCardNotifierProvider.notifier)
+                              .setMovingAtAs(index, false);
+                        },
+                        onReorder: (oldIndex, newIndex) {
+                          ref.read(groceryCardNotifierProvider.notifier)
+                              .setMovingAtAs(oldIndex, false);
+                          setState(() {
+                            ref.read(groceryCardNotifierProvider.notifier)
+                                .reorder(oldIndex, newIndex);
+                          });
+                        },
+                        children: List.generate(groceryItems.length, (i) {
+                          GroceryItemCard currentCard = groceryItems.elementAt(i);
+                          return currentCard;
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+                _displayAddToFridgeButton(context, ref),
+              ]),
+          ),
+        ],
+      ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
