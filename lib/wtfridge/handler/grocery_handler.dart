@@ -5,9 +5,11 @@ import '../model/grocery_item.dart';
 
 
 class GroceryHandler {
-  final database = DB.AppDatabase.instance;
+  late DB.AppDatabase database;
 
-  GroceryHandler();
+  GroceryHandler({DB.AppDatabase? database}) {
+    this.database = (database == null) ? DB.AppDatabase.instance : database;
+  }
 
 
   Future<void> pushToDB(GroceryItem newItem) async {
@@ -78,24 +80,41 @@ class GroceryHandler {
     await database.transaction(() async {
       List<DB.GroceryItem> activeItems = await database.managers.groceryItems
           .filter((g) => g.isActive.equals(true)).get();
-      await database.transaction(() async {
-        await database.managers.fridgeItems.bulkCreate((f) =>
-            activeItems.map(
-                    (groceryItem) =>
-                    f(
-                      itemId: groceryItem.itemId,
-                      name: groceryItem.name,
-                      dateAdded: DateTime.now(),
-                      quantity: groceryItem.quantity,
-                      notes: groceryItem.notes,
-                    )
-            ).toList()
-        );
 
-        await database.managers.groceryItems
-            .filter((g) => g.isActive.equals(true)).delete();
-      });
+      await database.managers.fridgeItems.bulkCreate((f) =>
+          activeItems.map(
+                  (groceryItem) =>
+                  f(
+                    itemId: groceryItem.itemId,
+                    name: groceryItem.name,
+                    dateAdded: DateTime.now(),
+                    quantity: groceryItem.quantity,
+                    notes: groceryItem.notes,
+                  )
+          ).toList()
+      );
+
+      await database.managers.groceryItems
+        .filter((g) => g.isActive.equals(true)).delete();
+
+      await reindexList();
     });
+  }
+
+
+  Future<void> reindexList() async {
+    final items = await database.managers.groceryItems.get();
+    items.sort((a,b) => a.index.compareTo(b.index));
+    
+    int counter = 1;
+    for (DB.GroceryItem item in items) {
+      if (item.index != counter) {
+        await database.managers.groceryItems
+          .filter((g) => g.itemId.equals(item.itemId))
+          .update((o) => o(index: Value(counter)));
+      }
+        counter++;
+    }
   }
 
 
