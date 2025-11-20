@@ -13,3 +13,7 @@ targets:
         release_options:
           dart2js_args:
             - -O4
+      drift_dev:
+        options:
+          databases:
+            app_database: lib/wtfridge/storage/database.dart
