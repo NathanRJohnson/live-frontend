@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:project_l/wtfridge/platform/platform.dart';
+import 'package:project_l/wtfridge/storage/database.steps.dart';
 
 part 'database.g.dart';
 
@@ -20,15 +21,26 @@ class GroceryItems extends Table {
   BoolColumn get isActive => boolean()();
   IntColumn get quantity => integer()();
   TextColumn get notes => text().withLength(min:0, max: 64)();
+  TextColumn get section => text().withLength(min:0, max: 64).nullable()();
+  TextColumn get store => text().withLength(min:0, max: 64).nullable()();
 }
 
-@DriftDatabase(tables: [FridgeItems, GroceryItems])
+class Products extends Table {
+  IntColumn get tableId => integer().autoIncrement()();
+  IntColumn get id => integer()();
+  TextColumn get name => text().withLength(min: 0, max: 64)();
+  TextColumn get section => text().withLength(min: 0, max: 64)();
+  IntColumn get avgExpiryDays => integer()();
+  BlobColumn get barcodes => blob()();
+}
+
+@DriftDatabase(tables: [FridgeItems, GroceryItems, Products])
 class AppDatabase extends _$AppDatabase {
 
   AppDatabase(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   static final AppDatabase _instance = AppDatabase(Platform.createDatabaseConnection("test-wtfridge-database"));
 
@@ -56,7 +68,26 @@ class AppDatabase extends _$AppDatabase {
         ))
         .write(shift);
     });
-
   }
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: _schemaUpgrade
+    );
+  }
+}
+
+extension Migrations on GeneratedDatabase {
+  // Extracting the `stepByStep` call into a static field or method ensures that you're not
+  // accidentally referring to the current database schema (via a getter on the database class).
+  // This ensures that each step brings the database into the correct snapshot.
+  OnUpgrade get _schemaUpgrade => stepByStep(
+    from1To2: (m, schema) async {
+      await m.createTable(schema.products);
+      await m.addColumn(schema.groceryItems, schema.groceryItems.section);
+      await m.addColumn(schema.groceryItems, schema.groceryItems.store);
+    },
+  );
 }
 
