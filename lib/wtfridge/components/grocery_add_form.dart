@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project_l/wtfridge/model/grocery_item.dart';
 
 import '../components/common/form_utils.dart';
 import '../components/common/item_action_form.dart';
@@ -17,6 +18,8 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
   late final TextEditingController quantityController;
   late final TextEditingController notesController;
   late final FocusNode focusNode;
+  String? _section;
+  String? _store;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
@@ -42,9 +45,26 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
       "item_name": nameController.text.trim(),
       "quantity": quantityController.text.trim(),
       "notes": notesController.text.trim(),
+      "section": _section ?? "",
+      "store": _store ?? "",
     };
     focusNode.requestFocus();
+    nameController.clear();
+    quantityController.text = "1";
+    notesController.clear();
     await ref.read(groceryCardNotifierProvider.notifier).addItem(addForm);
+  }
+
+  void _updateSection(String? newSection) {
+    setState(() {
+      _section = newSection;
+    });
+  }
+
+  void _updateStore(String? newStore) {
+    setState(() {
+      _store = newStore;
+    });
   }
 
   @override
@@ -64,12 +84,14 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
           keyboardType: TextInputType.number,
           action: TextInputAction.next
         ),
+        FormUtils.dropdownSelectionField(context: context, labelText: "Section", onChanged: _updateSection, validator: FormUtils.requiredFieldValidator, choices: GroceryItem.getSections()),
         FormUtils.textField(context: context, labelText: "Notes", controller: notesController, validator: (string){ return null; }),
+        FormUtils.dropdownSelectionField(context: context, labelText: "Store", onChanged: _updateStore, validator: FormUtils.requiredFieldValidator, choices: GroceryItem.getStores())
       ],
       actionButtons: [
         FormUtils.cancelActionButton(context),
         FormUtils.actionButton(context, formKey, "Add", _action),
-        FormUtils.actionButton(context, formKey, "Add & Continue", _action, closeOnAction: false, resetOnAction: true)
+        FormUtils.actionButton(context, formKey, "Add & Continue", _action, closeOnAction: false, resetOnAction: false)
       ],
     );
   }

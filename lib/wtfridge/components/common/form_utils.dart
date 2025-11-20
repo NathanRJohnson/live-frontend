@@ -89,6 +89,24 @@ class FormUtils {
     }
   }
 
+  static Widget dropdownSelectionField({ required BuildContext context, required String labelText, required Function(String?) onChanged, required String? Function(String? value) validator, required List<String> choices }) {
+    return DropdownButtonFormField(
+        validator: validator,
+        // decoration: _m3Decoration(context, labelText),
+        value: choices[0],
+        items: choices.map((c) {
+          return DropdownMenuItem(
+              value: c,
+              child: Text(c)
+          );
+        }).toList(),
+        onChanged: (value) {
+          onChanged(value);
+        }
+
+    );
+  }
+
 
   static Widget formTitle(BuildContext context, String text) {
     return Padding(

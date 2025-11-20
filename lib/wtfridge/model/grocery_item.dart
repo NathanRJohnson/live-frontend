@@ -8,13 +8,43 @@ class GroceryItem {
   int index;
   int quantity;
   String notes;
+  String section;
+  String store;
 
-  GroceryItem({ required this.name, this.isActive = false, this.id, this.index = -1, this.quantity=1, this.notes=""}) {
+  static const _sections = [
+    "Miscellaneous",
+    "Vegetables",
+    "Fruit",
+    "Deli",
+    "Bakery",
+    "Seafood",
+    "Meat",
+    "Dairy",
+    "Frozen",
+    "Health/Organic",
+    "Dry Goods",
+  ];
+
+  static const _stores = [
+    "None",
+    "Real Canadian Superstore",
+    "Costco",
+    "Food Basics",
+    "Zehrs",
+    "Sobeys",
+    "Freshco",
+    "Walmart",
+    "Vincenzo's",
+  ];
+
+  GroceryItem({ required this.name, this.isActive = false, this.id, this.index = -1, this.quantity=1, this.notes="", this.section="", this.store=""}) {
     id ??= _generateID();
+    section = section == "" ? _sections[0] : section;
+    store = store == "" ? _stores[0] : store;
   }
 
   GroceryItem copy() {
-    return GroceryItem(id: id, name: name, isActive: isActive, index: index, quantity: quantity, notes: notes);
+    return GroceryItem(id: id, name: name, isActive: isActive, index: index, quantity: quantity, notes: notes, section: section, store: store);
   }
 
   factory GroceryItem.fromJSON(Map<String, dynamic> json) {
@@ -32,7 +62,9 @@ class GroceryItem {
       isActive: json['is_active'] as bool,
       index: json['index'] as int,
       quantity: json['quantity'] as int,
-      notes: json['notes'] as String
+      notes: json['notes'] as String,
+      section: json['section'] as String,
+      store: json['store'] as String
     );
   }
 
@@ -43,7 +75,9 @@ class GroceryItem {
       "is_active": isActive,
       "index": index,
       "quantity": quantity,
-      "notes": notes
+      "notes": notes,
+      "section": section,
+      "store": store,
     };
 
   int _generateID() {
@@ -56,6 +90,15 @@ class GroceryItem {
     String n = (notes != "") ? " ($notes)" : "";
     return "x$quantity $name$n";
   }
+
+  static List<String> getSections() {
+    return _sections;
+  }
+
+  static List<String> getStores() {
+    return _stores;
+  }
+
 }
 
 
