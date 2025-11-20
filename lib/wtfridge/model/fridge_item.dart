@@ -11,6 +11,10 @@ class FridgeItem {
 
   FridgeItem({ required this.name, this.timeInFridge = "< 1 day", this.id, this.dateAdded, this.quantity = 1, this.notes = "" }) {
     id ??= _generateID();
+    DateTime now = DateTime.now();
+    Duration difference = now.difference(dateAdded!);
+
+    timeInFridge = _getDateDisplayMessage(difference);
   }
 
   factory FridgeItem.fromJSON(Map<String, dynamic> json) {

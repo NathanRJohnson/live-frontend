@@ -25,7 +25,7 @@ class GroceryItems extends Table {
 @DriftDatabase(tables: [FridgeItems, GroceryItems])
 class AppDatabase extends _$AppDatabase {
 
-  AppDatabase(super.executor);
+  AppDatabase(QueryExecutor e) : super(e);
 
   @override
   int get schemaVersion => 1;

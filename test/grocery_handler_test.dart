@@ -4,10 +4,12 @@ import 'dart:convert';
 
 import 'dart:convert';
 
+import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:project_l/wtfridge/storage/database.dart' as DB;
 
 import '../lib/wtfridge/handler/grocery_handler.dart';
 import '../lib/wtfridge/model/grocery_item.dart';
@@ -16,180 +18,81 @@ import 'fridge_handler_test.mocks.dart';
 // dart run build_runner build
 @GenerateMocks([Client])
 void main() {
-  late Uri url;
   late GroceryHandler handler;
-  late String body;
-
+  late DB.AppDatabase database;
+  
+  final List<GroceryItem> items = [
+    GroceryItem(name: "Apple", index: 1, id: 1),
+    GroceryItem(name: "Banana", index: 2, id: 2),
+    GroceryItem(name: "Cantaloupe", index: 3, id: 3)
+  ];
+  
   setUp(() {
-    url = Uri.http("3.96.14.111", "/grocery/");
-    handler = GroceryHandler();
+    database = DB.AppDatabase(
+      DatabaseConnection(
+        NativeDatabase.memory(),
+        closeStreamsSynchronously: true,
+      )
+    );
+    handler = GroceryHandler(database: database);
+  });
+  
+  tearDown(() async {
+    await database.close();
   });
 
-  group('get all items', () {
-    body = '[{"item_id": 123, "item_name":"G", "is_active": false}]';
-    test(' returns a GroceryItem if http call completes successfully', () async {
-      final client = MockClient();
+  group('basic operations', () {
+    test('adding items', () async {
+      for (int i = 0; i < 3; i++) {
+        handler.pushToDB(items[i]);
+      }
 
-      when(client
-          .get(url))
-            .thenAnswer((_) async =>
-                Response(body, 200));
+      final ioi = await database.managers.groceryItems.count();
 
-      expect(await handler.getAllItems(client), isA<List<GroceryItem>>());
-    });
-
-    test('returns empty list if the http returns with empty body', () async {
-      final client = MockClient();
-
-      // Use Mockito to return an unsuccessful response when it calls the
-      // provided http.Client.
-      when(client
-          .get(url))
-          .thenAnswer((_) async =>
-          Response('', 200));
-
-      expect(await handler.getAllItems(client), <GroceryItem>[]);
-    });
-
-    test('raises error if the http call completes with an error', () async {
-      final client = MockClient();
-
-      when(client
-          .get(url))
-          .thenAnswer((_) async =>
-          Response('Server Error', 500));
-
-      expect(handler.getAllItems(client), throwsA(const TypeMatcher<ClientException>()));
+      expect(ioi, 3);
     });
   });
 
-  group('push to db', () {
-    GroceryItem item = GroceryItem(id: 123, name: "G", isActive: false);
+  group('reordering items', () {
+    test('moving last item to top', () async {
+      for (int i = 0; i < 3; i++) {
+        handler.pushToDB(items[i]);
+      }
 
-    test('successful item addition', () async {
-      final client = MockClient();
+      List<GroceryItem> current = await handler.getAllItems();
+      assert(current[0].id == 1 && current[0].index == 1);
+      assert(current[2].id == 3 && current[2].index == 3);
 
-      when(client
-          .post(url, body: jsonEncode(item)))
-          .thenAnswer((_) async =>
-          Response('', 200));
+      await handler.updateIndicies(2, 0);
 
-      await expectLater(handler.pushToDB(client, item), completes);
+      current = await handler.getAllItems();
+      for (GroceryItem c in current)  {
+        print("${c.name}: ${c.index}");
+      }
+      expect(current[0].index, 2);
+      expect(current[1].index, 3);
+      expect(current[2].index, 1);
     });
 
-    test('failed item addition throws ClientException', () async {
-      final client = MockClient();
+    test('moving first item to bottom', () async {
+      for (int i = 0; i < 3; i++) {
+        handler.pushToDB(items[i]);
+      }
 
-      when(client
-          .post(url, body: jsonEncode(item)))
-          .thenAnswer((_) async =>
-          Response('', 500));
+      List<GroceryItem> current = await handler.getAllItems();
+      assert(current[0].id == 1 && current[0].index == 1);
+      assert(current[2].id == 3 && current[2].index == 3);
 
-      expect(handler.pushToDB(client, item), throwsA(const TypeMatcher<ClientException>()));
+      await handler.updateIndicies(0, 2);
+
+      current = await handler.getAllItems();
+      for (GroceryItem c in current)  {
+        print("${c.name}: ${c.index}");
+      }
+
+      expect(current[0].index, 3);
+      expect(current[1].index, 1);
+      expect(current[2].index, 2);
     });
-  });
-
-  group('delete from db', () {
-    GroceryItem item = GroceryItem(id: 123, name: "G", isActive: false);
-
-    test('successful item deletion', () async {
-      final client = MockClient();
-
-      when(client
-          .delete(url.resolve(item.id!.toString())))
-          .thenAnswer((_) async =>
-          Response('', 200));
-
-      expect(handler.deleteItemByID(client, item.id!), completes);
-    });
-
-    test('failed item deletion throws ClientException', () async {
-      final client = MockClient();
-
-      when(client
-          .delete(url.resolve(item.id!.toString())))
-          .thenAnswer((_) async =>
-          Response('', 500));
-
-      expect(handler.deleteItemByID(client, item.id!), throwsA(const TypeMatcher<ClientException>()));
-    });
-  });
-
-  group('toggle item active state', () {
-    GroceryItem item = GroceryItem(id: 123, name: "G", isActive: false);
-
-    test('successful item deletion', () async {
-      final client = MockClient();
-
-      when(client
-          .patch(url.resolve(item.id!.toString())))
-          .thenAnswer((_) async =>
-          Response('', 200));
-
-      expect(handler.toggleActiveByID(client, item.id!), completes);
-    });
-
-    test('failed item deletion throws ClientException', () async {
-      final client = MockClient();
-
-      when(client
-          .patch(url.resolve(item.id!.toString())))
-          .thenAnswer((_) async =>
-          Response('', 500));
-
-      expect(handler.toggleActiveByID(client, item.id!), throwsA(const TypeMatcher<ClientException>()));
-    });
-  });
-
-  group('toggle item active state', () {
-    GroceryItem item = GroceryItem(id: 123, name: "G", isActive: false);
-
-    test('successful item deletion', () async {
-      final client = MockClient();
-
-      when(client
-          .patch(url.resolve(item.id!.toString())))
-          .thenAnswer((_) async =>
-          Response('', 200));
-
-      expect(handler.toggleActiveByID(client, item.id!), completes);
-    });
-
-    test('failed item deletion throws ClientException', () async {
-      final client = MockClient();
-
-      when(client
-          .patch(url.resolve(item.id!.toString())))
-          .thenAnswer((_) async =>
-          Response('', 500));
-
-      expect(handler.toggleActiveByID(client, item.id!), throwsA(const TypeMatcher<ClientException>()));
-    });
-  });
-
-  group('send active to fridge', () {
-
-    test('successful item transfer', () async {
-      final client = MockClient();
-
-      when(client
-          .post(url.resolve("to_fridge")))
-          .thenAnswer((_) async =>
-          Response('', 200));
-
-      expect(handler.sendActiveToFridge(client), completes);
-    });
-
-    test('successful item transfer', () async {
-      final client = MockClient();
-
-      when(client
-          .post(url.resolve("to_fridge")))
-          .thenAnswer((_) async =>
-          Response('', 500));
-
-      expect(handler.sendActiveToFridge(client), throwsA(const TypeMatcher<ClientException>()));
-    });
-
   });
 }
