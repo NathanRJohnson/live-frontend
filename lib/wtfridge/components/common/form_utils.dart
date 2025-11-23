@@ -4,6 +4,39 @@ import 'package:intl/intl.dart';
 
 class FormUtils {
 
+
+  static InputDecoration _m3Decoration(BuildContext context, String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: TextStyle(
+        color: Theme.of(context).colorScheme.onPrimaryContainer,
+      ),
+
+      // Label text post-focus
+      floatingLabelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.primary
+      ),
+
+      // error message border styling. Color defaults to m3 error
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+
+      enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(4),
+          borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.secondary
+          )
+      ),
+
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    );
+  }
+
   // Method to build a TextFormField
   static TextFormField textField({ required BuildContext context, required String labelText, required TextEditingController controller, required String? Function(String? value) validator, IconButton? suffixIcon, TextInputType? keyboardType, FocusNode? focusNode, void Function()? onTap, TextInputAction? action}) {
     // controllers.add(controller);
@@ -92,7 +125,7 @@ class FormUtils {
   static Widget dropdownSelectionField({ required BuildContext context, required String labelText, required Function(String?) onChanged, required String? Function(String? value) validator, required List<String> choices }) {
     return DropdownButtonFormField(
         validator: validator,
-        // decoration: _m3Decoration(context, labelText),
+        decoration: _m3Decoration(context, labelText),
         value: choices[0],
         items: choices.map((c) {
           return DropdownMenuItem(
