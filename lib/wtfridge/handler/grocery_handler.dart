@@ -11,7 +11,6 @@ class GroceryHandler {
     this.database = (database == null) ? DB.AppDatabase.instance : database;
   }
 
-
   Future<void> pushToDB(GroceryItem newItem) async {
     await database.managers.groceryItems
       .create((i) => i(
@@ -21,7 +20,10 @@ class GroceryHandler {
         isActive: false,
         quantity: newItem.quantity,
         notes: newItem.notes,
+        section: Value(newItem.section),
+        store: Value(newItem.store),
     ));
+    reindexList();
   }
 
 
@@ -35,6 +37,8 @@ class GroceryHandler {
         isActive: dbItem.isActive,
         quantity: dbItem.quantity,
         notes: dbItem.notes,
+        section: dbItem.section!,
+        store: dbItem.store!
       );
     }).toList();
     return items;
@@ -62,7 +66,7 @@ class GroceryHandler {
         .update((o) => o(
           name: Value(newValues["new_name"]),
           quantity: Value(newValues["new_quantity"]),
-          notes: Value(newValues["new_notes"])
+          notes: Value(newValues["new_notes"]),
         ));
   }
 

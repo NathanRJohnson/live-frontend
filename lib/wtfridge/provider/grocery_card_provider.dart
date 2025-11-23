@@ -30,27 +30,66 @@ class GroceryCardNotifier extends Notifier<List<GroceryItemCard>> {
   Future<void> addItem(Map<String, String> values, [int? id]) async {
     int quantity = values["quantity"] != null ? int.parse(values["quantity"]!) : 1;
     String notes = values["notes"] != null ? values["notes"]! : "";
+    String section = values["section"] != "" ? values["section"]! : GroceryItem.getSections()[0];
+    String store = values["store"] != "" ? values["store"]! : GroceryItem.getStores()[0];
+    int insertionIndex = findInsertionPoint([for (var c in state) c.item], section);
 
     GroceryItem item = GroceryItem(
       name: values["item_name"]!,
       quantity: quantity,
       notes: notes,
       id: id,
-      index: state.length+1,
-      isActive: false
+      index: insertionIndex,
+      isActive: false,
+      section: section,
+      store: store
     );
-    addItemLocally(item);
     await groceryHandler.pushToDB(item);
+    syncToDB();
   }
 
-Future<void> addItemFromFridge(FridgeItem f) async {
-    Map<String, String> map = {
-      "item_name": f.name,
-      "quantity": f.quantity.toString(),
-      "notes": f.notes,
-    };
-    return await addItem(map);
-}
+  int findInsertionPoint(List<GroceryItem> items, String section) {
+    if (items.isEmpty) {
+      return 0;
+    }
+
+    final sections = GroceryItem.getSections();
+    final lookup = {for (int i = 0; i < sections.length; i++) sections[i] : i};
+
+    int l = 0;
+    int r = items.length - 1;
+    int insertPoint = items.length;
+    int m = 0;
+
+    // TODO: need better null guards
+    int t = lookup[section]!;
+
+    while (l <= r) {
+      m = l + (r - l) ~/ 2;
+      if (lookup[items[m].section]! == t) {
+        l = m+1;
+        insertPoint = m + 1;
+      }
+      else if (lookup[items[m].section]! < t) {
+        l = m+1;
+      }
+      else if (lookup[items[m].section]! > t) {
+        r = m-1;
+        insertPoint = m;
+      }
+    }
+
+    return insertPoint;
+  }
+
+  Future<void> addItemFromFridge(FridgeItem f) async {
+      Map<String, String> map = {
+        "item_name": f.name,
+        "quantity": f.quantity.toString(),
+        "notes": f.notes,
+      };
+      return await addItem(map);
+  }
 
   void addItemLocally(GroceryItem item) {
     state = <GroceryItemCard>[...state,
