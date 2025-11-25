@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project_l/wtfridge/model/product.dart';
+import 'package:project_l/wtfridge/provider/grocery_card_provider.dart';
 import 'package:project_l/wtfridge/provider/product_provider.dart';
 
 class ProductSelectionView extends ConsumerStatefulWidget {
@@ -13,6 +14,12 @@ class ProductSelectionView extends ConsumerStatefulWidget {
 class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
 
   final SearchController controller = SearchController();
+
+  @override
+  @override void initState() {
+    Future(() => ref.read(productNotifierProvider.notifier).getAvailableProducts());
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,11 +82,7 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
                       ),
                       elevation: const WidgetStatePropertyAll(0.0),
                       onChanged: (searchString) {
-                        print("Hello?  $searchString");
                         ref.read(productNotifierProvider.notifier).filterProductsBySearchTerm(searchString);
-                        setState(() {
-
-                        });
                       },
                     );
                   },
@@ -97,6 +100,10 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
     return GestureDetector(
       onTap: () {
         // do I need to add a provider here?
+        ref.read(productNotifierProvider.notifier).removeItem(p.id);
+        ref.read(groceryCardNotifierProvider.notifier).addItem(
+          p.toGroceryValues()
+        );
       },
       child: ListTileTheme(
           contentPadding: const EdgeInsets.all(0),

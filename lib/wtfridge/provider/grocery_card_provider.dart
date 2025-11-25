@@ -194,6 +194,11 @@ class GroceryCardNotifier extends Notifier<List<GroceryItemCard>> {
     }
     return message;
   }
+
+  Set<String> getAllItemNames() {
+    return {for (GroceryItemCard c in state) c.item.name};
+  }
+
 }
 
 final groceryCardNotifierProvider = NotifierProvider<GroceryCardNotifier, List<GroceryItemCard>>(

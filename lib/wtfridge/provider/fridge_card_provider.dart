@@ -146,6 +146,11 @@ class FridgeCardNotifier extends Notifier<AsyncState> {
     FridgeItemCard item = state.items.elementAt(index);
     return item;
   }
+
+  Set<String> getAllItemNames() {
+    return {for (FridgeItemCard c in state.items) c.item.name};
+  }
+
 }
 
 final fridgeCardNotifierProvider = NotifierProvider<FridgeCardNotifier, AsyncState>(
