@@ -1,46 +1,42 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project_l/wtfridge/handler/product_handler.dart';
 import 'package:project_l/wtfridge/model/product.dart';
-import 'package:project_l/wtfridge/provider/fridge_card_provider.dart';
-import 'package:project_l/wtfridge/provider/grocery_card_provider.dart';
 
+/* Provide Renderables */
 class ProductNotifier extends Notifier<List<Product>> {
 
-  static const allProducts = [
-    Product(id: 1, name: "apples", section: "Fruit"),
-    Product(id: 2, name: "salmon", section: "Seafood"),
-    Product(id: 3, name: "spinach Pizza", section: "Frozen")
-  ];
+  final ProductHandler handler = ProductHandler();
 
   @override
   List<Product> build() {
-    /* TODO -- pull products from database. Would be nice to find products
+    /* TODO - Would be nice to find products
      that aren't already in either the fridge or grocery lists. Would be nice
      to be able to display frequently purchased products initially before searching happens
     */
-    Set<String> currentFridgeItemNames = ref.read(fridgeCardNotifierProvider.notifier).getAllItemNames();
-    Set<String> currentGroceryItemNames = ref.read(groceryCardNotifierProvider.notifier).getAllItemNames();
-    Set<String> currentItems = currentFridgeItemNames.union(currentGroceryItemNames);
-
-    var availableProducts = allProducts
-        .where((product) => !currentItems.contains(product.name));
-
-    return availableProducts.toList();
+    return [];
   }
 
-  void getAvailableProducts() {
-    Set<String> currentFridgeItemNames = ref.read(fridgeCardNotifierProvider.notifier).getAllItemNames();
-    Set<String> currentGroceryItemNames = ref.read(groceryCardNotifierProvider.notifier).getAllItemNames();
-    Set<String> currentItems = currentFridgeItemNames.union(currentGroceryItemNames);
-
-    var availableProducts = allProducts
-        .where((product) => !currentItems.contains(product.name));
-
-    state = availableProducts.toList();
+  // TODO: this needs a better name
+  Future<void> tryFetchServerUpdate() async {
+    await handler.syncDB();
   }
 
-  void filterProductsBySearchTerm(String searchTerm) {
-    state = allProducts.where((p) => p.name.startsWith(searchTerm)).toList();
+  // TODO - union / exclusion logic should move to the handler when re-implemented
+  void getDisplayProducts() async {
+
+    // Set<String> currentFridgeItemNames = ref.read(fridgeCardNotifierProvider.notifier).getAllItemNames();
+    // Set<String> currentGroceryItemNames = ref.read(groceryCardNotifierProvider.notifier).getAllItemNames();
+    // Set<String> currentItems = currentFridgeItemNames.union(currentGroceryItemNames);
+
+    // var availableProducts = allProducts
+    //     .where((product) => !currentItems.contains(product.name));
+
+    // TODO - will change once frequentProducts table is added
+    state = await handler.getProductsFromLocalDB();
+  }
+
+  void getProductsBySearchTerm(String searchTerm) async {
+    state = await handler.getProductsFromLocalDB(searchTerm: searchTerm);
   }
 
   void removeItem(int removeId) {

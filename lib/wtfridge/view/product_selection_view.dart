@@ -17,7 +17,8 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
 
   @override
   @override void initState() {
-    Future(() => ref.read(productNotifierProvider.notifier).getAvailableProducts());
+    Future(() => ref.read(productNotifierProvider.notifier).tryFetchServerUpdate());
+    Future(() => ref.read(productNotifierProvider.notifier).getDisplayProducts());
     super.initState();
   }
 
@@ -82,7 +83,7 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
                       ),
                       elevation: const WidgetStatePropertyAll(0.0),
                       onChanged: (searchString) {
-                        ref.read(productNotifierProvider.notifier).filterProductsBySearchTerm(searchString);
+                        ref.read(productNotifierProvider.notifier).getProductsBySearchTerm(searchString);
                       },
                     );
                   },
