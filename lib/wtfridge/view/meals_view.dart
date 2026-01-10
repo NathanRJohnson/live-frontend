@@ -58,9 +58,9 @@ class _MealsViewState extends ConsumerState<MealsView> {
                   parent: animation,
                   curve: Curves.easeIn
               ),
-              child: const Dialog.fullscreen(
-                  backgroundColor: Colors.amber,
-                  child: ProductSelectionView()
+              child: Dialog.fullscreen(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  child: const ProductSelectionView()
               ),
             )
         );

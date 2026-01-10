@@ -74,7 +74,7 @@ class _FridgeViewState extends ConsumerState<FridgeView> {
         Padding(
           padding: const EdgeInsets.fromLTRB( 16.0, 16.0, 8.0, 16.0),
           child: SizedBox(
-            width: 325,
+            width: 250,
             height: 36,
             child: SearchAnchor(
               builder: (BuildContext context, SearchController controller) {

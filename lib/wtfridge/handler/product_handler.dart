@@ -19,6 +19,7 @@ class ProductHandler {
     // request hash from server
     final hashResponse = await http.get(Uri.parse('http://localhost:8000/database_hash'));
 
+
     final prefs = await SharedPreferences.getInstance();
     final currentHash = prefs.getString("productHash");
 

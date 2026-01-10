@@ -14,6 +14,7 @@ class ProductSelectionView extends ConsumerStatefulWidget {
 class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
 
   final SearchController controller = SearchController();
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey();
 
   @override
   @override void initState() {
@@ -27,15 +28,18 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
     // TODO: implement build
     final products = ref.watch(productNotifierProvider);
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         productSearchOptions(context),
-        ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: products.length,
-            itemBuilder: (context, i) {
-              return _productItemCard(context, ref.read(productNotifierProvider).elementAt(i));
-            }
+        Expanded(
+          child: AnimatedList(
+              physics: const NeverScrollableScrollPhysics(),
+              // shrinkWrap: true,
+              initialItemCount: products.length,
+              itemBuilder: (context, i, animation) {
+                return _productItemCard(context, i, animation);
+              }
+          ),
         ),
       ],
     );
@@ -60,7 +64,7 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
         Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 16.0, 8.0, 16.0),
             child: SizedBox(
-              width: 325,
+              width: 250,
               height: 36,
               child: SearchAnchor(
                 // searchController: controller,
@@ -97,7 +101,8 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
     );
   }
 
-  Widget _productItemCard(BuildContext context, Product p) {
+  Widget _productItemCard(BuildContext context, int index, Animation animation) {
+    final p = ref.read(productNotifierProvider).elementAt(index);
     return GestureDetector(
       onTap: () {
         // do I need to add a provider here?
@@ -105,9 +110,10 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
         ref.read(groceryCardNotifierProvider.notifier).addItem(
           p.toGroceryValues()
         );
+        _removeItem(index, p);
       },
       child: ListTileTheme(
-          contentPadding: const EdgeInsets.all(0),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: ListTile(
             tileColor: Theme
                 .of(context)
@@ -122,4 +128,21 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
       ),
     );
   }
+
+  void _removeItem(int index, Product p) {
+    _listKey.currentState!.removeItem(index, (context, animation) {
+      return SlideTransition(
+        position: animation.drive(
+          Tween<Offset>(
+            begin: Offset.zero,
+            end: const Offset(-1.0, 0.0),
+          ).chain(CurveTween(curve: Curves.easeOut)),
+        ),
+        child: _productItemCard(context, index, animation),
+      );
+    },
+    duration: const Duration(milliseconds: 300),
+    );
+  }
+
 }
