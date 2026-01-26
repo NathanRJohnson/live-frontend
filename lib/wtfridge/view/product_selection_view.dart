@@ -26,9 +26,7 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    final products = ref.watch(productNotifierProvider);
-    print("WE HAVE PRODUCTS: ${products.length}");
+    final productNotifierState = ref.watch(productNotifierProvider);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -46,19 +44,24 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
           ),
         ),
         Expanded(
-          child: AnimatedList(
+          child: (productNotifierState.isLoading) ?
+            Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ) :
+            AnimatedList(
               key: _listKey,
-              initialItemCount: 10,
+              initialItemCount: productNotifierState.products.length,
               itemBuilder: (context, index, animation) {
-                final p = ref.read(productNotifierProvider).elementAt(index);
+                final p = productNotifierState.products.elementAt(index);
                 return GestureDetector(
                   onTap: () {
-                    // animation and removal logic
+                    _playAnimation(index, p);
                     ref.read(productNotifierProvider.notifier).removeItem(p.id);
                     ref.read(groceryCardNotifierProvider.notifier).addItem(
                         p.toGroceryValues()
                     );
-                    _playAnimation(index, p);
                   },
                   child: ProductItemCard(product: p));
               }
@@ -90,7 +93,6 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
               width: 250,
               height: 36,
               child: SearchAnchor(
-                // searchController: controller,
                   builder: (BuildContext context, SearchController controller) {
                     return SearchBar(
                       leading: Icon(Icons.search, color: Theme
@@ -124,33 +126,6 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
     );
   }
 
-  // Widget _productItemCard(BuildContext context, Product p, int index) {
-  //   return GestureDetector(
-  //     onTap: () {
-  //       // do I need to add a provider here?
-  //       _removeItem(index, p);
-  //       ref.read(productNotifierProvider.notifier).removeItem(p.id);
-  //       ref.read(groceryCardNotifierProvider.notifier).addItem(
-  //         p.toGroceryValues()
-  //       );
-  //     },
-  //     child: ListTileTheme(
-  //         contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-  //         child: ListTile(
-  //           tileColor: Theme
-  //               .of(context)
-  //               .colorScheme
-  //               .surfaceContainer,
-  //           minVerticalPadding: 0.0,
-  //           titleAlignment: ListTileTitleAlignment.top,
-  //           shape: RoundedRectangleBorder(
-  //               borderRadius: BorderRadius.circular(0)),
-  //           title: Text(p.name),
-  //         )
-  //     ),
-  //   );
-  // }
-
   void _playAnimation(int index, Product p) {
     _listKey.currentState!.removeItem(index, (context, animation) {
     final norm = ReverseAnimation(animation);
@@ -159,22 +134,22 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
       begin: 0.0,
       end: 1.0
     ).animate(
-        CurvedAnimation(parent: norm, curve: const Interval(0.0, 0.3, curve: Curves.easeInOut)));
+        CurvedAnimation(parent: norm, curve: const Interval(0.0, 0.5, curve: Curves.easeIn)));
 
     final slideOut = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(1, 0),
     ).animate(
-      CurvedAnimation(parent: norm, curve: const Interval(0.7, 1.0)));
+      CurvedAnimation(parent: norm, curve: const Interval(0.7, 1.0, curve: Curves.easeOut)));
 
     return SlideTransition(
       position: slideOut,
       child: FadeTransition(
         opacity: fadeToGreen,
         // material is required to paint the background green!
-        child: const Material(
-          color: Colors.green,
-          child: ListTile(
+        child: Material(
+          color: Theme.of(context).colorScheme.secondary,
+          child: const ListTile(
             titleAlignment: ListTileTitleAlignment.center,
             title: Icon(Icons.check, color: Colors.white),
           ),

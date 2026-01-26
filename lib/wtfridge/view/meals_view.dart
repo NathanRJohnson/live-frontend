@@ -31,13 +31,13 @@ class _MealsViewState extends ConsumerState<MealsView> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          _dialogBuilder(context, products);
+          _dialogBuilder(context);
         },
       ),
     );
   }
 
-  Future<void> _dialogBuilder(BuildContext context, List<Product> products) {
+  Future<void> _dialogBuilder(BuildContext context) {
     return showGeneralDialog(context: context,
       barrierDismissible: false,
       barrierLabel: MaterialLocalizations
