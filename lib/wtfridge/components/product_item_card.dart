@@ -11,25 +11,19 @@ import 'package:project_l/wtfridge/provider/product_provider.dart';
 class ProductItemCard extends ConsumerStatefulWidget {
   final Product product;
 
-  ProductItemCard({required this.product});
+  const ProductItemCard({super.key, required this.product});
 
   @override
   ConsumerState<ProductItemCard> createState() => _ProductItemCardState();
 }
 
 class _ProductItemCardState extends ConsumerState<ProductItemCard> {
-  bool _isSelected = false;
 
   @override
   Widget build(BuildContext context) {
     return ListTileTheme(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: (_isSelected) ? const ListTile(
-          tileColor: Colors.green,
-          titleAlignment: ListTileTitleAlignment.center,
-          title: Icon(Icons.check),
-        ) :
-        ListTile(
+        child: ListTile(
           tileColor: Theme
               .of(context)
               .colorScheme
@@ -42,43 +36,5 @@ class _ProductItemCardState extends ConsumerState<ProductItemCard> {
         )
     );
   }
-
-  // FadeTransition? playAnimation(Animation animation) {
-  //   if (widget.animation == null) {
-  //     throw Exception("Cannot play animation when ProductItem does not have an associated animation");
-  //   }
-  //   return FadeTransition(
-  //     opacity:
-  //         widget.animation!.drive(
-  //       Tween(
-  //         begin: 0.0,
-  //         end: 1.0,
-  //       ).chain(CurveTween(curve: Curves.easeOut)),
-  //     ),
-  //     child: const ListTile(
-  //       tileColor: Colors.green,
-  //       titleAlignment: ListTileTitleAlignment.center,
-  //       title: Icon(Icons.check),
-  //     ),
-  //   );
-  // }
-
-  // void _wipeItem(int index, Product p) {
-  //   print(p);
-  //   _listKey.currentState!.removeItem(index, (context, animation) {
-  //     return FadeTransition(
-  //       opacity: animation.drive(
-  //         Tween(
-  //           begin: 0.0,
-  //           end: 1.0,
-  //         ).chain(CurveTween(curve: Curves.easeOut)),
-  //       ),
-  //       child: _productItemCard(context, p, index),
-  //     );
-  //   },
-  //     duration: const Duration(milliseconds: 300),
-  //   );
-  // }
-
 }
 

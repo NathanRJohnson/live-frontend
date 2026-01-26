@@ -148,7 +148,7 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
         opacity: fadeToGreen,
         // material is required to paint the background green!
         child: Material(
-          color: Theme.of(context).colorScheme.secondary,
+          color: Theme.of(context).colorScheme.inversePrimary,
           child: const ListTile(
             titleAlignment: ListTileTitleAlignment.center,
             title: Icon(Icons.check, color: Colors.white),
