@@ -14,8 +14,9 @@ class ProductSelectionView extends ConsumerStatefulWidget {
 
 class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
 
-  final SearchController controller = SearchController();
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey();
+  final TextEditingController controller = TextEditingController();
+  GlobalKey<AnimatedListState> _listKey = GlobalKey();
+  bool showAddNewItemCard = false;
 
   @override
   @override void initState() {
@@ -27,6 +28,7 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
   @override
   Widget build(BuildContext context) {
     final productNotifierState = ref.watch(productNotifierProvider);
+    print(productNotifierState.products.length);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -52,18 +54,37 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
             ) :
             AnimatedList(
               key: _listKey,
-              initialItemCount: productNotifierState.products.length,
+              initialItemCount:
+              (showAddNewItemCard) ?
+              productNotifierState.products.length + 1:
+              productNotifierState.products.length,
               itemBuilder: (context, index, animation) {
-                final p = productNotifierState.products.elementAt(index);
-                return GestureDetector(
-                  onTap: () {
-                    _playAnimation(index, p);
-                    ref.read(productNotifierProvider.notifier).removeItem(p.id);
-                    ref.read(groceryCardNotifierProvider.notifier).addItem(
-                        p.toGroceryValues()
-                    );
-                  },
-                  child: ProductItemCard(product: p));
+                Product? product;
+                if (showAddNewItemCard) {
+                  product = (index!=0) ? productNotifierState.products.elementAt(index-1) : null;
+                } else {
+                  product = productNotifierState.products.elementAt(index);
+                }
+                return (product == null) ?
+                  GestureDetector(
+                    onTap: () {},
+                    child: ListTileTheme(
+                      tileColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+                      child: ListTile(
+                        title: Text("Add new '${controller.text}' product"),
+                      ),
+                    ),
+                  ) :
+                  GestureDetector(
+                    onTap: () {
+                      _playAnimation(index, product!);
+                      ref.read(productNotifierProvider.notifier).removeItem(product.id);
+                      ref.read(groceryCardNotifierProvider.notifier).addItem(
+                          product.toGroceryValues()
+                      );
+                    },
+                    child: ProductItemCard(product: product)
+                  );
               }
           ),
         ),
@@ -93,8 +114,9 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
               width: 250,
               height: 36,
               child: SearchAnchor(
-                  builder: (BuildContext context, SearchController controller) {
+                  builder: (BuildContext context, SearchController _controller) {
                     return SearchBar(
+                      controller: controller,
                       leading: Icon(Icons.search, color: Theme
                           .of(context)
                           .colorScheme
@@ -113,6 +135,7 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
                       elevation: const WidgetStatePropertyAll(0.0),
                       onChanged: (searchString) {
                         ref.read(productNotifierProvider.notifier).getProductsBySearchTerm(searchString);
+                        showAddNewItemCard = searchString.isNotEmpty;
                       },
                     );
                   },
