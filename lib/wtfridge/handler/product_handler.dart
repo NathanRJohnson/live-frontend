@@ -16,6 +16,7 @@ class ProductHandler {
 
   Future<void> syncDB() async {
     // request hash from server
+    print("SYNC TO DB");
     final hashResponse = await http.get(Uri.parse('http://localhost:8000/database_hash'));
 
 
@@ -23,7 +24,7 @@ class ProductHandler {
     final currentHash = prefs.getString("productHash");
 
     // if hash is unavailable or is the same as stored, exit without changes
-    if (hashResponse.statusCode != 200 || jsonDecode(hashResponse.body) == currentHash) {
+    if (hashResponse.statusCode != 200 || hashResponse.body == currentHash) {
       print("Product table will not be updated.");
       return;
     }
