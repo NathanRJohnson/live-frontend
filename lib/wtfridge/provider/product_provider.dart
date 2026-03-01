@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project_l/wtfridge/handler/product_handler.dart';
 import 'package:project_l/wtfridge/model/product.dart';
+import 'dart:math';
 
 class AsyncState {
   final bool isLoading;
@@ -72,6 +73,23 @@ class ProductNotifier extends Notifier<AsyncState> {
       products: state.products.where((product) => product.id != removeId).toList(),
     );
   }
+
+  Future<void> addCustomItem(Map<String, String> values) async {
+    // ensure it's not an accidental duplicate
+    // add the item to a new table, can leave for another day. For now we can just add to the existing db
+    // TODO: add to customItemsTable
+
+    Product customProduct = Product(
+      id: Random().nextInt(100000),
+      name: values["name"]!,
+      section: values["section"]!
+    );
+
+    print("Provider passing product to handler: $customProduct");
+
+    await handler.createProduct(customProduct);
+  }
+
 }
 
 

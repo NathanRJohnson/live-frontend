@@ -15,7 +15,6 @@ class ProductHandler {
   ProductHandler();
 
   Future<void> syncDB() async {
-
     // request hash from server
     final hashResponse = await http.get(Uri.parse('http://localhost:8000/database_hash'));
 
@@ -76,5 +75,15 @@ class ProductHandler {
           avgExpiryDays: product.avgExpiryDays
         )
     ];
+  }
+
+  Future<void> createProduct(Product p) async {
+    await database.managers.products.create((i) => i(
+      id: p.id,
+      name: p.name,
+      avgExpiryDays: 0,
+      barcodes: Uint8List(0),
+      section: p.section
+    ));
   }
 }

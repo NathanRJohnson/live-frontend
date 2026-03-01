@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project_l/wtfridge/components/product_add_form.dart';
 import 'package:project_l/wtfridge/components/product_item_card.dart';
 import 'package:project_l/wtfridge/model/product.dart';
 import 'package:project_l/wtfridge/provider/grocery_card_provider.dart';
@@ -28,7 +29,6 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
   @override
   Widget build(BuildContext context) {
     final productNotifierState = ref.watch(productNotifierProvider);
-    print(productNotifierState.products.length);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -67,7 +67,9 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
                 }
                 return (product == null) ?
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      ProductAddForm.displayForm(context, controller.text);
+                    },
                     child: ListTileTheme(
                       tileColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                       child: ListTile(

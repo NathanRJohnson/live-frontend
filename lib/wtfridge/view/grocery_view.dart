@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart';
-import 'package:http/io_client.dart';
 import 'package:project_l/wtfridge/components/grocery_add_form.dart';
 
 import '../components/grocery_item_card.dart';
