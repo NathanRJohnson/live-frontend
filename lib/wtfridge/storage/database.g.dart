@@ -827,7 +827,8 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 0, maxTextLength: 64),
       type: DriftSqlType.string,
-      requiredDuringInsert: true);
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
   static const VerificationMeta _sectionMeta =
       const VerificationMeta('section');
   @override
@@ -849,9 +850,18 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   late final GeneratedColumn<Uint8List> barcodes = GeneratedColumn<Uint8List>(
       'barcodes', aliasedName, false,
       type: DriftSqlType.blob, requiredDuringInsert: true);
+  static const VerificationMeta _userCreatedMeta =
+      const VerificationMeta('userCreated');
+  @override
+  late final GeneratedColumn<bool> userCreated = GeneratedColumn<bool>(
+      'user_created', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("user_created" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns =>
-      [tableId, id, name, section, avgExpiryDays, barcodes];
+      [tableId, id, name, section, avgExpiryDays, barcodes, userCreated];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -897,6 +907,14 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     } else if (isInserting) {
       context.missing(_barcodesMeta);
     }
+    if (data.containsKey('user_created')) {
+      context.handle(
+          _userCreatedMeta,
+          userCreated.isAcceptableOrUnknown(
+              data['user_created']!, _userCreatedMeta));
+    } else if (isInserting) {
+      context.missing(_userCreatedMeta);
+    }
     return context;
   }
 
@@ -918,6 +936,8 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           .read(DriftSqlType.int, data['${effectivePrefix}avg_expiry_days'])!,
       barcodes: attachedDatabase.typeMapping
           .read(DriftSqlType.blob, data['${effectivePrefix}barcodes'])!,
+      userCreated: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}user_created'])!,
     );
   }
 
@@ -934,13 +954,15 @@ class Product extends DataClass implements Insertable<Product> {
   final String section;
   final int avgExpiryDays;
   final Uint8List barcodes;
+  final bool userCreated;
   const Product(
       {required this.tableId,
       required this.id,
       required this.name,
       required this.section,
       required this.avgExpiryDays,
-      required this.barcodes});
+      required this.barcodes,
+      required this.userCreated});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -950,6 +972,7 @@ class Product extends DataClass implements Insertable<Product> {
     map['section'] = Variable<String>(section);
     map['avg_expiry_days'] = Variable<int>(avgExpiryDays);
     map['barcodes'] = Variable<Uint8List>(barcodes);
+    map['user_created'] = Variable<bool>(userCreated);
     return map;
   }
 
@@ -961,6 +984,7 @@ class Product extends DataClass implements Insertable<Product> {
       section: Value(section),
       avgExpiryDays: Value(avgExpiryDays),
       barcodes: Value(barcodes),
+      userCreated: Value(userCreated),
     );
   }
 
@@ -974,6 +998,7 @@ class Product extends DataClass implements Insertable<Product> {
       section: serializer.fromJson<String>(json['section']),
       avgExpiryDays: serializer.fromJson<int>(json['avgExpiryDays']),
       barcodes: serializer.fromJson<Uint8List>(json['barcodes']),
+      userCreated: serializer.fromJson<bool>(json['userCreated']),
     );
   }
   @override
@@ -986,6 +1011,7 @@ class Product extends DataClass implements Insertable<Product> {
       'section': serializer.toJson<String>(section),
       'avgExpiryDays': serializer.toJson<int>(avgExpiryDays),
       'barcodes': serializer.toJson<Uint8List>(barcodes),
+      'userCreated': serializer.toJson<bool>(userCreated),
     };
   }
 
@@ -995,7 +1021,8 @@ class Product extends DataClass implements Insertable<Product> {
           String? name,
           String? section,
           int? avgExpiryDays,
-          Uint8List? barcodes}) =>
+          Uint8List? barcodes,
+          bool? userCreated}) =>
       Product(
         tableId: tableId ?? this.tableId,
         id: id ?? this.id,
@@ -1003,6 +1030,7 @@ class Product extends DataClass implements Insertable<Product> {
         section: section ?? this.section,
         avgExpiryDays: avgExpiryDays ?? this.avgExpiryDays,
         barcodes: barcodes ?? this.barcodes,
+        userCreated: userCreated ?? this.userCreated,
       );
   Product copyWithCompanion(ProductsCompanion data) {
     return Product(
@@ -1014,6 +1042,8 @@ class Product extends DataClass implements Insertable<Product> {
           ? data.avgExpiryDays.value
           : this.avgExpiryDays,
       barcodes: data.barcodes.present ? data.barcodes.value : this.barcodes,
+      userCreated:
+          data.userCreated.present ? data.userCreated.value : this.userCreated,
     );
   }
 
@@ -1025,14 +1055,15 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('name: $name, ')
           ..write('section: $section, ')
           ..write('avgExpiryDays: $avgExpiryDays, ')
-          ..write('barcodes: $barcodes')
+          ..write('barcodes: $barcodes, ')
+          ..write('userCreated: $userCreated')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(tableId, id, name, section, avgExpiryDays,
-      $driftBlobEquality.hash(barcodes));
+      $driftBlobEquality.hash(barcodes), userCreated);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1042,7 +1073,8 @@ class Product extends DataClass implements Insertable<Product> {
           other.name == this.name &&
           other.section == this.section &&
           other.avgExpiryDays == this.avgExpiryDays &&
-          $driftBlobEquality.equals(other.barcodes, this.barcodes));
+          $driftBlobEquality.equals(other.barcodes, this.barcodes) &&
+          other.userCreated == this.userCreated);
 }
 
 class ProductsCompanion extends UpdateCompanion<Product> {
@@ -1052,6 +1084,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<String> section;
   final Value<int> avgExpiryDays;
   final Value<Uint8List> barcodes;
+  final Value<bool> userCreated;
   const ProductsCompanion({
     this.tableId = const Value.absent(),
     this.id = const Value.absent(),
@@ -1059,6 +1092,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.section = const Value.absent(),
     this.avgExpiryDays = const Value.absent(),
     this.barcodes = const Value.absent(),
+    this.userCreated = const Value.absent(),
   });
   ProductsCompanion.insert({
     this.tableId = const Value.absent(),
@@ -1067,11 +1101,13 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     required String section,
     required int avgExpiryDays,
     required Uint8List barcodes,
+    required bool userCreated,
   })  : id = Value(id),
         name = Value(name),
         section = Value(section),
         avgExpiryDays = Value(avgExpiryDays),
-        barcodes = Value(barcodes);
+        barcodes = Value(barcodes),
+        userCreated = Value(userCreated);
   static Insertable<Product> custom({
     Expression<int>? tableId,
     Expression<int>? id,
@@ -1079,6 +1115,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<String>? section,
     Expression<int>? avgExpiryDays,
     Expression<Uint8List>? barcodes,
+    Expression<bool>? userCreated,
   }) {
     return RawValuesInsertable({
       if (tableId != null) 'table_id': tableId,
@@ -1087,6 +1124,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (section != null) 'section': section,
       if (avgExpiryDays != null) 'avg_expiry_days': avgExpiryDays,
       if (barcodes != null) 'barcodes': barcodes,
+      if (userCreated != null) 'user_created': userCreated,
     });
   }
 
@@ -1096,7 +1134,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<String>? name,
       Value<String>? section,
       Value<int>? avgExpiryDays,
-      Value<Uint8List>? barcodes}) {
+      Value<Uint8List>? barcodes,
+      Value<bool>? userCreated}) {
     return ProductsCompanion(
       tableId: tableId ?? this.tableId,
       id: id ?? this.id,
@@ -1104,6 +1143,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       section: section ?? this.section,
       avgExpiryDays: avgExpiryDays ?? this.avgExpiryDays,
       barcodes: barcodes ?? this.barcodes,
+      userCreated: userCreated ?? this.userCreated,
     );
   }
 
@@ -1128,6 +1168,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (barcodes.present) {
       map['barcodes'] = Variable<Uint8List>(barcodes.value);
     }
+    if (userCreated.present) {
+      map['user_created'] = Variable<bool>(userCreated.value);
+    }
     return map;
   }
 
@@ -1139,7 +1182,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('name: $name, ')
           ..write('section: $section, ')
           ..write('avgExpiryDays: $avgExpiryDays, ')
-          ..write('barcodes: $barcodes')
+          ..write('barcodes: $barcodes, ')
+          ..write('userCreated: $userCreated')
           ..write(')'))
         .toString();
   }
@@ -1569,6 +1613,7 @@ typedef $$ProductsTableCreateCompanionBuilder = ProductsCompanion Function({
   required String section,
   required int avgExpiryDays,
   required Uint8List barcodes,
+  required bool userCreated,
 });
 typedef $$ProductsTableUpdateCompanionBuilder = ProductsCompanion Function({
   Value<int> tableId,
@@ -1577,6 +1622,7 @@ typedef $$ProductsTableUpdateCompanionBuilder = ProductsCompanion Function({
   Value<String> section,
   Value<int> avgExpiryDays,
   Value<Uint8List> barcodes,
+  Value<bool> userCreated,
 });
 
 class $$ProductsTableFilterComposer
@@ -1605,6 +1651,9 @@ class $$ProductsTableFilterComposer
 
   ColumnFilters<Uint8List> get barcodes => $composableBuilder(
       column: $table.barcodes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get userCreated => $composableBuilder(
+      column: $table.userCreated, builder: (column) => ColumnFilters(column));
 }
 
 class $$ProductsTableOrderingComposer
@@ -1634,6 +1683,9 @@ class $$ProductsTableOrderingComposer
 
   ColumnOrderings<Uint8List> get barcodes => $composableBuilder(
       column: $table.barcodes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get userCreated => $composableBuilder(
+      column: $table.userCreated, builder: (column) => ColumnOrderings(column));
 }
 
 class $$ProductsTableAnnotationComposer
@@ -1662,6 +1714,9 @@ class $$ProductsTableAnnotationComposer
 
   GeneratedColumn<Uint8List> get barcodes =>
       $composableBuilder(column: $table.barcodes, builder: (column) => column);
+
+  GeneratedColumn<bool> get userCreated => $composableBuilder(
+      column: $table.userCreated, builder: (column) => column);
 }
 
 class $$ProductsTableTableManager extends RootTableManager<
@@ -1693,6 +1748,7 @@ class $$ProductsTableTableManager extends RootTableManager<
             Value<String> section = const Value.absent(),
             Value<int> avgExpiryDays = const Value.absent(),
             Value<Uint8List> barcodes = const Value.absent(),
+            Value<bool> userCreated = const Value.absent(),
           }) =>
               ProductsCompanion(
             tableId: tableId,
@@ -1701,6 +1757,7 @@ class $$ProductsTableTableManager extends RootTableManager<
             section: section,
             avgExpiryDays: avgExpiryDays,
             barcodes: barcodes,
+            userCreated: userCreated,
           ),
           createCompanionCallback: ({
             Value<int> tableId = const Value.absent(),
@@ -1709,6 +1766,7 @@ class $$ProductsTableTableManager extends RootTableManager<
             required String section,
             required int avgExpiryDays,
             required Uint8List barcodes,
+            required bool userCreated,
           }) =>
               ProductsCompanion.insert(
             tableId: tableId,
@@ -1717,6 +1775,7 @@ class $$ProductsTableTableManager extends RootTableManager<
             section: section,
             avgExpiryDays: avgExpiryDays,
             barcodes: barcodes,
+            userCreated: userCreated,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

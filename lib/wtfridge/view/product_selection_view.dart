@@ -65,32 +65,55 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
                 } else {
                   product = productNotifierState.products.elementAt(index);
                 }
-                return (product == null) ?
-                  GestureDetector(
-                    onTap: () {
-                      ProductAddForm.displayForm(context, controller.text);
-                    },
-                    child: ListTileTheme(
-                      tileColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                      child: ListTile(
-                        title: Text("Add new '${controller.text}' product"),
-                      ),
-                    ),
-                  ) :
-                  GestureDetector(
-                    onTap: () {
-                      _playAnimation(index, product!);
-                      ref.read(productNotifierProvider.notifier).removeItem(product.id);
-                      ref.read(groceryCardNotifierProvider.notifier).addItem(
-                          product.toGroceryValues()
-                      );
-                    },
-                    child: ProductItemCard(product: product)
+
+                if (product == null) {
+                  if (showAddNewItemCard && !productNotifierState.searchHasExactMatch) {
+                    return _addNewProductTile(context);
+                  } else {
+                    return _updateProductTile(context);
+                  }
+                } else {
+                  return GestureDetector(
+                      onTap: () {
+                        _playAnimation(index, product!);
+                        ref.read(productNotifierProvider.notifier).removeItem(product.id);
+                        ref.read(groceryCardNotifierProvider.notifier).addItem(
+                            product.toGroceryValues()
+                        );
+                      },
+                      child: ProductItemCard(product: product)
                   );
+                }
               }
           ),
         ),
       ],
+    );
+  }
+
+  Widget _addNewProductTile(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        ProductAddForm.displayForm(context, controller.text);
+      },
+      child: ListTileTheme(
+        tileColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        child: ListTile(
+          title: Text("Create new '${controller.text}' product"),
+        ),
+      ),
+    );
+  }
+
+  Widget _updateProductTile(BuildContext context) {
+    return GestureDetector(
+      onTap: () {},
+      child: ListTileTheme(
+        tileColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        child: ListTile(
+          title: Text("Update '${controller.text}' product"),
+        ),
+      ),
     );
   }
 

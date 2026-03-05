@@ -185,8 +185,104 @@ i1.GeneratedColumn<int> _column_13(String aliasedName) =>
 i1.GeneratedColumn<i2.Uint8List> _column_14(String aliasedName) =>
     i1.GeneratedColumn<i2.Uint8List>('barcodes', aliasedName, false,
         type: i1.DriftSqlType.blob);
+
+final class Schema3 extends i0.VersionedSchema {
+  Schema3({required super.database}) : super(version: 3);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    fridgeItems,
+    groceryItems,
+    products,
+  ];
+  late final Shape0 fridgeItems = Shape0(
+      source: i0.VersionedTable(
+        entityName: 'fridge_items',
+        withoutRowId: false,
+        isStrict: false,
+        tableConstraints: [],
+        columns: [
+          _column_0,
+          _column_1,
+          _column_2,
+          _column_3,
+          _column_4,
+          _column_5,
+        ],
+        attachedDatabase: database,
+      ),
+      alias: null);
+  late final Shape1 groceryItems = Shape1(
+      source: i0.VersionedTable(
+        entityName: 'grocery_items',
+        withoutRowId: false,
+        isStrict: false,
+        tableConstraints: [],
+        columns: [
+          _column_0,
+          _column_1,
+          _column_6,
+          _column_2,
+          _column_7,
+          _column_4,
+          _column_5,
+          _column_8,
+          _column_9,
+        ],
+        attachedDatabase: database,
+      ),
+      alias: null);
+  late final Shape3 products = Shape3(
+      source: i0.VersionedTable(
+        entityName: 'products',
+        withoutRowId: false,
+        isStrict: false,
+        tableConstraints: [],
+        columns: [
+          _column_0,
+          _column_10,
+          _column_15,
+          _column_12,
+          _column_13,
+          _column_14,
+          _column_16,
+        ],
+        attachedDatabase: database,
+      ),
+      alias: null);
+}
+
+class Shape3 extends i0.VersionedTable {
+  Shape3({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<int> get tableId =>
+      columnsByName['table_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get name =>
+      columnsByName['name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get section =>
+      columnsByName['section']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get avgExpiryDays =>
+      columnsByName['avg_expiry_days']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<i2.Uint8List> get barcodes =>
+      columnsByName['barcodes']! as i1.GeneratedColumn<i2.Uint8List>;
+  i1.GeneratedColumn<bool> get userCreated =>
+      columnsByName['user_created']! as i1.GeneratedColumn<bool>;
+}
+
+i1.GeneratedColumn<String> _column_15(String aliasedName) =>
+    i1.GeneratedColumn<String>('name', aliasedName, false,
+        additionalChecks: i1.GeneratedColumn.checkTextLength(
+            minTextLength: 0, maxTextLength: 64),
+        type: i1.DriftSqlType.string,
+        defaultConstraints: i1.GeneratedColumn.constraintIsAlways('UNIQUE'));
+i1.GeneratedColumn<bool> _column_16(String aliasedName) =>
+    i1.GeneratedColumn<bool>('user_created', aliasedName, false,
+        type: i1.DriftSqlType.bool,
+        defaultConstraints: i1.GeneratedColumn.constraintIsAlways(
+            'CHECK ("user_created" IN (0, 1))'));
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
+  required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -195,6 +291,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from1To2(migrator, schema);
         return 2;
+      case 2:
+        final schema = Schema3(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from2To3(migrator, schema);
+        return 3;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -203,8 +304,10 @@ i0.MigrationStepWithVersion migrationSteps({
 
 i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
+  required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
 }) =>
     i0.VersionedSchema.stepByStepHelper(
         step: migrationSteps(
       from1To2: from1To2,
+      from2To3: from2To3,
     ));

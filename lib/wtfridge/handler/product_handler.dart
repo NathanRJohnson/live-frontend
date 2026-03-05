@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:http/http.dart' as http;
@@ -17,8 +18,6 @@ class ProductHandler {
   Future<void> syncDB() async {
     // request hash from server
     final hashResponse = await http.get(Uri.parse('http://localhost:8000/database_hash'));
-
-
     final prefs = await SharedPreferences.getInstance();
     final currentHash = prefs.getString("productHash");
 
@@ -28,24 +27,33 @@ class ProductHandler {
       return;
     }
 
+    List<Product> products = [];
+    try {
     // if different, fetchProductsFromServer
-    List<Product> products = await fetchProductsFromServer();
+       products = await fetchProductsFromServer();
+    } on HttpException catch (e) {
+      print("unable to fetch products from server: $e");
+      return;
+    }
 
-    // reload products table
-    database.managers.products.delete();
+    // delete all products not created by the user in order to ingest updates
+    database.managers.products.filter((p) => p.userCreated.equals(false)).delete();
+
     database.batch((batch) {
       // TODO - loading a lot into memory here. Might need to change how
       // this is done once db is sufficiently large
-      batch.insertAll(database.products, [
-        for (Product p in products)
+      batch.insertAll(
+        database.products,
+        mode: InsertMode.insertOrIgnore,
+        [for (Product p in products)
           DB.ProductsCompanion.insert(
             id: p.id,
             name: p.name,
             section: p.section,
             avgExpiryDays: p.avgExpiryDays,
             barcodes: Uint8List.fromList(utf8.encode(p.barcodes.join(','))),
-          )
-      ]);
+            userCreated: false
+          )]);
     });
 
     // store new hash
@@ -60,12 +68,13 @@ class ProductHandler {
           Product.fromJson(p)
       ];
     } else {
-      throw Exception("Failed to fetch products from server");
+      throw const HttpException("Failed to fetch products from server");
     }
   }
 
   Future<List<Product>> getProductsFromLocalDB({String searchTerm = "", int numRows = 10}) async {
-    List<DB.Product> dbProducts = await database.managers.products.filter((p) => p.name.startsWith(searchTerm)).get(limit: numRows);
+    List<DB.Product> dbProducts = await database.managers.products
+        .filter((p) => p.name.startsWith(searchTerm.toLowerCase())).get(limit: numRows);
     return [
       for (DB.Product product in dbProducts)
         Product(
@@ -79,11 +88,12 @@ class ProductHandler {
 
   Future<void> createProduct(Product p) async {
     await database.managers.products.create((i) => i(
-      id: p.id,
-      name: p.name,
-      avgExpiryDays: 0,
-      barcodes: Uint8List(0),
-      section: p.section
+        id: p.id,
+        name: p.name,
+        avgExpiryDays: p.avgExpiryDays,
+        barcodes: Uint8List.fromList([for (String barcode in p.barcodes) int.parse(barcode)]),
+        section: p.section,
+        userCreated: true
     ));
   }
 }

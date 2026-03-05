@@ -5,9 +5,10 @@ import 'dart:math';
 
 class AsyncState {
   final bool isLoading;
+  final bool searchHasExactMatch;
   final List<Product> products;
 
-  AsyncState({this.isLoading = false, this.products=const []});
+  AsyncState({this.isLoading = false, this.searchHasExactMatch = false, this.products=const []});
 }
 
 class ProductNotifier extends Notifier<AsyncState> {
@@ -23,6 +24,7 @@ class ProductNotifier extends Notifier<AsyncState> {
     */
     return AsyncState(
       isLoading: true,
+      searchHasExactMatch: false,
       products: [],
     );
   }
@@ -53,7 +55,7 @@ class ProductNotifier extends Notifier<AsyncState> {
   void getProductsBySearchTerm(String searchTerm) async {
     final int version = ++_searchVersion;
     state = AsyncState(isLoading: true);
-    List<Product> products = await handler.getProductsFromLocalDB(searchTerm: searchTerm);
+    List<Product> products = await handler.getProductsFromLocalDB(searchTerm: searchTerm.toLowerCase());
 
     // debounce to prevent race condition where old requests would
     // update isLoading to false while latest request was in progress
@@ -61,9 +63,11 @@ class ProductNotifier extends Notifier<AsyncState> {
       return;
     }
 
+    bool hasExactMatch = products.any((Product p) => p.name == searchTerm.toLowerCase());
     state = AsyncState(
       isLoading: false,
-      products: products
+      searchHasExactMatch: hasExactMatch,
+      products: products,
     );
   }
 
@@ -76,8 +80,6 @@ class ProductNotifier extends Notifier<AsyncState> {
 
   Future<void> addCustomItem(Map<String, String> values) async {
     // ensure it's not an accidental duplicate
-    // add the item to a new table, can leave for another day. For now we can just add to the existing db
-    // TODO: add to customItemsTable
 
     Product customProduct = Product(
       id: Random().nextInt(100000),
@@ -85,13 +87,9 @@ class ProductNotifier extends Notifier<AsyncState> {
       section: values["section"]!
     );
 
-    print("Provider passing product to handler: $customProduct");
-
     await handler.createProduct(customProduct);
   }
-
 }
-
 
 final productNotifierProvider = NotifierProvider<ProductNotifier, AsyncState>(
     () {
