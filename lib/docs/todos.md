@@ -7,5 +7,6 @@
 - Prevent item's that are already in the grocery list / fridge from appearing in the selection menu
 - Implement an update option -> must also change product to user_created.
 - Add section filter
+- Move buttons to correct spots / keep option to manually create grocery item
 - Tests
 - Allow API to be accessible over LAN
