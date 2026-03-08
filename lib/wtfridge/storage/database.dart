@@ -28,10 +28,11 @@ class GroceryItems extends Table {
 class Products extends Table {
   IntColumn get tableId => integer().autoIncrement()();
   IntColumn get id => integer()();
-  TextColumn get name => text().withLength(min: 0, max: 64)();
+  TextColumn get name => text().withLength(min: 0, max: 64).unique()();
   TextColumn get section => text().withLength(min: 0, max: 64)();
   IntColumn get avgExpiryDays => integer()();
   BlobColumn get barcodes => blob()();
+  BoolColumn get userCreated => boolean()();
 }
 
 @DriftDatabase(tables: [FridgeItems, GroceryItems, Products])
@@ -40,7 +41,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   static final AppDatabase _instance = AppDatabase(Platform.createDatabaseConnection("test-wtfridge-database"));
 
@@ -70,6 +71,16 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  Future<void> deleteAndRestoreProductTable() async {
+    return transaction(() async {
+      await delete(products).go();
+
+      await customStatement(
+        'INSERT INTO products SELECT * FROM user_added_products'
+      );
+    });
+  }
+
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
@@ -88,6 +99,10 @@ extension Migrations on GeneratedDatabase {
       await m.addColumn(schema.groceryItems, schema.groceryItems.section);
       await m.addColumn(schema.groceryItems, schema.groceryItems.store);
     },
+    from2To3: (m, schema) async {
+      await m.alterTable(TableMigration(schema.products));
+      await m.addColumn(schema.products, schema.products.userCreated);
+    }
   );
 }
 
