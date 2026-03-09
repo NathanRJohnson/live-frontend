@@ -49,6 +49,7 @@ class _ProductAddFormState extends ConsumerState<ProductAddForm> {
     };
 
     await ref.read(productNotifierProvider.notifier).addCustomItem(addForm);
+    ref.read(productNotifierProvider.notifier).getProductsBySearchTerm(addForm["name"]!);
   }
 
   void _updateSection(String? newSection) {

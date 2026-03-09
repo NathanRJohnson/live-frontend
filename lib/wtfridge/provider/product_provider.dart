@@ -29,17 +29,26 @@ class ProductNotifier extends Notifier<AsyncState> {
     );
   }
 
+  Future<void> updateAndDisplay() async {
+    await tryFetchServerUpdate();
+    await getDisplayProducts();
+  }
+
   // TODO: this needs a better name
   Future<void> tryFetchServerUpdate() async {
+    state = AsyncState(isLoading: true);
     await handler.syncDB();
+    state = AsyncState(isLoading: false);
   }
 
   // TODO - union / exclusion logic should move to the handler when re-implemented
-  void getDisplayProducts() async {
+  Future<void> getDisplayProducts() async {
     state = AsyncState(isLoading: true);
     // Set<String> currentFridgeItemNames = ref.read(fridgeCardNotifierProvider.notifier).getAllItemNames();
     // Set<String> currentGroceryItemNames = ref.read(groceryCardNotifierProvider.notifier).getAllItemNames();
     // Set<String> currentItems = currentFridgeItemNames.union(currentGroceryItemNames);
+
+
 
     // var availableProducts = allProducts
     //     .where((product) => !currentItems.contains(product.name));

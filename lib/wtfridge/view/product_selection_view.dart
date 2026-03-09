@@ -21,8 +21,7 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
 
   @override
   @override void initState() {
-    Future(() => ref.read(productNotifierProvider.notifier).tryFetchServerUpdate());
-    Future(() => ref.read(productNotifierProvider.notifier).getDisplayProducts());
+    Future(() => ref.read(productNotifierProvider.notifier).updateAndDisplay());
     super.initState();
   }
 
