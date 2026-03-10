@@ -30,6 +30,7 @@ class Product {
 
   Map<String, String> toGroceryValues() {
     return <String, String> {
+      "id": id.toString(),
       "item_name": name,
       "quantity": "1",
       "notes": "",

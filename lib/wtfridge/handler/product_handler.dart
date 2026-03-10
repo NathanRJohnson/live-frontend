@@ -74,10 +74,24 @@ class ProductHandler {
   }
 
   Future<List<Product>> getProductsFromLocalDB({String searchTerm = "", int numRows = 10}) async {
-    List<DB.Product> dbProducts = await database.managers.products
-        .filter((p) => p.name.startsWith(searchTerm.toLowerCase())).get(limit: numRows);
+
+    // TODO: would be real nice if I could have this available as a view or stream
+    // or anything that meant I wouldn't have to re-query this everytime the search term changed.
+    final currentInventoryIds = database.selectOnly(database.fridgeItems)
+      ..addColumns([database.fridgeItems.itemId])
+      ..union(
+        database.selectOnly(database.groceryItems)..addColumns([database.groceryItems.itemId])
+      );
+
+    final escapedTerm = searchTerm.replaceAll('%', r'\%'.replaceAll('_', r'\_'));
+
+    final availableProducts = await (database.select(database.products)
+      ..where((p) => p.id.isNotInQuery(currentInventoryIds))
+      ..where((p) => p.name.like('${escapedTerm.toLowerCase()}%'))
+      ..limit(numRows)).get();
+
     return [
-      for (DB.Product product in dbProducts)
+      for (DB.Product product in availableProducts)
         Product(
           id: product.id,
           name: product.name,

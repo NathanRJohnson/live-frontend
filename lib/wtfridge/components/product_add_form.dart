@@ -43,7 +43,7 @@ class _ProductAddFormState extends ConsumerState<ProductAddForm> {
   }
 
   Future<void> _action() async {
-    var addForm = <String, String>{
+    var addForm = <String, String> {
       "name": nameController.text.trim(),
       "section": _section ?? GroceryItem.getSections()[0],
     };

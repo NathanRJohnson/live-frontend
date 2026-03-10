@@ -27,18 +27,18 @@ class GroceryCardNotifier extends Notifier<List<GroceryItemCard>> {
     state = cards;
   }
 
-  Future<void> addItem(Map<String, String> values, [int? id]) async {
+  Future<void> addItem(Map<String, String> values) async {
     int quantity = values["quantity"] != null ? int.parse(values["quantity"]!) : 1;
     String notes = values["notes"] != null ? values["notes"]! : "";
-    String section = values["section"] != "" ? values["section"]! : GroceryItem.getSections()[0];
-    String store = values["store"] != "" ? values["store"]! : GroceryItem.getStores()[0];
+    String section = values.containsKey("section") ? values["section"]! : GroceryItem.getSections()[0];
+    String store = values.containsKey("store") ? values["store"]! : GroceryItem.getStores()[0];
     int insertionIndex = findInsertionPoint([for (var c in state) c.item], section);
 
     GroceryItem item = GroceryItem(
       name: values["item_name"]!,
       quantity: quantity,
       notes: notes,
-      id: id,
+      id: int.parse(values["id"]!),
       index: insertionIndex,
       isActive: false,
       section: section,
@@ -84,6 +84,7 @@ class GroceryCardNotifier extends Notifier<List<GroceryItemCard>> {
 
   Future<void> addItemFromFridge(FridgeItem f) async {
       Map<String, String> map = {
+        "id": f.id.toString(),
         "item_name": f.name,
         "quantity": f.quantity.toString(),
         "notes": f.notes,
