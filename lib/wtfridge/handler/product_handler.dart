@@ -17,7 +17,6 @@ class ProductHandler {
 
   Future<void> syncDB() async {
     // request hash from server
-    print("SYNC TO DB");
     final hashResponse = await http.get(Uri.parse('http://localhost:8000/database_hash'));
     final prefs = await SharedPreferences.getInstance();
     final currentHash = prefs.getString("productHash");
@@ -73,7 +72,7 @@ class ProductHandler {
     }
   }
 
-  Future<List<Product>> getProductsFromLocalDB({String searchTerm = "", int numRows = 10}) async {
+  Future<List<Product>> getProductsFromLocalDB({String searchTerm = "", int numRows = 50}) async {
 
     // TODO: would be real nice if I could have this available as a view or stream
     // or anything that meant I wouldn't have to re-query this everytime the search term changed.

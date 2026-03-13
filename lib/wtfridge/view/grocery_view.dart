@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project_l/wtfridge/components/grocery_add_form.dart';
+import 'package:project_l/wtfridge/view/product_selection_view.dart';
 
 import '../components/grocery_item_card.dart';
 import '../provider/grocery_card_provider.dart';
@@ -171,7 +171,7 @@ Widget _displayAddFAB(BuildContext context) {
         .primaryContainer,
     shape: const CircleBorder(),
     onPressed: () async {
-      openGroceryAddForm(context);
+      await ProductSelectionView.displayAsFullScreen(context);
     },
     child: Icon(Icons.add,
       color: Theme
@@ -182,12 +182,4 @@ Widget _displayAddFAB(BuildContext context) {
   );
 }
 
-Future<void> openGroceryAddForm(BuildContext context) async {
-  return await showDialog<void>(
-    context: context,
-    builder: (context) =>  Dialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        child: const GroceryAddForm()
-    ),
-  );
-}
+

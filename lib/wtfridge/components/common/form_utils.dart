@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class FormUtils {
@@ -122,11 +121,11 @@ class FormUtils {
     }
   }
 
-  static Widget dropdownSelectionField({ required BuildContext context, required String labelText, required Function(String?) onChanged, required String? Function(String? value) validator, required List<String> choices }) {
+  static Widget dropdownSelectionField({ required BuildContext context, required String labelText, required Function(String?) onChanged, required String? Function(String? value) validator, required List<String> choices, String? initialValue }) {
     return DropdownButtonFormField(
         validator: validator,
         decoration: _m3Decoration(context, labelText),
-        value: choices[0],
+        initialValue: (choices.contains(initialValue)) ? initialValue : choices[0],
         items: choices.map((c) {
           return DropdownMenuItem(
               value: c,

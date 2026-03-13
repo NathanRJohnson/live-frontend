@@ -27,7 +27,7 @@ class GroceryItem {
 
   static const _stores = [
     "None",
-    "Real Canadian Superstore",
+    "RCS",
     "Costco",
     "Food Basics",
     "Zehrs",

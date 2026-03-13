@@ -7,7 +7,8 @@ import '../components/common/item_action_form.dart';
 import '../provider/grocery_card_provider.dart';
 
 class GroceryAddForm extends ConsumerStatefulWidget {
-  const GroceryAddForm({super.key});
+  final Map<String, String>? formDefaults;
+  const GroceryAddForm({super.key, this.formDefaults});
 
   @override
   ConsumerState<GroceryAddForm> createState() => _GroceryAddFormState();
@@ -25,10 +26,18 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController();
-    quantityController = TextEditingController(text: "1");
-    notesController = TextEditingController();
-    focusNode = FocusNode();
+
+    if (widget.formDefaults != null) {
+      nameController = widget.formDefaults!.containsKey("name") ?
+        TextEditingController(text: widget.formDefaults!["name"]) : TextEditingController();
+      _section = widget.formDefaults!.containsKey("section") ? widget.formDefaults!["section"] : "";
+      _store = widget.formDefaults!.containsKey("store") ? widget.formDefaults!["store"] : "";
+    } else {
+      nameController = TextEditingController();
+    }
+      quantityController = TextEditingController(text: "1");
+      notesController = TextEditingController();
+      focusNode = FocusNode();
   }
 
   @override
@@ -84,9 +93,9 @@ class _GroceryAddFormState extends ConsumerState<GroceryAddForm> {
           keyboardType: TextInputType.number,
           action: TextInputAction.next
         ),
-        FormUtils.dropdownSelectionField(context: context, labelText: "Section", onChanged: _updateSection, validator: FormUtils.requiredFieldValidator, choices: GroceryItem.getSections()),
+        FormUtils.dropdownSelectionField(context: context, initialValue: _section, labelText: "Section", onChanged: _updateSection, validator: FormUtils.requiredFieldValidator, choices: GroceryItem.getSections()),
         FormUtils.textField(context: context, labelText: "Notes", controller: notesController, validator: (string){ return null; }),
-        FormUtils.dropdownSelectionField(context: context, labelText: "Store", onChanged: _updateStore, validator: FormUtils.requiredFieldValidator, choices: GroceryItem.getStores())
+        FormUtils.dropdownSelectionField(context: context, initialValue: _store, labelText: "Store", onChanged: _updateStore, validator: FormUtils.requiredFieldValidator, choices: GroceryItem.getStores())
       ],
       actionButtons: [
         FormUtils.cancelActionButton(context),
