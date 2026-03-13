@@ -17,7 +17,13 @@ class ProductHandler {
 
   Future<void> syncDB() async {
     // request hash from server
-    final hashResponse = await http.get(Uri.parse('http://localhost:8000/database_hash'));
+    http.Response hashResponse;
+    try {
+      hashResponse = await http.get(Uri.parse('http://10.0.0.123:8000/database_hash'));
+    } on http.ClientException catch (e) {
+      print("Unable to fetch hash. Details: $e");
+      return;
+    }
     final prefs = await SharedPreferences.getInstance();
     final currentHash = prefs.getString("productHash");
 
@@ -61,7 +67,7 @@ class ProductHandler {
   }
 
   Future<List<Product>> fetchProductsFromServer() async {
-    final response = await http.get(Uri.parse('http://localhost:8000/database_full'));
+    final response = await http.get(Uri.parse('http://10.0.0.123:8000/database_full'));
     if (response.statusCode == 200) {
       return [
         for (Map<String, dynamic> p in json.decode(response.body))

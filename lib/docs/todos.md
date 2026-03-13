@@ -2,15 +2,15 @@
 
 TODO
 - Add section filter
-- Tests
-- Allow API to be accessible over LAN
 - Add more items to the database?
 
 UP NEXT
-- Move buttons to correct spots / keep option to manually create grocery item
- -- maybe the full add form can appear on a long press?
+- Tests
 
 DONE
+- Allow API to be accessible over LAN
+- Move buttons to correct spots / keep option to manually create grocery item
+  -- maybe the full add form can appear on a long press?
 - Prevent users from adding an existing product. Maybe the Create can be swapped to update, and disabled for the time being? <:
 - Fix list not displaying on initial load <:
 - Refresh list so that newly created item appears (if user hasn't added it to grocery list) <:
