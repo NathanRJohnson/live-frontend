@@ -223,6 +223,7 @@ class _ProductSelectionViewState extends ConsumerState<ProductSelectionView> {
                       elevation: const WidgetStatePropertyAll(0.0),
                       onChanged: (searchString) {
                         ref.read(productNotifierProvider.notifier).getProductsBySearchTerm(searchString);
+                        _listKey = GlobalKey();
                         showAddNewItemCard = searchString.isNotEmpty;
                       },
                     );

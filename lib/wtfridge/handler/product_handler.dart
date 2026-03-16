@@ -19,7 +19,7 @@ class ProductHandler {
     // request hash from server
     http.Response hashResponse;
     try {
-      hashResponse = await http.get(Uri.parse('http://10.0.0.123:8000/database_hash'));
+      hashResponse = await http.get(Uri.parse('http://192.168.5.113:8000/database_hash'));
     } on http.ClientException catch (e) {
       print("Unable to fetch hash. Details: $e");
       return;
@@ -67,7 +67,7 @@ class ProductHandler {
   }
 
   Future<List<Product>> fetchProductsFromServer() async {
-    final response = await http.get(Uri.parse('http://10.0.0.123:8000/database_full'));
+    final response = await http.get(Uri.parse('http://192.168.5.113:8000/database_full'));
     if (response.statusCode == 200) {
       return [
         for (Map<String, dynamic> p in json.decode(response.body))

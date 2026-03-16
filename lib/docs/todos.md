@@ -1,6 +1,12 @@
 ## Product Selection Page
 
 TODO
+- sort items alphabetically
+- allow item section to be updated from grocery list
+- prevent item that's already in the grocery or fridge lists to be add as a product
+- show user added items first
+- add frequently/recently purchased items to initial view
+- refix items not appearing in product list after being added by user
 - Add section filter
 - Add more items to the database?
 
