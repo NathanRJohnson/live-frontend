@@ -17,19 +17,8 @@ class ProductHandler {
 
   Future<void> syncDB() async {
     // request hash from server
-    http.Response hashResponse;
-    try {
-      hashResponse = await http.get(Uri.parse('http://192.168.5.113:8000/database_hash'));
-    } on http.ClientException catch (e) {
-      print("Unable to fetch hash. Details: $e");
-      return;
-    }
-    final prefs = await SharedPreferences.getInstance();
-    final currentHash = prefs.getString("productHash");
-
-    // if hash is unavailable or is the same as stored, exit without changes
-    if (hashResponse.statusCode != 200 || hashResponse.body == currentHash) {
-      print("Product table will not be updated.");
+    bool hashUpdated = await tryUpdateDatabaseHash();
+    if (!hashUpdated) {
       return;
     }
 
@@ -61,10 +50,31 @@ class ProductHandler {
             userCreated: false
           )]);
     });
+  }
+
+
+  Future<bool> tryUpdateDatabaseHash() async {
+    http.Response hashResponse;
+    try {
+      hashResponse = await http.get(Uri.parse('http://192.168.5.113:8000/database_hash'));
+    } on http.ClientException catch (e) {
+      print("Unable to fetch hash. Details: $e");
+      return false;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    final currentHash = prefs.getString("productHash");
+
+    // if hash is unavailable or is the same as stored, exit without changes
+    if (hashResponse.statusCode != 200 || hashResponse.body == currentHash) {
+      print("Product table will not be updated.");
+    }
 
     // store new hash
     prefs.setString("productHash", hashResponse.body);
+    return true;
   }
+
+
 
   Future<List<Product>> fetchProductsFromServer() async {
     final response = await http.get(Uri.parse('http://192.168.5.113:8000/database_full'));
