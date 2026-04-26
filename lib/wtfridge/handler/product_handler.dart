@@ -12,8 +12,11 @@ class ProductHandler {
 
   final database = DB.AppDatabase.instance;
   final prefs = SharedPreferences.getInstance();
+  late final http.Client? httpClient;
 
-  ProductHandler();
+  ProductHandler({this.httpClient}) {
+    httpClient ??= http.Client();
+  }
 
   Future<void> syncDB() async {
     // request hash from server
@@ -56,7 +59,7 @@ class ProductHandler {
   Future<bool> tryUpdateDatabaseHash() async {
     http.Response hashResponse;
     try {
-      hashResponse = await http.get(Uri.parse('http://192.168.5.113:8000/database_hash'));
+      hashResponse = await httpClient!.get(Uri.parse('http://192.168.5.113:8000/database_hash'));
     } on http.ClientException catch (e) {
       print("Unable to fetch hash. Details: $e");
       return false;
